@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+extern FILE *yyin;
+extern char *yytext;
+extern int yylineno;
+extern char buf[256];
+//extern void set_input;
 /*
  * grammar.y
  *
@@ -18,13 +24,13 @@
  * beginnings of a separate compilation facility
  */
 int yylex();
-void yyerror(const char *s);
+int yyerror(char *);
 %}
 
 %token AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST DIGSEQ
 %token DIV DO DOT DOTDOT DOWNTO ELSE END EQUAL EXTERNAL FOR FORWARD FUNCTION
 %token GE GOTO GT IDENTIFIER IF IN LABEL LBRAC LE LPAREN LT MINUS MOD NIL NOT
-%token NOTEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
+%token notEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
 %token REALNUMBER RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
 %token TO TYPE UNTIL UPARROW VAR WHILE WITH
 %token STRING WRONGIDEN ERROR INTEGER REAL
@@ -38,10 +44,8 @@ prog  : PROGRAM id LPAREN identifier_list RPAREN SEMICOLON
  	DOT
 	;
 
-num : INTEGER
-    	| REAL
-	| REALNUMBER
-	| DIGSEQ
+num : DIGSEQ
+    	;
 
 
 id : IDENTIFIER
@@ -52,17 +56,22 @@ identifier_list : id
 		| identifier_list COMMA id
 		;
 
+declarations : declarations VAR identifier_list SEMICOLON type COLON
+		|
+		;
+
+
 type : standard_type
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type
 		;
 
 standard_type : INTEGER
 		| REAL
-        	| STRING
+		| REALNUMBER
+		| STRING
 		;
 
-declarations :
-	     ;
+
 subprogram_declarations :
 	subprogram_declarations subprogram_declaration SEMICOLON
 		| 
@@ -91,8 +100,8 @@ optional_var   : VAR
 		;
 
 compound_statement : PBEGIN
-		       optional_statements
-		       END
+		     optional_statements
+		     END
 		;
 
 optional_statements : statement_list
@@ -158,5 +167,47 @@ relop : LT
 	| EQUAL
 	| LE
 	| GE
-	| NOTEQUAL
+	| notEQUAL
 	;
+
+%%
+
+//fprintf("%d", yyparse());
+
+int yyerror(char *msg)
+{
+	fprintf( stderr, "\n|--------------------------------------------------------------------------\n" );
+	fprintf( stderr, "| Error found in Line #%d: %s\n", yylineno, msg );
+	fprintf( stderr, "|\n" );
+	fprintf( stderr, "| Unmatched token: %s\n", yytext );
+		fprintf( stderr, "|--------------------------------------------------------------------------\n" );
+		exit(-1);
+}
+
+
+int main(int argc, char **argv)
+{
+	if(argc != 2){
+		fprintf(  stdout,  "Usage:  ./parser  [filename]\n"  );
+		exit(0);
+	}
+	
+	FILE *fp = fopen(argv[1], "r");
+	if( fp == NULL )  {
+		fprintf( stdout, "Open  file  error\n" );
+		exit(-1);
+	}
+	yyin = fp;
+	yyparse();	
+	int i = 0, tok = 0;
+	//for(i = 0;1==1; i++){
+	//	tok = yylex();
+		//fprintf(stdout, "%d  ", tok);
+	//}
+	
+fprintf( stdout, "\n" );
+	fprintf( stdout, "|--------------------------------|\n" );
+	fprintf( stdout, "|  There is no syntactic error!  |\n" );
+	fprintf( stdout, "|--------------------------------|\n" );
+	exit(0);
+}

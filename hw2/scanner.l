@@ -7,8 +7,11 @@
  * extensions: two ways to spell "external" and "->" ok for "^".
  */
 
- #include <stdio.h>
+#include <stdio.h>
 #include <string.h>
+#include "y.tab.h"
+//#define LIST strcat(buf, yytext)
+/*
 #define   AND      1
 #define   ARRAY      2
 #define   CASE      3
@@ -88,8 +91,9 @@
 
 #define   INTEGER     71
 #define   REAL        72
+*/
 int line_no = 1;
-
+char buf[256];
 
 %}
 %option yylineno
@@ -174,7 +178,6 @@ NQUOTE [^']
 [a-zA-Z]*		return(IDENTIFIER);
 [a-zA-Z_][a-zA-Z0-9_]*		return(IDENTIFIER);
 
-
 ":="                         return(ASSIGNMENT);
 '({NQUOTE}|'')+'             return(CHARACTER_STRING);
 ":"                          return(COLON);
@@ -191,7 +194,7 @@ NQUOTE [^']
 "("                          return(LPAREN);
 "<"                          return(LT);
 "-"                          return(MINUS);
-"<>"                         return(NOTEQUAL);
+
 "+"                          return(PLUS);
 "]"                          return(RBRAC);
 [0-9]+("."[0-9]+)*?({E}("+"|"-")[0-9]+)	     return(REALNUMBER);
@@ -244,13 +247,16 @@ NQUOTE [^']
 [ \t\f]    ;
 
 \r         ;
-\n    line_no++;
+[ \t]+	;
+\n    {
+	line_no++;
+	}
 
 .    {fprintf(stderr,"Lexical analyzer error at line %d : %s\n",line_no,yytext);}
 
 %%
-
-int main(int argc, char** argv) {
+/*
+int noth(int argc, char** argv) {
   int i, tok, tmpline = 1;
   //int pre = 1;
   yyin = fopen("argv", "r");  
@@ -265,9 +271,12 @@ int main(int argc, char** argv) {
   return(0);
 } // end of main 
 
+void set_input(FILE *in){
+	yyin = in;
+}
 int yywrap() {
   //printf("end of the test\n");
   fclose(yyin);
   exit(1);
 }
-
+*/
