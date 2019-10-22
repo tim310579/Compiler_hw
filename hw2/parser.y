@@ -28,16 +28,20 @@ void yyerror(const char *s);
 %token REALNUMBER RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
 %token TO TYPE UNTIL UPARROW VAR WHILE WITH
 %token STRING WRONGIDEN ERROR INTEGER REAL
-%token num
 %%
 
 
-prog  : PROGRAM id '(' identifier_list ')' ';'
+prog  : PROGRAM id LPAREN identifier_list RPAREN SEMICOLON
 	declarations
 	subprogram_declarations
 	compound_statement
- 	'.'
+ 	DOT
 	;
+
+num : INTEGER
+    	| REAL
+	| REALNUMBER
+	| DIGSEQ
 
 
 id : IDENTIFIER
@@ -45,11 +49,11 @@ id : IDENTIFIER
 
 
 identifier_list : id
-		| identifier_list ',' id
+		| identifier_list COMMA id
 		;
 
 type : standard_type
-		| ARRAY '[' num '.''.' num ']' OF type
+		| ARRAY LBRAC num DOTDOT num RBRAC OF type
 		;
 
 standard_type : INTEGER
@@ -60,7 +64,7 @@ standard_type : INTEGER
 declarations :
 	     ;
 subprogram_declarations :
-	subprogram_declarations subprogram_declaration ';'
+	subprogram_declarations subprogram_declaration SEMICOLON
 		| 
 		;
 
@@ -70,16 +74,16 @@ subprogram_declaration :
         compound_statement
 	;
 
-subprogram_head : FUNCTION id arguments ':' standard_type ';'
-		| PROCEDURE id arguments ';'
+subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
+		| PROCEDURE id arguments SEMICOLON
 		;
 
-arguments : '(' parameter_list ')'
+arguments : LPAREN parameter_list RPAREN
 		|
 		;
 
-parameter_list : optional_var identifier_list ':' type
-		| optional_var identifier_list ':' type ';' parameter_list 
+parameter_list : optional_var identifier_list COLON type
+		| optional_var identifier_list COLON type SEMICOLON parameter_list 
 		;
 
 optional_var   : VAR
@@ -96,10 +100,10 @@ optional_statements : statement_list
 		;
 
 statement_list : statement
-		| statement_list ';' statement
+		| statement_list SEMICOLON statement
 		;
 
-statement : variable ':''=' expression
+statement : variable ASSIGNMENT expression
 		| procedure_statement
 		| compound_statement
 		| IF expression THEN statement ELSE statement
@@ -110,16 +114,16 @@ statement : variable ':''=' expression
 variable : id tail
 		;
 
-tail     : '[' expression ']' tail
+tail     : LBRAC expression RBRAC tail
 		|
 		;
 
 procedure_statement : id
-		| id '(' expression_list ')'
+		| id LPAREN expression_list RPAREN
 		;
 
 expression_list : expression
-		| expression_list ',' expression
+		| expression_list COMMA expression
 		;
 
 expression : simple_expression
@@ -135,24 +139,24 @@ term : factor
 		;
 
 factor : id tail
-	| id '(' expression_list ')'
+	| id LPAREN expression_list RPAREN
 	| num
         | STRING
-	| '(' expression ')'
+	| LPAREN expression RPAREN
 	| NOT factor
 	;
 
-addop : '+' | '-'
+addop : PLUS | MINUS
 	;
 
-mulop : '*' | '/'
+mulop : STAR | SLASH
 	;
 
 
-relop : '<'
-	| '>'
-	| '='
-	| '<''='
-	| '>''='
-	| '!''='
+relop : LT
+	| GT
+	| EQUAL
+	| LE
+	| GE
+	| NOTEQUAL
 	;
