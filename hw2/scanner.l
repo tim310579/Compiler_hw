@@ -133,6 +133,7 @@ NQUOTE [^']
 
 "//".* 	     {};
 ["][^"]*["]     return(STRING);
+['][^']*[']	return(STRING);
 {A}{N}{D}                    return(AND);
 {A}{R}{R}{A}{Y}              return(ARRAY);
 {C}{A}{S}{E}                 return(CASE);

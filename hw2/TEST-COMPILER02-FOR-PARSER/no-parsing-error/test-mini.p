@@ -2,16 +2,16 @@ PROGRAM Sort(input, output);
     /* CONST     -- CONST is not in minipascal.
         MaxElts = 50; */
 
-     /*TYPE      -- TYPE is not in minipascal.
+    /* TYPE      -- TYPE is not in minipascal.
         IntArrType = ARRAY [1..MaxElts] of Integer; */
 
     VAR
         i, j, tmp, size: integer;
 
     VAR
-        arr: IntArrType;
+        arr: ARRAY [1..50] of INTEGER;
 
-    PROCEDURE ReadArr(VAR size: Integer; VAR a: IntArrType);
+    PROCEDURE ReadArr(VAR size: Integer; VAR a: ARRAY [1..50] of INTEGER);
         BEGIN
             size := 1;
             WHILE NOT eof DO BEGIN
@@ -21,12 +21,12 @@ PROGRAM Sort(input, output);
             END
         END;
 
-    PROCEDURE Quicksort(size: Integer; VAR arr: IntArrType);
-       // PROCEDURE QuicksortRecur(start, stop: integer);
+    PROCEDURE Quicksort(size: Integer; VAR arr: ARRAY [1..50] of INTEGER);
+        PROCEDURE QuicksortRecur(start, stop: integer);
             VAR
                 m: integer;
 
-        //        splitpt: integer;
+                splitpt: integer;
 
             FUNCTION Split(start, stop: integer): integer;
                 VAR
