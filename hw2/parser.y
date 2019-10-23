@@ -45,18 +45,22 @@ prog  : PROGRAM id LPAREN identifier_list RPAREN SEMICOLON
 	;
 
 num : DIGSEQ
-    	;
-
-
-id : IDENTIFIER
+    	| INTEGER
+	| REAL
+	| REALNUMBER
+	| MINUS INTEGER
+	| MINUS REALNUMBER
+	| MINUS REAL
+	| MINUS DIGSEQ	
 	;
+
 
 
 identifier_list : id
 		| identifier_list COMMA id
 		;
 
-declarations : declarations VAR identifier_list SEMICOLON type COLON
+declarations : declarations VAR identifier_list COLON type SEMICOLON
 		|
 		;
 
@@ -65,10 +69,14 @@ type : standard_type
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type
 		;
 
+id   : IDENTIFIER
+	;
+
 standard_type : INTEGER
 		| REAL
 		| REALNUMBER
 		| STRING
+		| IDENTIFIER
 		;
 
 
@@ -90,14 +98,17 @@ subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
 arguments : LPAREN parameter_list RPAREN
 		|
 		;
-
-parameter_list : optional_var identifier_list COLON type
+semi : ';'|	
+     	;
+parameter_list : optional_var identifier_list COLON type semi
 		| optional_var identifier_list COLON type SEMICOLON parameter_list 
 		;
 
+
 optional_var   : VAR
-        	| 
+        	|
 		;
+
 
 compound_statement : PBEGIN
 		     optional_statements
@@ -115,10 +126,14 @@ statement_list : statement
 statement : variable ASSIGNMENT expression
 		| procedure_statement
 		| compound_statement
-		| IF expression THEN statement ELSE statement
+		| IF expression THEN statement else statement
 		| WHILE expression DO statement
 		|
 		;
+
+else	: ELSE
+     	|
+	;
 
 variable : id tail
 		;
@@ -150,7 +165,7 @@ term : factor
 factor : id tail
 	| id LPAREN expression_list RPAREN
 	| num
-        | STRING
+        | STRING 
 	| LPAREN expression RPAREN
 	| NOT factor
 	;
@@ -176,11 +191,11 @@ relop : LT
 
 int yyerror(char *msg)
 {
-	fprintf( stderr, "\n|--------------------------------------------------------------------------\n" );
-	fprintf( stderr, "| Error found in Line #%d: %s\n", yylineno, msg );
-	fprintf( stderr, "|\n" );
-	fprintf( stderr, "| Unmatched token: %s\n", yytext );
-		fprintf( stderr, "|--------------------------------------------------------------------------\n" );
+	fprintf( stderr, "--------------------------------------------------------------------------\n" );
+	//fprintf( stderr, " Error found in Line #%d: %s\n", yylineno, msg );
+	//fprintf( stderr, "\n" );
+	fprintf( stderr, " line %d: error token: %s\n", yylineno, yytext );
+		fprintf( stderr, "--------------------------------------------------------------------------\n" );
 		exit(-1);
 }
 
@@ -191,7 +206,7 @@ int main(int argc, char **argv)
 		fprintf(  stdout,  "Usage:  ./parser  [filename]\n"  );
 		exit(0);
 	}
-	
+	fprintf(stdout, "  test for %s\n", argv[1]);	
 	FILE *fp = fopen(argv[1], "r");
 	if( fp == NULL )  {
 		fprintf( stdout, "Open  file  error\n" );
@@ -205,9 +220,9 @@ int main(int argc, char **argv)
 		//fprintf(stdout, "%d  ", tok);
 	//}
 	
-fprintf( stdout, "\n" );
-	fprintf( stdout, "|--------------------------------|\n" );
-	fprintf( stdout, "|  There is no syntactic error!  |\n" );
-	fprintf( stdout, "|--------------------------------|\n" );
+
+	fprintf( stdout, "--------------------------------\n" );
+	fprintf( stdout, "  OK!!\n" );
+	fprintf( stdout, "--------------------------------\n" );
 	exit(0);
 }
