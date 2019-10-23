@@ -5,3 +5,4 @@ for hw in compiler scanner, parser
 
 
 $ make`
+and other in test_all.txt
