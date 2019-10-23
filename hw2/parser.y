@@ -55,13 +55,15 @@ num : DIGSEQ
 	;
 
 
+id : IDENTIFIER
+	;
+
 
 identifier_list : id
 		| identifier_list COMMA id
 		;
 
-declarations : optional_var identifier_list COLON type SEMICOLON 
-	     declarations
+declarations : declarations optional_var identifier_list COLON type SEMICOLON
 		|
 		;
 
@@ -70,62 +72,45 @@ type : standard_type
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type
 		;
 
-id   : IDENTIFIER
-	;
-
 standard_type : INTEGER
 		| REAL
 		| REALNUMBER
 		| STRING
-		| IDENTIFIER
 		;
 
-semi : SEMICOLON
-     	|
-	;
 
 subprogram_declarations :
-		subprogram_declaration semi subprogram_declarations
-		|	 
+	subprogram_declarations subprogram_declaration SEMICOLON
+		| 
 		;
 
 subprogram_declaration :
-			subprogram_head 
-			declarations
-			tmp
-			subprogram_declarations		
-			;
-tmp :compound_statement
-	|
+	subprogram_head 
+	declarations 			
+	subprogram_declarations
+	compound_statement
 	;
 
-subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON subprogram_head
-		| PROCEDURE id arguments SEMICOLON subprogram_head
-		|	
-		 
+subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
+		| PROCEDURE id arguments SEMICOLON
 		;
 
 arguments : LPAREN parameter_list RPAREN
 		|
 		;
 
-
-parameter_list : optional_var identifier_list COLON type parameter_list
-		| optional_var identifier_list COLON type SEMICOLON parameter_list
-		|
+parameter_list : optional_var identifier_list COLON type
+		| optional_var identifier_list COLON type SEMICOLON parameter_list 
 		;
-
 
 optional_var   : VAR
-        	|
+        	| 
 		;
-
 
 compound_statement : PBEGIN
 		     optional_statements
-		     END 
+		     END
 		;
-
 
 optional_statements : statement_list
 		|
@@ -140,8 +125,15 @@ statement : variable ASSIGNMENT expression
 		| compound_statement
 		| IF expression THEN statement else statement
 		| WHILE expression DO statement
-		|	
+		| FOR id ASSIGNMENT siz TO siz DO statement
+		|
 		;
+
+siz	: id
+    	| standard_type
+	| num
+	;
+
 
 else	: ELSE
      	|
@@ -164,6 +156,9 @@ expression_list : expression
 
 expression : simple_expression
 		| simple_expression relop simple_expression
+		| simple_expression AND expression
+		| simple_expression OR expression
+		|
 		;
 
 simple_expression : term
@@ -177,7 +172,7 @@ term : factor
 factor : id tail
 	| id LPAREN expression_list RPAREN
 	| num
-        | STRING 
+        | STRING
 	| LPAREN expression RPAREN
 	| NOT factor
 	;

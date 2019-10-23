@@ -33,9 +33,12 @@
 狀態 86 衝突：1 項偏移/縮減
 狀態 94 衝突：1 項偏移/縮減
 狀態 101 衝突：5 項偏移/縮減
-狀態 117 衝突：1 項偏移/縮減
-狀態 133 衝突：5 項偏移/縮減
-狀態 144 衝突：5 項偏移/縮減
+狀態 114 衝突：2 項縮減/縮減
+狀態 115 衝突：2 項縮減/縮減
+狀態 116 衝突：2 項縮減/縮減
+狀態 123 衝突：1 項偏移/縮減
+狀態 139 衝突：5 項偏移/縮減
+狀態 148 衝突：5 項偏移/縮減
 
 
 文法
@@ -99,70 +102,71 @@
    39          | compound_statement
    40          | IF expression THEN statement else statement
    41          | WHILE expression DO statement
-   42          | FOR id ASSIGNMENT num TO siz DO statement
+   42          | FOR id ASSIGNMENT siz TO siz DO statement
    43          | %empty
 
    44 siz: id
    45    | standard_type
+   46    | num
 
-   46 else: ELSE
-   47     | %empty
+   47 else: ELSE
+   48     | %empty
 
-   48 variable: id tail
+   49 variable: id tail
 
-   49 tail: LBRAC expression RBRAC tail
-   50     | %empty
+   50 tail: LBRAC expression RBRAC tail
+   51     | %empty
 
-   51 procedure_statement: id
-   52                    | id LPAREN expression_list RPAREN
+   52 procedure_statement: id
+   53                    | id LPAREN expression_list RPAREN
 
-   53 expression_list: expression
-   54                | expression_list COMMA expression
+   54 expression_list: expression
+   55                | expression_list COMMA expression
 
-   55 expression: simple_expression
-   56           | simple_expression relop simple_expression
-   57           | simple_expression AND expression
-   58           | simple_expression OR expression
-   59           | %empty
+   56 expression: simple_expression
+   57           | simple_expression relop simple_expression
+   58           | simple_expression AND expression
+   59           | simple_expression OR expression
+   60           | %empty
 
-   60 simple_expression: term
-   61                  | simple_expression addop term
+   61 simple_expression: term
+   62                  | simple_expression addop term
 
-   62 term: factor
-   63     | term mulop factor
+   63 term: factor
+   64     | term mulop factor
 
-   64 factor: id tail
-   65       | id LPAREN expression_list RPAREN
-   66       | num
-   67       | STRING
-   68       | LPAREN expression RPAREN
-   69       | NOT factor
+   65 factor: id tail
+   66       | id LPAREN expression_list RPAREN
+   67       | num
+   68       | STRING
+   69       | LPAREN expression RPAREN
+   70       | NOT factor
 
-   70 addop: PLUS
-   71      | MINUS
+   71 addop: PLUS
+   72      | MINUS
 
-   72 mulop: STAR
-   73      | SLASH
+   73 mulop: STAR
+   74      | SLASH
 
-   74 relop: LT
-   75      | GT
-   76      | EQUAL
-   77      | LE
-   78      | GE
-   79      | notEQUAL
+   75 relop: LT
+   76      | GT
+   77      | EQUAL
+   78      | LE
+   79      | GE
+   80      | notEQUAL
 
 
 終結語詞，附有它們出現處的規則
 
 $end (0) 0
 error (256)
-AND (258) 57
+AND (258) 58
 ARRAY (259) 16
 ASSIGNMENT (260) 37 42
 CASE (261)
 CHARACTER_STRING (262)
 COLON (263) 13 24 28 29
-COMMA (264) 12 54
+COMMA (264) 12 55
 CONST (265)
 DIGSEQ (266) 2 9
 DIV (267)
@@ -170,47 +174,47 @@ DO (268) 41 42
 DOT (269) 1
 DOTDOT (270) 16
 DOWNTO (271)
-ELSE (272) 46
+ELSE (272) 47
 END (273) 32
-EQUAL (274) 76
+EQUAL (274) 77
 EXTERNAL (275)
 FOR (276) 42
 FORWARD (277)
 FUNCTION (278) 24
-GE (279) 78
+GE (279) 79
 GOTO (280)
-GT (281) 75
+GT (281) 76
 IDENTIFIER (282) 10
 IF (283) 40
 IN (284)
 LABEL (285)
-LBRAC (286) 16 49
-LE (287) 77
-LPAREN (288) 1 26 52 65 68
-LT (289) 74
-MINUS (290) 6 7 8 9 71
+LBRAC (286) 16 50
+LE (287) 78
+LPAREN (288) 1 26 53 66 69
+LT (289) 75
+MINUS (290) 6 7 8 9 72
 MOD (291)
 NIL (292)
-NOT (293) 69
-notEQUAL (294) 79
+NOT (293) 70
+notEQUAL (294) 80
 OF (295) 16
-OR (296) 58
+OR (296) 59
 OTHERWISE (297)
 PACKED (298)
 PBEGIN (299) 32
 PFILE (300)
-PLUS (301) 70
+PLUS (301) 71
 PROCEDURE (302) 25
 PROGRAM (303) 1
-RBRAC (304) 16 49
+RBRAC (304) 16 50
 REALNUMBER (305) 5 7 19
 RECORD (306)
 REPEAT (307)
-RPAREN (308) 1 26 52 65 68
+RPAREN (308) 1 26 53 66 69
 SEMICOLON (309) 1 13 21 24 25 29 36
 SET (310)
-SLASH (311) 73
-STAR (312) 72
+SLASH (311) 74
+STAR (312) 73
 STARSTAR (313)
 THEN (314) 40
 TO (315) 42
@@ -220,7 +224,7 @@ UPARROW (318)
 VAR (319) 30
 WHILE (320) 41
 WITH (321)
-STRING (322) 20 67
+STRING (322) 20 68
 WRONGIDEN (323)
 ERROR (324)
 INTEGER (325) 3 6 17
@@ -234,9 +238,9 @@ $accept (72)
 prog (73)
     於左側： 1, 於右側： 0
 num (74)
-    於左側： 2 3 4 5 6 7 8 9, 於右側： 16 42 66
+    於左側： 2 3 4 5 6 7 8 9, 於右側： 16 46 67
 id (75)
-    於左側： 10, 於右側： 1 11 12 24 25 42 44 48 51 52 64 65
+    於左側： 10, 於右側： 1 11 12 24 25 42 44 49 52 53 65 66
 identifier_list (76)
     於左側： 11 12, 於右側： 1 12 13 28 29
 declarations (77)
@@ -266,32 +270,32 @@ statement_list (88)
 statement (89)
     於左側： 37 38 39 40 41 42 43, 於右側： 35 36 40 41 42
 siz (90)
-    於左側： 44 45, 於右側： 42
+    於左側： 44 45 46, 於右側： 42
 else (91)
-    於左側： 46 47, 於右側： 40
+    於左側： 47 48, 於右側： 40
 variable (92)
-    於左側： 48, 於右側： 37
+    於左側： 49, 於右側： 37
 tail (93)
-    於左側： 49 50, 於右側： 48 49 64
+    於左側： 50 51, 於右側： 49 50 65
 procedure_statement (94)
-    於左側： 51 52, 於右側： 38
+    於左側： 52 53, 於右側： 38
 expression_list (95)
-    於左側： 53 54, 於右側： 52 54 65
+    於左側： 54 55, 於右側： 53 55 66
 expression (96)
-    於左側： 55 56 57 58 59, 於右側： 37 40 41 49 53 54 57
-    58 68
+    於左側： 56 57 58 59 60, 於右側： 37 40 41 50 54 55 58
+    59 69
 simple_expression (97)
-    於左側： 60 61, 於右側： 55 56 57 58 61
+    於左側： 61 62, 於右側： 56 57 58 59 62
 term (98)
-    於左側： 62 63, 於右側： 60 61 63
+    於左側： 63 64, 於右側： 61 62 64
 factor (99)
-    於左側： 64 65 66 67 68 69, 於右側： 62 63 69
+    於左側： 65 66 67 68 69 70, 於右側： 63 64 70
 addop (100)
-    於左側： 70 71, 於右側： 61
+    於左側： 71 72, 於右側： 62
 mulop (101)
-    於左側： 72 73, 於右側： 63
+    於左側： 73 74, 於右側： 64
 relop (102)
-    於左側： 74 75 76 77 78 79, 於右側： 56
+    於左側： 75 76 77 78 79 80, 於右側： 57
 
 
 狀態 0
@@ -530,7 +534,7 @@ relop (102)
 
 狀態 25
 
-   42 statement: FOR . id ASSIGNMENT num TO siz DO statement
+   42 statement: FOR . id ASSIGNMENT siz TO siz DO statement
 
     IDENTIFIER  偏移，並進入狀態 3
 
@@ -551,7 +555,7 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
@@ -575,7 +579,7 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
@@ -587,15 +591,15 @@ relop (102)
 
 狀態 28
 
-   48 variable: id . tail
-   51 procedure_statement: id .
-   52                    | id . LPAREN expression_list RPAREN
+   49 variable: id . tail
+   52 procedure_statement: id .
+   53                    | id . LPAREN expression_list RPAREN
 
     LBRAC   偏移，並進入狀態 58
     LPAREN  偏移，並進入狀態 59
 
-    ASSIGNMENT  使用規則 50 以縮減 (tail)
-    $預設     使用規則 51 以縮減 (procedure_statement)
+    ASSIGNMENT  使用規則 51 以縮減 (tail)
+    $預設     使用規則 52 以縮減 (procedure_statement)
 
     tail  進入狀態 60
 
@@ -719,7 +723,7 @@ relop (102)
 
 狀態 42
 
-   42 statement: FOR id . ASSIGNMENT num TO siz DO statement
+   42 statement: FOR id . ASSIGNMENT siz TO siz DO statement
 
     ASSIGNMENT  偏移，並進入狀態 76
 
@@ -733,7 +737,7 @@ relop (102)
 
 狀態 44
 
-   68 factor: LPAREN . expression RPAREN
+   69 factor: LPAREN . expression RPAREN
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -745,7 +749,7 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
@@ -770,7 +774,7 @@ relop (102)
 
 狀態 46
 
-   69 factor: NOT . factor
+   70 factor: NOT . factor
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -796,9 +800,9 @@ relop (102)
 
 狀態 48
 
-   67 factor: STRING .
+   68 factor: STRING .
 
-    $預設  使用規則 67 以縮減 (factor)
+    $預設  使用規則 68 以縮減 (factor)
 
 
 狀態 49
@@ -817,20 +821,20 @@ relop (102)
 
 狀態 51
 
-   66 factor: num .
+   67 factor: num .
 
-    $預設  使用規則 66 以縮減 (factor)
+    $預設  使用規則 67 以縮減 (factor)
 
 
 狀態 52
 
-   64 factor: id . tail
-   65       | id . LPAREN expression_list RPAREN
+   65 factor: id . tail
+   66       | id . LPAREN expression_list RPAREN
 
     LBRAC   偏移，並進入狀態 58
     LPAREN  偏移，並進入狀態 83
 
-    $預設  使用規則 50 以縮減 (tail)
+    $預設  使用規則 51 以縮減 (tail)
 
     tail  進入狀態 84
 
@@ -844,11 +848,11 @@ relop (102)
 
 狀態 54
 
-   55 expression: simple_expression .
-   56           | simple_expression . relop simple_expression
-   57           | simple_expression . AND expression
-   58           | simple_expression . OR expression
-   61 simple_expression: simple_expression . addop term
+   56 expression: simple_expression .
+   57           | simple_expression . relop simple_expression
+   58           | simple_expression . AND expression
+   59           | simple_expression . OR expression
+   62 simple_expression: simple_expression . addop term
 
     AND       偏移，並進入狀態 86
     EQUAL     偏移，並進入狀態 87
@@ -861,7 +865,7 @@ relop (102)
     OR        偏移，並進入狀態 94
     PLUS      偏移，並進入狀態 95
 
-    $預設  使用規則 55 以縮減 (expression)
+    $預設  使用規則 56 以縮減 (expression)
 
     addop  進入狀態 96
     relop  進入狀態 97
@@ -869,22 +873,22 @@ relop (102)
 
 狀態 55
 
-   60 simple_expression: term .
-   63 term: term . mulop factor
+   61 simple_expression: term .
+   64 term: term . mulop factor
 
     SLASH  偏移，並進入狀態 98
     STAR   偏移，並進入狀態 99
 
-    $預設  使用規則 60 以縮減 (simple_expression)
+    $預設  使用規則 61 以縮減 (simple_expression)
 
     mulop  進入狀態 100
 
 
 狀態 56
 
-   62 term: factor .
+   63 term: factor .
 
-    $預設  使用規則 62 以縮減 (term)
+    $預設  使用規則 63 以縮減 (term)
 
 
 狀態 57
@@ -896,7 +900,7 @@ relop (102)
 
 狀態 58
 
-   49 tail: LBRAC . expression RBRAC tail
+   50 tail: LBRAC . expression RBRAC tail
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -908,7 +912,7 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
@@ -920,7 +924,7 @@ relop (102)
 
 狀態 59
 
-   52 procedure_statement: id LPAREN . expression_list RPAREN
+   53 procedure_statement: id LPAREN . expression_list RPAREN
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -932,7 +936,7 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
@@ -945,9 +949,9 @@ relop (102)
 
 狀態 60
 
-   48 variable: id tail .
+   49 variable: id tail .
 
-    $預設  使用規則 48 以縮減 (variable)
+    $預設  使用規則 49 以縮減 (variable)
 
 
 狀態 61
@@ -990,8 +994,8 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    IDENTIFIER  [使用規則 59 以縮減 (expression)]
-    $預設     使用規則 59 以縮減 (expression)
+    IDENTIFIER  [使用規則 60 以縮減 (expression)]
+    $預設     使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
@@ -1103,22 +1107,27 @@ relop (102)
 
 狀態 76
 
-   42 statement: FOR id ASSIGNMENT . num TO siz DO statement
+   42 statement: FOR id ASSIGNMENT . siz TO siz DO statement
 
     DIGSEQ      偏移，並進入狀態 43
+    IDENTIFIER  偏移，並進入狀態 3
     MINUS       偏移，並進入狀態 45
-    REALNUMBER  偏移，並進入狀態 47
-    INTEGER     偏移，並進入狀態 49
-    REAL        偏移，並進入狀態 50
+    REALNUMBER  偏移，並進入狀態 114
+    STRING      偏移，並進入狀態 68
+    INTEGER     偏移，並進入狀態 115
+    REAL        偏移，並進入狀態 116
 
-    num  進入狀態 114
+    num            進入狀態 117
+    id             進入狀態 118
+    standard_type  進入狀態 119
+    siz            進入狀態 120
 
 
 狀態 77
 
-   68 factor: LPAREN expression . RPAREN
+   69 factor: LPAREN expression . RPAREN
 
-    RPAREN  偏移，並進入狀態 115
+    RPAREN  偏移，並進入狀態 121
 
 
 狀態 78
@@ -1151,14 +1160,14 @@ relop (102)
 
 狀態 82
 
-   69 factor: NOT factor .
+   70 factor: NOT factor .
 
-    $預設  使用規則 69 以縮減 (factor)
+    $預設  使用規則 70 以縮減 (factor)
 
 
 狀態 83
 
-   65 factor: id LPAREN . expression_list RPAREN
+   66 factor: id LPAREN . expression_list RPAREN
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1170,11 +1179,11 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
-    expression_list    進入狀態 116
+    expression_list    進入狀態 122
     expression         進入狀態 104
     simple_expression  進入狀態 54
     term               進入狀態 55
@@ -1183,9 +1192,9 @@ relop (102)
 
 狀態 84
 
-   64 factor: id tail .
+   65 factor: id tail .
 
-    $預設  使用規則 64 以縮減 (factor)
+    $預設  使用規則 65 以縮減 (factor)
 
 
 狀態 85
@@ -1207,14 +1216,14 @@ relop (102)
 
     id                   進入狀態 28
     compound_statement   進入狀態 29
-    statement            進入狀態 117
+    statement            進入狀態 123
     variable             進入狀態 33
     procedure_statement  進入狀態 34
 
 
 狀態 86
 
-   57 expression: simple_expression AND . expression
+   58 expression: simple_expression AND . expression
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1226,12 +1235,12 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    IDENTIFIER  [使用規則 59 以縮減 (expression)]
-    $預設     使用規則 59 以縮減 (expression)
+    IDENTIFIER  [使用規則 60 以縮減 (expression)]
+    $預設     使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
-    expression         進入狀態 118
+    expression         進入狀態 124
     simple_expression  進入狀態 54
     term               進入狀態 55
     factor             進入狀態 56
@@ -1239,56 +1248,56 @@ relop (102)
 
 狀態 87
 
-   76 relop: EQUAL .
-
-    $預設  使用規則 76 以縮減 (relop)
-
-
-狀態 88
-
-   78 relop: GE .
-
-    $預設  使用規則 78 以縮減 (relop)
-
-
-狀態 89
-
-   75 relop: GT .
-
-    $預設  使用規則 75 以縮減 (relop)
-
-
-狀態 90
-
-   77 relop: LE .
+   77 relop: EQUAL .
 
     $預設  使用規則 77 以縮減 (relop)
 
 
-狀態 91
+狀態 88
 
-   74 relop: LT .
-
-    $預設  使用規則 74 以縮減 (relop)
-
-
-狀態 92
-
-   71 addop: MINUS .
-
-    $預設  使用規則 71 以縮減 (addop)
-
-
-狀態 93
-
-   79 relop: notEQUAL .
+   79 relop: GE .
 
     $預設  使用規則 79 以縮減 (relop)
 
 
+狀態 89
+
+   76 relop: GT .
+
+    $預設  使用規則 76 以縮減 (relop)
+
+
+狀態 90
+
+   78 relop: LE .
+
+    $預設  使用規則 78 以縮減 (relop)
+
+
+狀態 91
+
+   75 relop: LT .
+
+    $預設  使用規則 75 以縮減 (relop)
+
+
+狀態 92
+
+   72 addop: MINUS .
+
+    $預設  使用規則 72 以縮減 (addop)
+
+
+狀態 93
+
+   80 relop: notEQUAL .
+
+    $預設  使用規則 80 以縮減 (relop)
+
+
 狀態 94
 
-   58 expression: simple_expression OR . expression
+   59 expression: simple_expression OR . expression
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1300,12 +1309,12 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    IDENTIFIER  [使用規則 59 以縮減 (expression)]
-    $預設     使用規則 59 以縮減 (expression)
+    IDENTIFIER  [使用規則 60 以縮減 (expression)]
+    $預設     使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
-    expression         進入狀態 119
+    expression         進入狀態 125
     simple_expression  進入狀態 54
     term               進入狀態 55
     factor             進入狀態 56
@@ -1313,14 +1322,14 @@ relop (102)
 
 狀態 95
 
-   70 addop: PLUS .
+   71 addop: PLUS .
 
-    $預設  使用規則 70 以縮減 (addop)
+    $預設  使用規則 71 以縮減 (addop)
 
 
 狀態 96
 
-   61 simple_expression: simple_expression addop . term
+   62 simple_expression: simple_expression addop . term
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1334,13 +1343,13 @@ relop (102)
 
     num     進入狀態 51
     id      進入狀態 52
-    term    進入狀態 120
+    term    進入狀態 126
     factor  進入狀態 56
 
 
 狀態 97
 
-   56 expression: simple_expression relop . simple_expression
+   57 expression: simple_expression relop . simple_expression
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1354,28 +1363,28 @@ relop (102)
 
     num                進入狀態 51
     id                 進入狀態 52
-    simple_expression  進入狀態 121
+    simple_expression  進入狀態 127
     term               進入狀態 55
     factor             進入狀態 56
 
 
 狀態 98
 
-   73 mulop: SLASH .
+   74 mulop: SLASH .
 
-    $預設  使用規則 73 以縮減 (mulop)
+    $預設  使用規則 74 以縮減 (mulop)
 
 
 狀態 99
 
-   72 mulop: STAR .
+   73 mulop: STAR .
 
-    $預設  使用規則 72 以縮減 (mulop)
+    $預設  使用規則 73 以縮減 (mulop)
 
 
 狀態 100
 
-   63 term: term mulop . factor
+   64 term: term mulop . factor
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1389,7 +1398,7 @@ relop (102)
 
     num     進入狀態 51
     id      進入狀態 52
-    factor  進入狀態 122
+    factor  進入狀態 128
 
 
 狀態 101
@@ -1411,32 +1420,32 @@ relop (102)
 
     id                   進入狀態 28
     compound_statement   進入狀態 29
-    statement            進入狀態 123
+    statement            進入狀態 129
     variable             進入狀態 33
     procedure_statement  進入狀態 34
 
 
 狀態 102
 
-   49 tail: LBRAC expression . RBRAC tail
+   50 tail: LBRAC expression . RBRAC tail
 
-    RBRAC  偏移，並進入狀態 124
+    RBRAC  偏移，並進入狀態 130
 
 
 狀態 103
 
-   52 procedure_statement: id LPAREN expression_list . RPAREN
-   54 expression_list: expression_list . COMMA expression
+   53 procedure_statement: id LPAREN expression_list . RPAREN
+   55 expression_list: expression_list . COMMA expression
 
-    COMMA   偏移，並進入狀態 125
-    RPAREN  偏移，並進入狀態 126
+    COMMA   偏移，並進入狀態 131
+    RPAREN  偏移，並進入狀態 132
 
 
 狀態 104
 
-   53 expression_list: expression .
+   54 expression_list: expression .
 
-    $預設  使用規則 53 以縮減 (expression_list)
+    $預設  使用規則 54 以縮減 (expression_list)
 
 
 狀態 105
@@ -1477,7 +1486,7 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    num  進入狀態 127
+    num  進入狀態 133
 
 
 狀態 110
@@ -1500,7 +1509,7 @@ relop (102)
    28 parameter_list: optional_var identifier_list . COLON type
    29               | optional_var identifier_list . COLON type SEMICOLON parameter_list
 
-    COLON  偏移，並進入狀態 128
+    COLON  偏移，並進入狀態 134
     COMMA  偏移，並進入狀態 9
 
 
@@ -1508,112 +1517,169 @@ relop (102)
 
    24 subprogram_head: FUNCTION id arguments COLON standard_type . SEMICOLON
 
-    SEMICOLON  偏移，並進入狀態 129
+    SEMICOLON  偏移，並進入狀態 135
 
 
 狀態 114
 
-   42 statement: FOR id ASSIGNMENT num . TO siz DO statement
+    5 num: REALNUMBER .
+   19 standard_type: REALNUMBER .
 
-    TO  偏移，並進入狀態 130
+    DO       使用規則 5 以縮減 (num)
+    DO       [使用規則 19 以縮減 (standard_type)]
+    TO       使用規則 5 以縮減 (num)
+    TO       [使用規則 19 以縮減 (standard_type)]
+    $預設  使用規則 5 以縮減 (num)
 
 
 狀態 115
 
-   68 factor: LPAREN expression RPAREN .
+    3 num: INTEGER .
+   17 standard_type: INTEGER .
 
-    $預設  使用規則 68 以縮減 (factor)
+    DO       使用規則 3 以縮減 (num)
+    DO       [使用規則 17 以縮減 (standard_type)]
+    TO       使用規則 3 以縮減 (num)
+    TO       [使用規則 17 以縮減 (standard_type)]
+    $預設  使用規則 3 以縮減 (num)
 
 
 狀態 116
 
-   54 expression_list: expression_list . COMMA expression
-   65 factor: id LPAREN expression_list . RPAREN
+    4 num: REAL .
+   18 standard_type: REAL .
 
-    COMMA   偏移，並進入狀態 125
-    RPAREN  偏移，並進入狀態 131
+    DO       使用規則 4 以縮減 (num)
+    DO       [使用規則 18 以縮減 (standard_type)]
+    TO       使用規則 4 以縮減 (num)
+    TO       [使用規則 18 以縮減 (standard_type)]
+    $預設  使用規則 4 以縮減 (num)
 
 
 狀態 117
 
-   40 statement: IF expression THEN statement . else statement
+   46 siz: num .
 
-    ELSE  偏移，並進入狀態 132
-
-    ELSE     [使用規則 47 以縮減 (else)]
-    $預設  使用規則 47 以縮減 (else)
-
-    else  進入狀態 133
+    $預設  使用規則 46 以縮減 (siz)
 
 
 狀態 118
 
-   57 expression: simple_expression AND expression .
+   44 siz: id .
 
-    $預設  使用規則 57 以縮減 (expression)
+    $預設  使用規則 44 以縮減 (siz)
 
 
 狀態 119
 
-   58 expression: simple_expression OR expression .
+   45 siz: standard_type .
 
-    $預設  使用規則 58 以縮減 (expression)
+    $預設  使用規則 45 以縮減 (siz)
 
 
 狀態 120
 
-   61 simple_expression: simple_expression addop term .
-   63 term: term . mulop factor
+   42 statement: FOR id ASSIGNMENT siz . TO siz DO statement
 
-    SLASH  偏移，並進入狀態 98
-    STAR   偏移，並進入狀態 99
-
-    $預設  使用規則 61 以縮減 (simple_expression)
-
-    mulop  進入狀態 100
+    TO  偏移，並進入狀態 136
 
 
 狀態 121
 
-   56 expression: simple_expression relop simple_expression .
-   61 simple_expression: simple_expression . addop term
+   69 factor: LPAREN expression RPAREN .
 
-    MINUS  偏移，並進入狀態 92
-    PLUS   偏移，並進入狀態 95
-
-    $預設  使用規則 56 以縮減 (expression)
-
-    addop  進入狀態 96
+    $預設  使用規則 69 以縮減 (factor)
 
 
 狀態 122
 
-   63 term: term mulop factor .
+   55 expression_list: expression_list . COMMA expression
+   66 factor: id LPAREN expression_list . RPAREN
 
-    $預設  使用規則 63 以縮減 (term)
+    COMMA   偏移，並進入狀態 131
+    RPAREN  偏移，並進入狀態 137
 
 
 狀態 123
+
+   40 statement: IF expression THEN statement . else statement
+
+    ELSE  偏移，並進入狀態 138
+
+    ELSE     [使用規則 48 以縮減 (else)]
+    $預設  使用規則 48 以縮減 (else)
+
+    else  進入狀態 139
+
+
+狀態 124
+
+   58 expression: simple_expression AND expression .
+
+    $預設  使用規則 58 以縮減 (expression)
+
+
+狀態 125
+
+   59 expression: simple_expression OR expression .
+
+    $預設  使用規則 59 以縮減 (expression)
+
+
+狀態 126
+
+   62 simple_expression: simple_expression addop term .
+   64 term: term . mulop factor
+
+    SLASH  偏移，並進入狀態 98
+    STAR   偏移，並進入狀態 99
+
+    $預設  使用規則 62 以縮減 (simple_expression)
+
+    mulop  進入狀態 100
+
+
+狀態 127
+
+   57 expression: simple_expression relop simple_expression .
+   62 simple_expression: simple_expression . addop term
+
+    MINUS  偏移，並進入狀態 92
+    PLUS   偏移，並進入狀態 95
+
+    $預設  使用規則 57 以縮減 (expression)
+
+    addop  進入狀態 96
+
+
+狀態 128
+
+   64 term: term mulop factor .
+
+    $預設  使用規則 64 以縮減 (term)
+
+
+狀態 129
 
    41 statement: WHILE expression DO statement .
 
     $預設  使用規則 41 以縮減 (statement)
 
 
-狀態 124
+狀態 130
 
-   49 tail: LBRAC expression RBRAC . tail
+   50 tail: LBRAC expression RBRAC . tail
 
     LBRAC  偏移，並進入狀態 58
 
-    $預設  使用規則 50 以縮減 (tail)
+    $預設  使用規則 51 以縮減 (tail)
 
-    tail  進入狀態 134
+    tail  進入狀態 140
 
 
-狀態 125
+狀態 131
 
-   54 expression_list: expression_list COMMA . expression
+   55 expression_list: expression_list COMMA . expression
 
     DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
@@ -1625,31 +1691,31 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    $預設  使用規則 59 以縮減 (expression)
+    $預設  使用規則 60 以縮減 (expression)
 
     num                進入狀態 51
     id                 進入狀態 52
-    expression         進入狀態 135
+    expression         進入狀態 141
     simple_expression  進入狀態 54
     term               進入狀態 55
     factor             進入狀態 56
 
 
-狀態 126
+狀態 132
 
-   52 procedure_statement: id LPAREN expression_list RPAREN .
+   53 procedure_statement: id LPAREN expression_list RPAREN .
 
-    $預設  使用規則 52 以縮減 (procedure_statement)
+    $預設  使用規則 53 以縮減 (procedure_statement)
 
 
-狀態 127
+狀態 133
 
    16 type: ARRAY LBRAC num . DOTDOT num RBRAC OF type
 
-    DOTDOT  偏移，並進入狀態 136
+    DOTDOT  偏移，並進入狀態 142
 
 
-狀態 128
+狀態 134
 
    28 parameter_list: optional_var identifier_list COLON . type
    29               | optional_var identifier_list COLON . type SEMICOLON parameter_list
@@ -1660,47 +1726,50 @@ relop (102)
     INTEGER     偏移，並進入狀態 69
     REAL        偏移，並進入狀態 70
 
-    type           進入狀態 137
+    type           進入狀態 143
     standard_type  進入狀態 72
 
 
-狀態 129
+狀態 135
 
    24 subprogram_head: FUNCTION id arguments COLON standard_type SEMICOLON .
 
     $預設  使用規則 24 以縮減 (subprogram_head)
 
 
-狀態 130
+狀態 136
 
-   42 statement: FOR id ASSIGNMENT num TO . siz DO statement
+   42 statement: FOR id ASSIGNMENT siz TO . siz DO statement
 
+    DIGSEQ      偏移，並進入狀態 43
     IDENTIFIER  偏移，並進入狀態 3
-    REALNUMBER  偏移，並進入狀態 67
+    MINUS       偏移，並進入狀態 45
+    REALNUMBER  偏移，並進入狀態 114
     STRING      偏移，並進入狀態 68
-    INTEGER     偏移，並進入狀態 69
-    REAL        偏移，並進入狀態 70
+    INTEGER     偏移，並進入狀態 115
+    REAL        偏移，並進入狀態 116
 
-    id             進入狀態 138
-    standard_type  進入狀態 139
-    siz            進入狀態 140
-
-
-狀態 131
-
-   65 factor: id LPAREN expression_list RPAREN .
-
-    $預設  使用規則 65 以縮減 (factor)
+    num            進入狀態 117
+    id             進入狀態 118
+    standard_type  進入狀態 119
+    siz            進入狀態 144
 
 
-狀態 132
+狀態 137
 
-   46 else: ELSE .
+   66 factor: id LPAREN expression_list RPAREN .
 
-    $預設  使用規則 46 以縮減 (else)
+    $預設  使用規則 66 以縮減 (factor)
 
 
-狀態 133
+狀態 138
+
+   47 else: ELSE .
+
+    $預設  使用規則 47 以縮減 (else)
+
+
+狀態 139
 
    40 statement: IF expression THEN statement else . statement
 
@@ -1719,26 +1788,26 @@ relop (102)
 
     id                   進入狀態 28
     compound_statement   進入狀態 29
-    statement            進入狀態 141
+    statement            進入狀態 145
     variable             進入狀態 33
     procedure_statement  進入狀態 34
 
 
-狀態 134
+狀態 140
 
-   49 tail: LBRAC expression RBRAC tail .
+   50 tail: LBRAC expression RBRAC tail .
 
-    $預設  使用規則 49 以縮減 (tail)
-
-
-狀態 135
-
-   54 expression_list: expression_list COMMA expression .
-
-    $預設  使用規則 54 以縮減 (expression_list)
+    $預設  使用規則 50 以縮減 (tail)
 
 
-狀態 136
+狀態 141
+
+   55 expression_list: expression_list COMMA expression .
+
+    $預設  使用規則 55 以縮減 (expression_list)
+
+
+狀態 142
 
    16 type: ARRAY LBRAC num DOTDOT . num RBRAC OF type
 
@@ -1748,55 +1817,41 @@ relop (102)
     INTEGER     偏移，並進入狀態 49
     REAL        偏移，並進入狀態 50
 
-    num  進入狀態 142
+    num  進入狀態 146
 
 
-狀態 137
+狀態 143
 
    28 parameter_list: optional_var identifier_list COLON type .
    29               | optional_var identifier_list COLON type . SEMICOLON parameter_list
 
-    SEMICOLON  偏移，並進入狀態 143
+    SEMICOLON  偏移，並進入狀態 147
 
     $預設  使用規則 28 以縮減 (parameter_list)
 
 
-狀態 138
+狀態 144
 
-   44 siz: id .
+   42 statement: FOR id ASSIGNMENT siz TO siz . DO statement
 
-    $預設  使用規則 44 以縮減 (siz)
-
-
-狀態 139
-
-   45 siz: standard_type .
-
-    $預設  使用規則 45 以縮減 (siz)
+    DO  偏移，並進入狀態 148
 
 
-狀態 140
-
-   42 statement: FOR id ASSIGNMENT num TO siz . DO statement
-
-    DO  偏移，並進入狀態 144
-
-
-狀態 141
+狀態 145
 
    40 statement: IF expression THEN statement else statement .
 
     $預設  使用規則 40 以縮減 (statement)
 
 
-狀態 142
+狀態 146
 
    16 type: ARRAY LBRAC num DOTDOT num . RBRAC OF type
 
-    RBRAC  偏移，並進入狀態 145
+    RBRAC  偏移，並進入狀態 149
 
 
-狀態 143
+狀態 147
 
    29 parameter_list: optional_var identifier_list COLON type SEMICOLON . parameter_list
 
@@ -1804,13 +1859,13 @@ relop (102)
 
     $預設  使用規則 31 以縮減 (optional_var)
 
-    parameter_list  進入狀態 146
+    parameter_list  進入狀態 150
     optional_var    進入狀態 74
 
 
-狀態 144
+狀態 148
 
-   42 statement: FOR id ASSIGNMENT num TO siz DO . statement
+   42 statement: FOR id ASSIGNMENT siz TO siz DO . statement
 
     FOR         偏移，並進入狀態 25
     IDENTIFIER  偏移，並進入狀態 3
@@ -1827,33 +1882,33 @@ relop (102)
 
     id                   進入狀態 28
     compound_statement   進入狀態 29
-    statement            進入狀態 147
+    statement            進入狀態 151
     variable             進入狀態 33
     procedure_statement  進入狀態 34
 
 
-狀態 145
+狀態 149
 
    16 type: ARRAY LBRAC num DOTDOT num RBRAC . OF type
 
-    OF  偏移，並進入狀態 148
+    OF  偏移，並進入狀態 152
 
 
-狀態 146
+狀態 150
 
    29 parameter_list: optional_var identifier_list COLON type SEMICOLON parameter_list .
 
     $預設  使用規則 29 以縮減 (parameter_list)
 
 
-狀態 147
+狀態 151
 
-   42 statement: FOR id ASSIGNMENT num TO siz DO statement .
+   42 statement: FOR id ASSIGNMENT siz TO siz DO statement .
 
     $預設  使用規則 42 以縮減 (statement)
 
 
-狀態 148
+狀態 152
 
    16 type: ARRAY LBRAC num DOTDOT num RBRAC OF . type
 
@@ -1863,11 +1918,11 @@ relop (102)
     INTEGER     偏移，並進入狀態 69
     REAL        偏移，並進入狀態 70
 
-    type           進入狀態 149
+    type           進入狀態 153
     standard_type  進入狀態 72
 
 
-狀態 149
+狀態 153
 
    16 type: ARRAY LBRAC num DOTDOT num RBRAC OF type .
 
