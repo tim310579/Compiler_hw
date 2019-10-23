@@ -1,0 +1,1 @@
+./a.out < Scanner_testdata/Comments.p; ./a.out < Scanner_testdata/Error.p; ./a.out < Scanner_testdata/Float.p; ./a.out < Scanner_testdata/Identifier.p; ./a.out < Scanner_testdata/Integer.p; ./a.out < Scanner_testdata/Operator.p; ./a.out < Scanner_testdata/ReservedWord.p; ./a.out < Scanner_testdata/String.p
