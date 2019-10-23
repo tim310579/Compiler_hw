@@ -60,7 +60,7 @@ identifier_list : id
 		| identifier_list COMMA id
 		;
 
-declarations : declarations VAR identifier_list COLON type SEMICOLON
+declarations : declarations optional_var identifier_list COLON type SEMICOLON
 		|
 		;
 
@@ -81,27 +81,34 @@ standard_type : INTEGER
 
 
 subprogram_declarations :
-	subprogram_declarations subprogram_declaration SEMICOLON
-		| 
+		subprogram_declaration SEMICOLON subprogram_declarations
+		|	 
 		;
 
 subprogram_declaration :
-	subprogram_head 
-	declarations 			
-        compound_statement
+			subprogram_head 
+			declarations
+			tmp
+			|
+			;
+tmp :compound_statement
+	|
 	;
 
-subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
-		| PROCEDURE id arguments SEMICOLON
+subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON subprogram_head
+		| PROCEDURE id arguments SEMICOLON subprogram_head
+		|	
+		 
 		;
 
 arguments : LPAREN parameter_list RPAREN
 		|
 		;
-semi : ';'|	
-     	;
-parameter_list : optional_var identifier_list COLON type semi
-		| optional_var identifier_list COLON type SEMICOLON parameter_list 
+
+
+parameter_list : optional_var identifier_list COLON type parameter_list
+		| optional_var identifier_list COLON type SEMICOLON parameter_list
+		|
 		;
 
 
@@ -112,8 +119,9 @@ optional_var   : VAR
 
 compound_statement : PBEGIN
 		     optional_statements
-		     END
+		     END 
 		;
+
 
 optional_statements : statement_list
 		|
@@ -128,7 +136,7 @@ statement : variable ASSIGNMENT expression
 		| compound_statement
 		| IF expression THEN statement else statement
 		| WHILE expression DO statement
-		|
+		|	
 		;
 
 else	: ELSE
