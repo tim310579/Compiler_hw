@@ -132,7 +132,7 @@ NQUOTE [^']
 [/][*][^*]*([/][*][^*]*[*][/])*[^*]*[*][/]	{};
 
 "//".* 	     {};
-["][^"]*["]     return(STRING);
+["][^"\n]*["]   return(STRING);
 {A}{N}{D}                    return(AND);
 {A}{R}{R}{A}{Y}              return(ARRAY);
 {C}{A}{S}{E}                 return(CASE);
@@ -226,24 +226,7 @@ NQUOTE [^']
         fprintf (stderr, "Unexpected EOF inside comment at line %d\n",line_no);
      }
     }
-["]	{ register int c, d, e;
-	while((c = input()))
-	{
-	    if(c == '/'){
-		if((d = input()) == '/') {
-			unput(d);
-			unput(c);
-			printf("%d++++%d\n", c, d);
 
-		}
-		else if((d = input()) == '*') {
-                        unput(d);
-                        unput(c);
-			printf("%d++++%d\n", c, d);
-                }
-	    }
-	}
-}
 [ \t\f]    ;
 
 \r         ;

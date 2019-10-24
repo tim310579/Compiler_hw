@@ -52,7 +52,7 @@ PROGRAM Sort(input, output);
                         WHILE (right > start) AND (arr[right] >= pivot) DO
                             right := right - 1;
                         IF left < right THEN 
-                            swap(arr[left], arr[right]);
+                            swap(arr[left], arr[right])
                         ELSE
                     END;
 

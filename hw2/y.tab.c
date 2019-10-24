@@ -1707,7 +1707,7 @@ int yyerror(char *msg)
 	//fprintf( stderr, "\n" );
 	fprintf( stderr, " line %d: error token: %s\n", yylineno, yytext );
 		fprintf( stderr, "--------------------------------------------------------------------------\n" );
-		exit(-1);
+	exit(-1);
 }
 
 

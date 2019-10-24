@@ -1,0 +1,54 @@
+  test for TEST-COMPILER02-FOR-PARSER/test-parser-error.p
+--------------------------------------------------------------------------
+ line 6: error token: ;
+--------------------------------------------------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/test-minus-neg.p
+--------------------------------------------------------------------------
+ line 6: error token: -
+--------------------------------------------------------------------------
+
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-constant.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-recursion.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-function.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-operator.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-operator2.p
+--------------------------------
+  OK!!
+--------------------------------
+
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-procedure.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test02-uninitialized-var.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test00-runtime-range-check.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test01-global-var.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test04.p
+--------------------------------
+  OK!!
+--------------------------------
+  test for TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-mini.p
+--------------------------------
+  OK!!
+--------------------------------
