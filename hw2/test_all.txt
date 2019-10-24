@@ -6,6 +6,6 @@ test for no error first 5
 
 >> ./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-constant.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-recursion.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-function.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-operator.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-operator2.p
 
-after 5
+after 6
 
 >> ./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-procedure.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test02-uninitialized-var.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test00-runtime-range-check.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test01-global-var.p; ./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test04.p;./parser TEST-COMPILER02-FOR-PARSER/no-parsing-error/test-mini.p;

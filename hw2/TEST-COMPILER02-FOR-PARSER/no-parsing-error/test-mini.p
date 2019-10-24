@@ -6,36 +6,33 @@ PROGRAM Sort(input, output);
         IntArrType = ARRAY [1..MaxElts] of Integer; */
 
     VAR
-        i, j, tmp, size: integer;
+        i, j, tmp, size: Integer;
 
     VAR
-        arr: ARRAY [1..50] of INTEGER;
+        arr: ARRAY [1..50] of Integer;   
 
-    PROCEDURE ReadArr(VAR size: Integer; VAR a: ARRAY [1..50] of INTEGER);
+    PROCEDURE ReadArr(VAR size: Integer; VAR a: ARRAY [1..50] of Integer);
         BEGIN
             size := 1;
             WHILE NOT eof DO BEGIN
                 readln(a[size]);
                 IF NOT eof THEN 
                     size := size + 1
+                ELSE
             END
         END;
 
-    PROCEDURE Quicksort(size: Integer; VAR arr: ARRAY [1..50] of INTEGER);
+    PROCEDURE Quicksort(size: Integer; VAR arr: ARRAY [1..50] of Integer);
         PROCEDURE QuicksortRecur(start, stop: integer);
-            VAR
-                m: integer;
-
-                splitpt: integer;
+            VAR    m: integer;
+            VAR    splitpt: integer;
 
             FUNCTION Split(start, stop: integer): integer;
-                VAR
-                    left, right: integer;  
-                    pivot: integer;       
+                VAR    left, right: integer;  
+                VAR    pivot: integer;       
 
                 PROCEDURE swap(VAR a, b: integer);
-                    VAR
-                        t: integer;
+                    VAR  t: integer;
                     BEGIN
                         t := a;
                         a := b;
@@ -48,12 +45,15 @@ PROGRAM Sort(input, output);
                     right := stop;
 
                     WHILE left <= right DO BEGIN
+                        // WHILE (left <= stop) AND (arr[left] < pivot) DO
                         WHILE (left <= stop) AND (arr[left] < pivot) DO
                             left := left + 1;
+                        // WHILE (right > start) AND (arr[right] >= pivot) DO
                         WHILE (right > start) AND (arr[right] >= pivot) DO
                             right := right - 1;
                         IF left < right THEN 
                             swap(arr[left], arr[right]);
+                        ELSE
                     END;
 
                     swap(arr[start], arr[right]);
@@ -67,6 +67,7 @@ PROGRAM Sort(input, output);
                     QuicksortRecur(start, splitpt-1);
                     QuicksortRecur(splitpt+1, stop);
                 END
+                ELSE
             END;
                     
         BEGIN 
@@ -78,6 +79,7 @@ PROGRAM Sort(input, output);
 
         Quicksort(size, arr);
 
-        FOR i := 1 TO size DO
+        i := 1;
+        while i <= size DO
             writeln(arr[i])
     END.

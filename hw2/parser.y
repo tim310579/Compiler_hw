@@ -63,7 +63,7 @@ identifier_list : id
 		| identifier_list COMMA id
 		;
 
-declarations : declarations optional_var identifier_list COLON type SEMICOLON
+declarations : declarations VAR identifier_list COLON type SEMICOLON
 		|
 		;
 
@@ -112,6 +112,7 @@ compound_statement : PBEGIN
 		     END
 		;
 
+
 optional_statements : statement_list
 		|
 		;
@@ -123,21 +124,10 @@ statement_list : statement
 statement : variable ASSIGNMENT expression
 		| procedure_statement
 		| compound_statement
-		| IF expression THEN statement else statement
+		| IF expression THEN statement ELSE statement
 		| WHILE expression DO statement
-		| FOR id ASSIGNMENT siz TO siz DO statement
 		|
 		;
-
-siz	: id
-    	| standard_type
-	| num
-	;
-
-
-else	: ELSE
-     	|
-	;
 
 variable : id tail
 		;
@@ -154,12 +144,13 @@ expression_list : expression
 		| expression_list COMMA expression
 		;
 
-expression : simple_expression
-		| simple_expression relop simple_expression
-		| simple_expression AND expression
-		| simple_expression OR expression
-		|
+expression : boolexpression
+		| boolexpression AND boolexpression
+		| boolexpression OR boolexpression
 		;
+
+boolexpression : simple_expression
+	       | simple_expression relop simple_expression
 
 simple_expression : term
 		| simple_expression addop term
