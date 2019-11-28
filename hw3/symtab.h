@@ -1,6 +1,4 @@
-#ifndef SYMTAB
-#define SYMTAB
-#include <stdio.h>
+
 extern char *yytext;		/* declared by scanner */
 extern int yylineno;		/* declared in scanner.l */
 
@@ -19,25 +17,24 @@ extern SymbolTable* symbol_table;
 
 struct SymbolTable {
 	char name[32];
-	char type[10];
+	char type[32];
 	int address;
-	char scope[10];
+	char scope[32];
+	char pre_scope[32];
 	int level;
 	int pos;
 	int depth;
 	TableEntry** Entries;
-} ;
+};
 struct TableEntry{
 	char name[32];
-	char type[10];
-	char scope[10];
+	char type[32];
+	char scope[32];
 	int address;
+	float value;
+	char sval[32];
+	float array[32];
 };
-struct IdList{
-	int pos;
-	char** Ids;
-};
-
 
 
 
@@ -49,5 +46,7 @@ void PrintSymbolTable(SymbolTable*);
 int FindEntryInScope(SymbolTable*,char*, char*);
 int FindEntryInGlobal(SymbolTable*,char*);
 int FindEntryLoopVar(SymbolTable*,char*);
-
-#endif
+void UpdateType(SymbolTable*, char*, int);
+int FindEntryInAll(SymbolTable*, char*);
+void PrintValue(Value*, char*);
+void popall(SymbolTable*);

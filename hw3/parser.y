@@ -57,19 +57,35 @@ IdList* idlist;
 %token TO TYPE UNTIL UPARROW VAR WHILE WITH
 %token STRING WRONGIDEN ERROR INTEGER REAL
 
-%type <str> id IDENTIFIER
+%type <str> id standard_type type
+
+%type <str> AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST DIGSEQ
+%type <str> DIV DO DOT DOTDOT DOWNTO ELSE END EQUAL EXTERNAL FOR FORWARD FUNCTION
+%type <str> GE GOTO GT
+%type <str> IDENTIFIER
+%type <str> IF IN LABEL LBRAC LE LPAREN LT MINUS MOD NIL NOT
+%type <str> notEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
+%type <str>REALNUMBER RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
+%type <str> TO TYPE UNTIL UPARROW VAR WHILE WITH
+%type <str> STRING WRONGIDEN ERROR INTEGER REAL
 
 %%
 
 
 prog  : PROGRAM id {
-		TableEntry* tmp = BuildTableEntry($2, "function", "global", yylineno);
+		TableEntry* tmp = BuildTableEntry($2, "program", "global", yylineno);
 		InsertTableEntry(symbol_table, tmp);
 	}
-	 LPAREN func_identifier_list
+	 LPAREN {
+		strcpy(symbol_table->scope, "in_prog");
+		}
+	identifier_list
 
 		
-	 RPAREN SEMICOLON
+	 RPAREN {
+		strcpy(symbol_table->scope, symbol_table->pre_scope);
+	}
+	SEMICOLON
        
 	declarations
 	subprogram_declarations
@@ -77,33 +93,18 @@ prog  : PROGRAM id {
  	DOT
 	;
 
-
-func_identifier_list : id {
-		     	TableEntry* tmp = BuildTableEntry($1, "var", "func_para", yylineno);
-			InsertTableEntry(symbol_table, tmp);
-		}
-		| func_identifier_list COMMA id {
-			TableEntry* tmp = BuildTableEntry($3, "var", "func_para", yylineno);
-                        InsertTableEntry(symbol_table, tmp);
-		}
-		;
-
 identifier_list : id {
-			TableEntry* tmp = BuildTableEntry($1, "var", "local", yylineno);
+			TableEntry* tmp = BuildTableEntry($1, "var", symbol_table->scope, yylineno);
                         InsertTableEntry(symbol_table, tmp);
                 }
                 | identifier_list COMMA id{
-			TableEntry* tmp = BuildTableEntry($3, "var", "local", yylineno);
+			TableEntry* tmp = BuildTableEntry($3, "var", symbol_table->scope, yylineno);
                         InsertTableEntry(symbol_table, tmp);
                 }
                 ;
 num : DIGSEQ
-    	| INTEGER
-	| REAL
 	| REALNUMBER
-	| MINUS INTEGER
 	| MINUS REALNUMBER
-	| MINUS REAL
 	| MINUS DIGSEQ	
 	;
 
@@ -111,20 +112,28 @@ num : DIGSEQ
 id : IDENTIFIER
 	;
 
-declarations : declarations VAR identifier_list COLON type SEMICOLON
+declarations : declarations VAR identifier_list{
+	    				
+						}
+		 COLON type SEMICOLON
 	 
 		|
 		;
 
 
-type : standard_type
-		| ARRAY LBRAC num DOTDOT num RBRAC OF type
+type : standard_type {
+			$$ = $1;	
+			printf("%siii\n", $1);
+			}
+		| ARRAY LBRAC num DOTDOT num RBRAC OF type {
+						//$8 = strcat($8, "array");
+						printf("%s\n", $8);
+								}
 		;
 
-standard_type : INTEGER
-		| REAL
-		| REALNUMBER
-		| STRING
+standard_type : INTEGER {$$ = "integer";}
+		| REAL	{$$ = "real"; }
+		| STRING{$$ = "string";}
 		;
 
 
@@ -146,7 +155,8 @@ subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON{
 		| PROCEDURE id arguments SEMICOLON
 		;
 
-arguments : LPAREN parameter_list RPAREN
+arguments : LPAREN{strcpy(symbol_table->scope, "in_func");}
+	  parameter_list RPAREN{strcpy(symbol_table->scope, symbol_table->pre_scope);}
 		|
 		;
 
@@ -269,7 +279,6 @@ int main(int argc, char **argv)
 		//fprintf(stdout, "%d  ", tok);
 	//}
 	
-
 	fprintf( stdout, "--------------------------------\n" );
 	fprintf( stdout, "  OK!!\n" );
 	fprintf( stdout, "--------------------------------\n" );

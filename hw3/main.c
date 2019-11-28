@@ -26,6 +26,7 @@ int  main( int argc, char **argv )
 	yyin = fp;
 	yyparse();	/* primary procedure of parser */
 	PrintSymbolTable(symbol_table);
+	popall(symbol_table);
 	printf("%s\n", yytext);
 	fprintf( stdout, "\n|--------------------------------|\n" );
 	fprintf( stdout, "|  There is no syntactic error!  |\n" );
