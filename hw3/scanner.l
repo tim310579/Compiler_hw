@@ -192,6 +192,7 @@ NQUOTE [^']
 ":"                          return(COLON);
 ","                          return(COMMA);
 [0-9]+                       return(DIGSEQ);
+[-][0-9]+		     return(DIGSEQ);
 "."                          return(DOT);
 ".."                         return(DOTDOT);
 "="                          return(EQUAL);
@@ -206,12 +207,12 @@ NQUOTE [^']
 
 "+"                          return(PLUS);
 "]"                          return(RBRAC);
-[0-9]+("."[0-9]+)*?({E}("+"|"-")[0-9]+)	{
+[-]?[0-9]+("."[0-9]+)*?({E}("+"|"-")[0-9]+)	{
 	yylval.num = atoi(yytext);
      	return(REALNUMBER);
 }
 
-[0-9]+"."[0-9]+  {
+[-]?[0-9]+"."[0-9]+  {
 	yylval.num = atoi(yytext);
        	return(REALNUMBER);
 }

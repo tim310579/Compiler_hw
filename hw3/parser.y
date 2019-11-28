@@ -1,7 +1,6 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "symtab.h"
 
 extern FILE *yyin;
@@ -29,111 +28,97 @@ int yyerror(char *);
 
 SymbolTable* symbol_table;
 TableEntry* entry_buf;
-IdList* idlist;
+IdList* idlist_buf;
+Type* return_buf;
+int has_ret=0;
+int loop_cnt =0;
 %}
+
 %union	{
 	int num;
 	double dnum;
 	char* str;
-	char** idlist;
-	//idlist* idlist;
-	//node *expr;
-	
-	//Value* value;
-	char* type;
-	//TableEntry* tableentry;
-	//TypeList* typelist;
-	//Expr* expression;
-	//ExprList* exprlist;
+	int nodetype;
+	struct Value* value;
+	struct Type* type;
+	struct TableEntry* tableentry;
+	struct TypeList* typelist;
+	struct Expr* expression;
+	struct ExprList* exprlist;
 		}
+%token <num> DIGSEQ 
+%token <str> AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST 
+%token <str> DIV DO DOT DOTDOT DOWNTO ELSE END EQUAL EXTERNAL FOR FORWARD FUNCTION
+%token <str> GE GOTO GT IDENTIFIER IF IN LABEL LBRAC LE LPAREN LT MINUS MOD NIL NOT
+%token <str> notEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
+%token <str> RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
+%token <str> TO TYPE UNTIL UPARROW VAR WHILE WITH
+%token <str> STRING WRONGIDEN ERROR INTEGER REAL
 
-%token AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST DIGSEQ
-%token DIV DO DOT DOTDOT DOWNTO ELSE END EQUAL EXTERNAL FOR FORWARD FUNCTION
-%token GE GOTO GT 
-%token IDENTIFIER 
-%token IF IN LABEL LBRAC LE LPAREN LT MINUS MOD NIL NOT
-%token notEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
-%token REALNUMBER RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
-%token TO TYPE UNTIL UPARROW VAR WHILE WITH
-%token STRING WRONGIDEN ERROR INTEGER REAL
+%token <str> REALNUMBER 
+%type <str> relop mulop addop id variable
+%type <type> type standard_type 
+%type <typelist> parameter_list identifier_list
+%type <value> num  
+%type <tableentry> arguments procedure_statement
+%type <expression> factor expression boolexpression simple_expression term compound_statement statement tail
+%type <exprlist> statement_list expression_list  
 
-%type <str> id standard_type type
-
-%type <str> AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST DIGSEQ
-%type <str> DIV DO DOT DOTDOT DOWNTO ELSE END EQUAL EXTERNAL FOR FORWARD FUNCTION
-%type <str> GE GOTO GT
-%type <str> IDENTIFIER
-%type <str> IF IN LABEL LBRAC LE LPAREN LT MINUS MOD NIL NOT
-%type <str> notEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
-%type <str>REALNUMBER RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
-%type <str> TO TYPE UNTIL UPARROW VAR WHILE WITH
-%type <str> STRING WRONGIDEN ERROR INTEGER REAL
-
+%start prog
 %%
 
 
 prog  : PROGRAM id {
-		TableEntry* tmp = BuildTableEntry($2, "program", "global", yylineno);
-		InsertTableEntry(symbol_table, tmp);
+      	TableEntry* tmp = BuildTableEntry($2,"program",symbol_table->current_level,BuildType("void"),NULL);
+	InsertTableEntry(symbol_table,tmp);
 	}
-	 LPAREN {
-		strcpy(symbol_table->scope, "in_prog");
-		}
-	identifier_list
-
-		
-	 RPAREN {
-		strcpy(symbol_table->scope, symbol_table->pre_scope);
+      LPAREN {
+		symbol_table->current_level++;
+	}identifier_list RPAREN{
+		symbol_table->current_level--;
 	}
-	SEMICOLON
-       
+	 SEMICOLON
 	declarations
 	subprogram_declarations
 	compound_statement
  	DOT
 	;
 
-identifier_list : id {
-			TableEntry* tmp = BuildTableEntry($1, "var", symbol_table->scope, yylineno);
-                        InsertTableEntry(symbol_table, tmp);
-                }
-                | identifier_list COMMA id{
-			TableEntry* tmp = BuildTableEntry($3, "var", symbol_table->scope, yylineno);
-                        InsertTableEntry(symbol_table, tmp);
-                }
-                ;
-num : DIGSEQ
-	| REALNUMBER
-	| MINUS REALNUMBER
-	| MINUS DIGSEQ	
+num : DIGSEQ {$$ = BuildValue("integer", yytext);}
+	| REALNUMBER	{$$ = BuildValue("real", yytext);}
 	;
 
 
 id : IDENTIFIER
 	;
 
-declarations : declarations VAR identifier_list{
-	    				
-						}
-		 COLON type SEMICOLON
-	 
+
+identifier_list : id{
+		TableEntry* tmp=BuildTableEntry($1, "var",symbol_table->current_level,BuildType("void"),NULL);
+					InsertTableEntry(symbol_table,tmp);
+}
+		| identifier_list COMMA id {
+                TableEntry* tmp=BuildTableEntry($3, "var",symbol_table->current_level,BuildType("void"),NULL);
+                                        InsertTableEntry(symbol_table,tmp);
+}
+		;
+
+declarations : declarations VAR identifier_list COLON type SEMICOLON
 		|
 		;
 
 
-type : standard_type {
-			$$ = $1;	
-			printf("%siii\n", $1);
-			}
+type : standard_type {$$ = $1;}
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type {
-						//$8 = strcat($8, "array");
-						printf("%s\n", $8);
-								}
+				int size = ($5->ival)-($3->ival)+1;
+				TableEntry* tmp = AddArrayToType($8, size);	
+				InsertTableEntry(symbol_table,tmp);
+				}				
 		;
 
-standard_type : INTEGER {$$ = "integer";}
-		| REAL	{$$ = "real"; }
-		| STRING{$$ = "string";}
+standard_type : INTEGER {$$ = BuildType("integer");}
+		| REAL	{$$ = BuildType("real");}	
+		| STRING{$$ = BuildType("string");}
 		;
 
 
@@ -149,18 +134,15 @@ subprogram_declaration :
 	compound_statement
 	;
 
-subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON{
-			
-		}
+subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
 		| PROCEDURE id arguments SEMICOLON
 		;
 
-arguments : LPAREN{strcpy(symbol_table->scope, "in_func");}
-	  parameter_list RPAREN{strcpy(symbol_table->scope, symbol_table->pre_scope);}
-		|
+arguments : LPAREN parameter_list RPAREN
+		|{$$ = NULL;}
 		;
 
-parameter_list : optional_var identifier_list COLON type
+parameter_list : optional_var identifier_list COLON type 
 		| optional_var identifier_list COLON type SEMICOLON parameter_list 
 		;
 
@@ -168,9 +150,9 @@ optional_var   : VAR
         	| 
 		;
 
-compound_statement : PBEGIN
+compound_statement : PBEGIN {symbol_table->current_level++;}
 		     optional_statements
-		     END
+		     END {symbol_table->current_level--;}
 		;
 
 
@@ -190,42 +172,54 @@ statement : variable ASSIGNMENT expression
 		|
 		;
 
-variable : id tail
+variable : id tail {
+	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is alreadyexisted
+		printf("Undeclared variable in Line %d : %s", yylineno, $1);
+		}
+	if($2 == NULL) {
+		$$ = $1;
+		}
+	else {
+		$$ = FindArrayIndex($1, $2);
+		}
+	}
 		;
 
-tail     : LBRAC expression RBRAC tail
-		|
+tail     : LBRAC expression RBRAC tail {$$ = $2;}
+		| {$$ = NULL;}
 		;
 
 procedure_statement : id
 		| id LPAREN expression_list RPAREN
 		;
 
-expression_list : expression
-		| expression_list COMMA expression
+expression_list : expression {$$ = BuildExprList(NULL, $1);}
+		| expression_list COMMA expression {$$ = BuildExprList($1, $3);}
 		;
 
-expression : boolexpression
-		| boolexpression AND boolexpression
-		| boolexpression OR boolexpression
+expression : boolexpression 
+		| boolexpression AND boolexpression {$$ = BooleanOp($1, $3, $2);}
+		| boolexpression OR boolexpression {$$ = BooleanOp($1, $3, $2);}
 		;
 
 boolexpression : simple_expression
-	       | simple_expression relop simple_expression
+	       | simple_expression relop simple_expression { $$ = relationalOp($1, $3, $2);}
 
 simple_expression : term
-		| simple_expression addop term
+		| simple_expression addop term {$$ = AddOp($1, $3, $2);}
 		;
 
-term : factor
-		| term mulop factor
+term : factor {$$ = $1;}
+		| term mulop factor{ $$ = $1;
+				MulOp($1, $3, $2);
+				}
 		;
 
 factor : id tail
-	| id LPAREN expression_list RPAREN
+	| id LPAREN expression_list RPAREN {$$ = FunctionCall($1, $3);}
 	| num
         | STRING
-	| LPAREN expression RPAREN
+	| LPAREN expression RPAREN {$$ = $2;}
 	| NOT factor
 	;
 
@@ -279,6 +273,7 @@ int main(int argc, char **argv)
 		//fprintf(stdout, "%d  ", tok);
 	//}
 	
+
 	fprintf( stdout, "--------------------------------\n" );
 	fprintf( stdout, "  OK!!\n" );
 	fprintf( stdout, "--------------------------------\n" );
