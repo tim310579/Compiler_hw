@@ -61,15 +61,17 @@ void ResetIdList(IdList* l)
     l->Ids = (char**)malloc(sizeof(char*) * 4);
 }
 
-TableEntry* BuildTableEntry(char* name, const char* kind, int level, Type* type, Attribute* attri)
+TableEntry* BuildTableEntry(char* name, const char* kind, int level, Type* type, Attribute* attri, int line)
 {
 //printf("%d  ", level);
     TableEntry* new = (TableEntry*)malloc(sizeof(TableEntry));
     strcpy(new->name, name);
     strcpy(new->kind, kind);
     new->level = level;
+    new->line = 0;
     new->type = type;
     new->attri = attri;
+    new->line = line;
     return new;
 }
 
@@ -135,15 +137,6 @@ void PopTableEntryByName(SymbolTable* s, char* name)
     }
 }
 
-void InsertTableEntryFromList(SymbolTable* t, IdList* l, const char* kind, Type* type, Attribute* attri)
-{
-    int i;
-    for (i = 0; i < l->pos; i++) {
-        TableEntry* new_entry = BuildTableEntry(l->Ids[i], kind,
-            t->current_level, type, attri);
-        InsertTableEntry(t, new_entry);
-    }
-}
 
 void PrintSymbolTable(SymbolTable* t)
 {
@@ -151,14 +144,14 @@ void PrintSymbolTable(SymbolTable* t)
     TableEntry* ptr;
 
     printf("\n");
-    printf("%s\t\t%s\t\t%s\t\t%s\t\t%s\n", "Name", "Kind", "Level", "Type", "Attribute");
+    printf("%s\t\t%s\t\t%s\t\t%s\t\t%s\n", "Name", "Kind", "Level", "Type", "Line");
     for (i = 0; i < t->pos; i++) {
         ptr = t->Entries[i];
         
             printf("%s\t\t%s\t\t", ptr->name, ptr->kind);
             PrintLevel(ptr->level);
             printf("%s\t\t", PrintType(ptr->type, 0));
-            PrintAttribute(ptr->attri);
+            printf("%d", ptr->line);
         printf("\n"); 
         
     }
@@ -189,115 +182,6 @@ char* PrintType(const Type* t, int current_dim)
     return output_buf;
 }
 
-void PrintAttribute(Attribute* a)
-{
-    if (a == NULL) {
-        return;
-    } else if (a->val != NULL) {
-        if (strcmp(a->val->type->name, "string") == 0)
-            printf("%s\t\t", a->val->sval);
-        else if (strcmp(a->val->type->name, "integer") == 0)
-            printf("%d\t\t", a->val->ival);
-        else if (strcmp(a->val->type->name, "real") == 0)
-            if (strstr(a->val->sval, "e") || strstr(a->val->sval, "E")) {
-                printf("%s\t\t", a->val->sval);
-            } else {
-                printf("%f\t\t", a->val->dval);
-            }
-        else if (strcmp(a->val->type->name, "boolean") == 0)
-            printf("%s\t\t", a->val->sval);
-    } else if (a->type_list != NULL) {
-        TypeList* l = a->type_list;
-        int i;
-        printf("%s\t\t", PrintType(l->types[0], 0));
-        for (i = 1; i < l->current_size; i++) {
-            printf(",%s\t\t", PrintType(l->types[i], 0));
-        }
-    }
-}
-
-void PrintLevel(int l)
-{
-    if (l == 0) {
-        printf("%d%s\t", l, "(global)");
-    } else {
-        printf("%d%s\t", l, "(local)");
-    }
-}
-
-//for debug
-void yytextPrint()
-{
-    printf("%s ", yytext);
-}
-
-Type* BuildType(const char* typename)
-{
-    Type* new = (Type*)malloc(sizeof(Type));
-    strcpy(new->name, typename);
-    new->array_signature = NULL; /*TODO*/
-    return new;
-}
-
-TableEntry* AddArrayToType(SymbolTable* s, int d)
-{
-    if(d < 0) {
-	    printf("Size Error!");
-	    return NULL;
-    }
-    else{
-	TableEntry* new = (TableEntry*)malloc(sizeof(TableEntry));
-	strcpy(new->kind, "array");
-	new->level = s->current_level;
-	new->array = (float*)malloc(sizeof(float)*d);
-	return new;
-    }
-}
-
-TypeList* AddTypeToList(TypeList* l, Type* t, int count)
-{
-    int i;
-    if (l == NULL) {
-        l = (TypeList*)malloc(sizeof(TypeList));
-        l->types = (Type**)malloc(sizeof(Type**) * 4);
-        l->capacity = 4;
-        l->current_size = 0;
-    }
-    if (l->current_size <= l->capacity + count) {
-        l->capacity *= 2;
-        Type** tmp = l->types;
-        l->types = (Type**)malloc(sizeof(Type**) * l->capacity);
-        for (i = 0; i < l->current_size; i++) {
-            (l->types)[i] = tmp[i];
-        }
-        free(tmp);
-    }
-    for (i = 0; i < count; i++) {
-        l->types[l->current_size++] = t;
-    }
-    return l;
-}
-TypeList* ExtendTypelist(TypeList* dest, TypeList* src)
-{
-    int i;
-    if (dest->capacity - dest->current_size < src->current_size) {
-        while ((dest->capacity - dest->current_size) < src->current_size) {
-            dest->capacity *= 2;
-        }
-        Type** tmp = dest->types;
-        dest->types = (Type**)malloc(sizeof(Type**) * dest->capacity);
-
-        for (i = 0; i < dest->current_size; i++) {
-            (dest->types)[i] = tmp[i];
-        }
-        free(tmp);
-    }
-    for (i = 0; i < src->current_size; i++) {
-        dest->types[dest->current_size++] = src->types[i];
-    }
-    free(src);
-    return dest;
-}
 
 Value* BuildValue(const char* typename, const char* val)
 {
@@ -321,41 +205,6 @@ Value* BuildValue(const char* typename, const char* val)
         v->sval = strdup(val);
     }
     return v;
-}
-Value* SubOp(Value* v)
-{
-    if (v == NULL)
-        return NULL;
-    Type* t = v->type;
-    if (strcmp(t->name, "real") == 0) {
-        if (strstr(v->sval, "E") || strstr(v->sval, "e")) {
-            char* tmp = v->sval;
-            v->sval = (char*)malloc(strlen(v->sval) + 2);
-            v->sval[0] = '-';
-            strcat(v->sval, tmp);
-            free(tmp);
-        } else {
-            v->dval *= -1.0;
-        }
-    } else if (strcmp(t->name, "integer") == 0) {
-        v->ival *= -1;
-    }
-    return v;
-}
-
-Attribute* BuildConstAttribute(Value* v)
-{
-    Attribute* a = (Attribute*)malloc(sizeof(Attribute));
-    a->val = v;
-    a->type_list = NULL;
-    return a;
-}
-Attribute* BuildFuncAttribute(TypeList* l)
-{
-    Attribute* a = (Attribute*)malloc(sizeof(Attribute));
-    a->type_list = l;
-    a->val = NULL;
-    return a;
 }
 
 TableEntry* FindEntryInScope(SymbolTable* tbl, char* name)
@@ -381,368 +230,28 @@ TableEntry* FindEntryInGlobal(SymbolTable* tbl, char* name)
     }
     return NULL;
 }
-TableEntry* FindEntryLoopVar(SymbolTable* tbl, char* name)
+Type* BuildType(const char* typename)
 {
-    int i;
-    for (i = 0; i < tbl->pos; i++) {
-        TableEntry* it = tbl->Entries[i];
-        if (strcmp(name, it->name) == 0 && strcmp(it->kind, "loop varible") == 0) {
-            return it;
-        }
-    }
-    return NULL;
+    Type* new = (Type*)malloc(sizeof(Type));
+    strcpy(new->name, typename);
+    new->array_signature = NULL; /*TODO*/
+    return new;
 }
-
-Expr* FindVarRef(SymbolTable* tbl, char* name)
+void PrintLevel(int l)
 {
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    TableEntry* tmp = FindEntryInScope(tbl, name);
-    if (tmp == NULL)
-        tmp = FindEntryInGlobal(tbl, name);
-    if (tmp == NULL)
-        tmp = FindEntryLoopVar(tbl, name);
-    if (tmp == NULL) {
-        strcpy(e->kind, "err");
-        strcpy(e->name, name);
-        e->current_dimension = 0;
-        e->entry = NULL;
-        e->para = NULL;
-        printf("Error at Line#%d: symbol %s is not declared\n", yylineno, name);
-        return e;
-    }
-    strcpy(e->kind, "var");
-    strcpy(e->name, name);
-    e->current_dimension = 0;
-    e->entry = tmp;
-    e->type = e->entry->type;
-    return e;
-}
-
-Expr* ConstExpr(Value* v)
-{
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    strcpy(e->kind, "const");
-    e->current_dimension = 0;
-    e->entry = NULL;
-    e->type = v->type;
-    return e;
-}
-/*TODO*/
-Expr* FunctionCall(char* name, ExprList* l)
-{
-    int i;
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    strcpy(e->kind, "function");
-    strcpy(e->name, name);
-    e->current_dimension = 0;
-    e->entry = FindEntryInGlobal(symbol_table, name);
-    if (e->entry == NULL) {
-        printf("Error at Line#%d: function %s is not declared\n", yylineno, name);
-        strcpy(e->kind, "err");
-        e->para = NULL;
-        return e;
+    if (l == 0) {
+        printf("%d%s\t", l, "(global)");
     } else {
-        e->type = e->entry->type;
+        printf("%d%s\t", l, "(local)");
     }
-    if (l == NULL) {
-        e->para = NULL;
-    } else {
-        TypeList* para = AddTypeToList(NULL, l->exprs[0]->type, 1);
-        for (i = 1; i < l->current_size; i++) {
-            AddTypeToList(para, l->exprs[i]->type, 1);
-        }
-        e->para = para;
-    }
-    if (!CheckFuncParaNum(e)) { //numcheck
-        int i;
-        if (e->para == NULL)
-            return e; //void function
-        for (i = 0; i < e->para->current_size; i++) {
-            if (strcmp(PrintType(l->exprs[i]->type, l->exprs[i]->current_dimension),
-                    PrintType(e->entry->attri->type_list->types[i], 0))
-                != 0) {
-                //can coerce
-                if (strcmp(PrintType(l->exprs[i]->type, l->exprs[i]->current_dimension), "integer") == 0 && strcmp(PrintType(e->entry->attri->type_list->types[i], 0), "real") == 0) {
-                    continue;
-                }
-
-                printf("Error at Line#%d: parameter type mismatch\n", yylineno);
-                return e;
-            }
-        }
-    }
-    return e;
 }
-
-ExprList* BuildExprList(ExprList* l, Expr* e)
-{
-    int i;
-    if (l == NULL) {
-        l = (ExprList*)malloc(sizeof(ExprList));
-        l->exprs = (Expr**)malloc(sizeof(Expr**) * 4);
-        l->capacity = 4;
-        l->current_size = 0;
-    }
-    if (l->current_size == l->capacity) {
-        l->capacity *= 2;
-        Expr** tmp = l->exprs;
-        l->exprs = (Expr**)malloc(sizeof(Expr**) * l->capacity);
-        for (i = 0; i < l->current_size; i++) {
-            (l->exprs)[i] = tmp[i];
-        }
-        free(tmp);
-    }
-    l->exprs[l->current_size++] = e;
-    return l;
-}
-
-int CheckConstAssign(Expr* r)
-{
-    if (r == NULL || r->entry == NULL)
-        return 0;
-    if (strcmp(r->kind, "err") == 0)
-        return 0;
-    if (strcmp(r->entry->kind, "constant") == 0) {
-        printf("Error at Line#%d: constant %s cannot be assigned\n", yylineno, r->entry->name);
-        return 1;
-    } else if (strcmp(r->entry->kind, "loop varible") == 0) {
-        printf("Error at Line#%d: loop varible '%s' cannot be assigned\n", yylineno, r->entry->name);
-        return 1;
-    }
-    return 0;
-}
-
-int CheckType(Expr* LHS, Expr* RHS)
-{
-    if (LHS == NULL || RHS == NULL)
-        return 0;
-    if (strcmp(LHS->kind, "err") == 0 || strcmp(RHS->kind, "err") == 0)
-        return 0;
-    if (strcmp(LHS->kind, "error") == 0)
-        return 0;
-    if (strcmp(PrintType(LHS->type, LHS->current_dimension), PrintType(RHS->type, RHS->current_dimension)) != 0) {
-        if (!CanCoerce(LHS, RHS)) {
-            printf("Error at Line#%d: type mismatch, LHS= %s, RHS= %s\n",
-                yylineno, PrintType(LHS->type, LHS->current_dimension), PrintType(RHS->type, RHS->current_dimension));
-            return 1;
-        }
-    }
-    return 0;
-}
-
-int CheckFuncParaNum(Expr* e)
-{
-    if (e == NULL)
-        return 0;
-    if (strcmp(e->kind, "err") == 0)
-        return 0;
-
-    if (strcmp(e->kind, "function") != 0) {
-        return 0;
-    }
-    if (strcmp(e->type->name, "void") == 0 && e->para == NULL) {
-        return 0;
-    } else if (strcmp(e->type->name, "void") == 0 && e->para != NULL) {
-        printf("Error at Line#%d: too many arguments to function '%s'\n", yylineno, e->name);
-        return 1;
-    } else if (strcmp(e->type->name, "void") != 0 && e->para == NULL) {
-        printf("Error at Line#%d: too few arguments to function '%s'\n", yylineno, e->name);
-        return 1;
-    } else if (e->para->current_size > e->entry->attri->type_list->current_size) {
-        printf("Error at Line#%d: too many arguments to function '%s'\n", yylineno, e->name);
-        return 1;
-    } else if (e->para->current_size < e->entry->attri->type_list->current_size) {
-        printf("Error at Line#%d: too few arguments to function '%s'\n", yylineno, e->name);
-        return 1;
-    }
-    return 0;
-}
-
-Expr* RelationalOp(Expr* LHS, Expr* RHS, char* op)
-{
-    if (LHS == NULL || RHS == NULL)
-        return NULL;
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    strcpy(e->kind, "var");
-    e->current_dimension = 0;
-    e->entry = NULL;
-    e->type = BuildType("boolean");
-    if (strcmp(LHS->kind, "err") == 0 || strcmp(RHS->kind, "err") == 0) {
-        strcpy(e->kind, "err");
-        return e;
-    }
-    if (strcmp(LHS->type->name, "string") == 0 || strcmp(RHS->type->name, "string") == 0) {
-        printf("Error at Line#%d: Side of %s is %s type\n", yylineno, op, PrintType(LHS->type, LHS->current_dimension));
-        strcpy(e->kind, "err");
-        return e;
-    }
-    //both side not the same
-    if (!(
-            (strcmp(PrintType(LHS->type, LHS->current_dimension), "integer") != 0 && strcmp(PrintType(RHS->type, RHS->current_dimension), "integer") != 0)
-            || (strcmp(PrintType(LHS->type, LHS->current_dimension), "real") != 0 && strcmp(PrintType(RHS->type, RHS->current_dimension), "real") != 0))) {
-        printf("Error at Line#%d: between %s are not both integer/real\n", yylineno, op);
-        strcpy(e->kind, "err");
-        e->type = BuildType(LHS->type->name);
-        return e;
-    }
-
-    return e;
-}
-Expr* AddOp(Expr* LHS, Expr* RHS, char* op)
-{
-    if (LHS == NULL || RHS == NULL)
-        return NULL;
-    if (strcmp(LHS->kind, "err") == 0 || strcmp(RHS->kind, "err") == 0)
-        return 0;
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    e->current_dimension = 0;
-    e->entry = NULL;
-    strcpy(e->kind, "var");
-    //ok both is string
-    if (strcmp(LHS->type->name, "string") == 0
-        && strcmp(RHS->type->name, "string") == 0) {
-        e->type = BuildType("string");
-        strcpy(e->kind, "var");
-        return e;
-    }
-
-    //error, one side not int/real
-    if (
-        (strcmp(PrintType(LHS->type, LHS->current_dimension), "integer") != 0 && strcmp(PrintType(LHS->type, LHS->current_dimension), "real") != 0)
-        || (strcmp(PrintType(RHS->type, RHS->current_dimension), "integer") != 0 && strcmp(PrintType(RHS->type, RHS->current_dimension), "real") != 0)) {
-        printf("Error at Line#%d: between %s are not integer/real\n", yylineno, op);
-        strcpy(e->kind, "err");
-        e->type = BuildType(LHS->type->name);
-        return e;
-    }
-
-    //one of side is real
-    if (strcmp(PrintType(LHS->type, LHS->current_dimension), "real") == 0
-        || strcmp(PrintType(RHS->type, RHS->current_dimension), "real") == 0) {
-        e->type = BuildType("real");
-        return e;
-    }
-    free(e->type);
-    free(e);
-    return LHS;
-}
-Expr* BooleanOp(Expr* LHS, Expr* RHS, char* op)
-{
-    if (LHS == NULL || RHS == NULL)
-        return NULL;
-    if (strcmp(LHS->kind, "err") == 0 || strcmp(RHS->kind, "err") == 0)
-        return NULL;
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    e->current_dimension = 0;
-    e->entry = NULL;
-    strcpy(e->kind, "var");
-    //error, one side not int/real
-    if (
-        (strcmp(PrintType(LHS->type, LHS->current_dimension), "boolean") != 0) || (strcmp(PrintType(RHS->type, RHS->current_dimension), "boolean") != 0)) {
-        printf("Error at Line#%d: operand(s) between '%s' are not boolean\n", yylineno, op);
-        strcpy(e->kind, "err");
-        e->type = BuildType(LHS->type->name);
-        return e;
-    }
-
-    free(e->type);
-    free(e);
-    return LHS;
-}
-
-Expr* MulOp(Expr* LHS, Expr* RHS, char* op)
-{
-    if (LHS == NULL || RHS == NULL)
-        return NULL;
-    if (strcmp(LHS->kind, "err") == 0 || strcmp(RHS->kind, "err") == 0)
-        return NULL;
-    Expr* e = (Expr*)malloc(sizeof(Expr));
-    e->current_dimension = 0;
-    e->entry = NULL;
-    //error , mod without integr
-    if (strcmp(op, "mod") == 0) {
-        if (strcmp(PrintType(LHS->type, LHS->current_dimension), "integer") != 0 || strcmp(PrintType(RHS->type, RHS->current_dimension), "integer") != 0) {
-            printf("Error at Line#%d: between 'mod' are not integer\n", yylineno);
-            strcpy(e->kind, "err");
-            e->type = BuildType(LHS->type->name);
-            return e;
-        }
-    }
-    //error, one side not int/real
-    if (
-        (strcmp(PrintType(LHS->type, LHS->current_dimension), "integer") != 0 && strcmp(PrintType(LHS->type, LHS->current_dimension), "real") != 0)
-        || (strcmp(PrintType(LHS->type, LHS->current_dimension), "integer") != 0 && strcmp(PrintType(LHS->type, LHS->current_dimension), "real") != 0)) {
-        printf("Error at Line#%d: between %s are not integer/real\n", yylineno, op);
-        strcpy(e->kind, "err");
-        e->type = BuildType(LHS->type->name);
-        return e;
-    }
-    //one of side is real
-    if (strcmp(PrintType(LHS->type, LHS->current_dimension), "real") == 0
-        || strcmp(PrintType(RHS->type, RHS->current_dimension), "real") == 0) {
-        e->type = BuildType("real");
-        strcpy(e->kind, "err");
-        return e;
-    }
-
-    free(e->type);
-    free(e);
-    return LHS;
-}
-int CheckFuncRet(Type* ft, Expr* e)
-{
-    if (ft == NULL || e == NULL)
-        return 0;
-    if (strcmp(e->kind, "err") == 0)
-        return 0;
-
-    if (strcmp(PrintType(ft, 0), PrintType(e->type, e->current_dimension)) != 0) {
-        printf("Error at Line#%d: return type mismatch, ", yylineno);
-        printf("should return %s, got %s \n", PrintType(ft, 0), PrintType(e->type, e->current_dimension));
-        return 1;
-    }
-    return 0;
-}
-
-int CanCoerce(Expr* LHS, Expr* RHS)
-{
-    if (LHS == NULL || RHS == NULL)
-        return 0;
-    if (strcmp(PrintType(LHS->type, LHS->current_dimension), "real") == 0 && strcmp(PrintType(RHS->type, RHS->current_dimension), "integer") == 0) {
-        return 1; //can coerce
-    }
-    return 0; //can not coerce
-}
-
-int CheckSimple(Expr* in)
-{
-    if (in == NULL)
-        return 0;
-    if (strcmp(PrintType(in->type, in->current_dimension), "integer") != 0 && strcmp(PrintType(in->type, in->current_dimension), "real") != 0 && strcmp(PrintType(in->type, in->current_dimension), "boolean") != 0 && strcmp(PrintType(in->type, in->current_dimension), "string") != 0) {
-        printf("Error at Line#%d: print/read statement's operand must be scalar type\n", yylineno);
-        return 1;
-    }
-    return 0;
-}
-int CheckFilename(char* fn, char* proname)
-{
-    int len = strlen(fn);
-    fn[len - 2] = '\0';
-    char* p = strstr(fn, "/");
-    if (p != NULL) {
-        p++;
-    } else {
-        p = fn;
-    }
-    if (strcmp(p, proname) != 0) {
-        printf("Error at Line#%d: program beginning ID inconsist with file name\n", yylineno);
-    }
-    return 0;
-}
-Value* FindArrayIndex(SymbolTable* s, char* name, int index){
+void UpdateType(SymbolTable* s, Type* type, int line){
 	int i;
 	TableEntry* ptr;
 	for(i = 0; i < s->pos; i++){
-		
-	}	
+		ptr = s->Entries[i];
+		if(ptr->line == line && s->current_level == ptr->level){
+			ptr->type = type;
+		}
+	}
 }

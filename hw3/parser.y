@@ -56,20 +56,19 @@ int loop_cnt =0;
 %token <str> STRING WRONGIDEN ERROR INTEGER REAL
 
 %token <str> REALNUMBER 
-%type <str> relop mulop addop id variable
+%type <str> relop mulop addop id 
 %type <type> type standard_type 
-%type <typelist> parameter_list identifier_list
-%type <value> num  
-%type <tableentry> arguments procedure_statement
-%type <expression> factor expression boolexpression simple_expression term compound_statement statement tail
-%type <exprlist> statement_list expression_list  
+
+%type <value> num variable
+
+  
 
 %start prog
 %%
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2,"program",symbol_table->current_level,BuildType("void"),NULL);
+      	TableEntry* tmp = BuildTableEntry($2,"program",symbol_table->current_level,BuildType("void"),NULL, yylineno);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
@@ -94,25 +93,24 @@ id : IDENTIFIER
 
 
 identifier_list : id{
-		TableEntry* tmp=BuildTableEntry($1, "var",symbol_table->current_level,BuildType("void"),NULL);
+		TableEntry* tmp=BuildTableEntry($1, "var",symbol_table->current_level,BuildType("void"),NULL, yylineno);
 					InsertTableEntry(symbol_table,tmp);
 }
 		| identifier_list COMMA id {
-                TableEntry* tmp=BuildTableEntry($3, "var",symbol_table->current_level,BuildType("void"),NULL);
+                TableEntry* tmp=BuildTableEntry($3, "var",symbol_table->current_level,BuildType("void"),NULL, yylineno);
                                         InsertTableEntry(symbol_table,tmp);
 }
 		;
 
-declarations : declarations VAR identifier_list COLON type SEMICOLON
+declarations : declarations VAR identifier_list COLON type {UpdateType(symbol_table, $5, yylineno);}
+	     SEMICOLON
 		|
 		;
 
 
 type : standard_type {$$ = $1;}
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type {
-				int size = ($5->ival)-($3->ival)+1;
-				TableEntry* tmp = AddArrayToType($8, size);	
-				InsertTableEntry(symbol_table,tmp);
+				$$ = BuildType("array");
 				}				
 		;
 
@@ -139,7 +137,7 @@ subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
 		;
 
 arguments : LPAREN parameter_list RPAREN
-		|{$$ = NULL;}
+		|
 		;
 
 parameter_list : optional_var identifier_list COLON type 
@@ -174,52 +172,45 @@ statement : variable ASSIGNMENT expression
 
 variable : id tail {
 	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is alreadyexisted
-		printf("Undeclared variable in Line %d : %s", yylineno, $1);
-		}
-	if($2 == NULL) {
-		$$ = $1;
-		}
-	else {
-		$$ = FindArrayIndex($1, $2);
+		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
 		}
 	}
 		;
 
-tail     : LBRAC expression RBRAC tail {$$ = $2;}
-		| {$$ = NULL;}
+tail     : LBRAC expression RBRAC tail
+		| 
 		;
 
 procedure_statement : id
 		| id LPAREN expression_list RPAREN
 		;
 
-expression_list : expression {$$ = BuildExprList(NULL, $1);}
-		| expression_list COMMA expression {$$ = BuildExprList($1, $3);}
+expression_list : expression 
+		| expression_list COMMA expression 
 		;
 
 expression : boolexpression 
-		| boolexpression AND boolexpression {$$ = BooleanOp($1, $3, $2);}
-		| boolexpression OR boolexpression {$$ = BooleanOp($1, $3, $2);}
+		| boolexpression AND boolexpression 
+		| boolexpression OR boolexpression 
 		;
 
 boolexpression : simple_expression
-	       | simple_expression relop simple_expression { $$ = relationalOp($1, $3, $2);}
+	       | simple_expression relop simple_expression 
 
 simple_expression : term
-		| simple_expression addop term {$$ = AddOp($1, $3, $2);}
+		| simple_expression addop term
 		;
 
-term : factor {$$ = $1;}
-		| term mulop factor{ $$ = $1;
-				MulOp($1, $3, $2);
-				}
+term : factor
+		| term mulop factor
+				
 		;
 
 factor : id tail
-	| id LPAREN expression_list RPAREN {$$ = FunctionCall($1, $3);}
+	| id LPAREN expression_list RPAREN
 	| num
         | STRING
-	| LPAREN expression RPAREN {$$ = $2;}
+	| LPAREN expression RPAREN
 	| NOT factor
 	;
 

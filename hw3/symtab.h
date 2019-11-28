@@ -30,6 +30,7 @@ struct TableEntry {
 	char kind[20];
 	int level;
 	Type* type;
+	int line;
 	Attribute* attri;
 	float* array;
 	char arraytype[32];
@@ -89,7 +90,7 @@ void InsertTableEntry(SymbolTable*,TableEntry*);
 void InsertTableEntryFromList(SymbolTable*,IdList*,const char*,Type*,Attribute*);
 void PopTableEntry(SymbolTable*);
 void PopTableEntryByName(SymbolTable*,char*);
-TableEntry* BuildTableEntry(char*,const char*,int,Type*,Attribute*);
+TableEntry* BuildTableEntry(char*,const char*,int,Type*,Attribute*, int);
 
 void PrintSymbolTable(SymbolTable*);
 void PrintLevel(int);
@@ -135,3 +136,5 @@ int CheckFuncRet(Type*,Expr*);
 int CanCoerce(Expr*,Expr*);
 int CheckSimple(Expr*);
 int CheckFilename(char*,char*);
+
+void UpdateType(SymbolTable*, Type*, int line);

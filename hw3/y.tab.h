@@ -45,15 +45,15 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    AND = 258,
-    ARRAY = 259,
-    ASSIGNMENT = 260,
-    CASE = 261,
-    CHARACTER_STRING = 262,
-    COLON = 263,
-    COMMA = 264,
-    CONST = 265,
-    DIGSEQ = 266,
+    DIGSEQ = 258,
+    AND = 259,
+    ARRAY = 260,
+    ASSIGNMENT = 261,
+    CASE = 262,
+    CHARACTER_STRING = 263,
+    COLON = 264,
+    COMMA = 265,
+    CONST = 266,
     DIV = 267,
     DO = 268,
     DOT = 269,
@@ -92,40 +92,40 @@ extern int yydebug;
     PROCEDURE = 302,
     PROGRAM = 303,
     RBRAC = 304,
-    REALNUMBER = 305,
-    RECORD = 306,
-    REPEAT = 307,
-    RPAREN = 308,
-    SEMICOLON = 309,
-    SET = 310,
-    SLASH = 311,
-    STAR = 312,
-    STARSTAR = 313,
-    THEN = 314,
-    TO = 315,
-    TYPE = 316,
-    UNTIL = 317,
-    UPARROW = 318,
-    VAR = 319,
-    WHILE = 320,
-    WITH = 321,
-    STRING = 322,
-    WRONGIDEN = 323,
-    ERROR = 324,
-    INTEGER = 325,
-    REAL = 326
+    RECORD = 305,
+    REPEAT = 306,
+    RPAREN = 307,
+    SEMICOLON = 308,
+    SET = 309,
+    SLASH = 310,
+    STAR = 311,
+    STARSTAR = 312,
+    THEN = 313,
+    TO = 314,
+    TYPE = 315,
+    UNTIL = 316,
+    UPARROW = 317,
+    VAR = 318,
+    WHILE = 319,
+    WITH = 320,
+    STRING = 321,
+    WRONGIDEN = 322,
+    ERROR = 323,
+    INTEGER = 324,
+    REAL = 325,
+    REALNUMBER = 326
   };
 #endif
 /* Tokens.  */
-#define AND 258
-#define ARRAY 259
-#define ASSIGNMENT 260
-#define CASE 261
-#define CHARACTER_STRING 262
-#define COLON 263
-#define COMMA 264
-#define CONST 265
-#define DIGSEQ 266
+#define DIGSEQ 258
+#define AND 259
+#define ARRAY 260
+#define ASSIGNMENT 261
+#define CASE 262
+#define CHARACTER_STRING 263
+#define COLON 264
+#define COMMA 265
+#define CONST 266
 #define DIV 267
 #define DO 268
 #define DOT 269
@@ -164,52 +164,49 @@ extern int yydebug;
 #define PROCEDURE 302
 #define PROGRAM 303
 #define RBRAC 304
-#define REALNUMBER 305
-#define RECORD 306
-#define REPEAT 307
-#define RPAREN 308
-#define SEMICOLON 309
-#define SET 310
-#define SLASH 311
-#define STAR 312
-#define STARSTAR 313
-#define THEN 314
-#define TO 315
-#define TYPE 316
-#define UNTIL 317
-#define UPARROW 318
-#define VAR 319
-#define WHILE 320
-#define WITH 321
-#define STRING 322
-#define WRONGIDEN 323
-#define ERROR 324
-#define INTEGER 325
-#define REAL 326
+#define RECORD 305
+#define REPEAT 306
+#define RPAREN 307
+#define SEMICOLON 308
+#define SET 309
+#define SLASH 310
+#define STAR 311
+#define STARSTAR 312
+#define THEN 313
+#define TO 314
+#define TYPE 315
+#define UNTIL 316
+#define UPARROW 317
+#define VAR 318
+#define WHILE 319
+#define WITH 320
+#define STRING 321
+#define WRONGIDEN 322
+#define ERROR 323
+#define INTEGER 324
+#define REAL 325
+#define REALNUMBER 326
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 34 "parser.y" /* yacc.c:1909  */
+#line 37 "parser.y" /* yacc.c:1909  */
 
 	int num;
 	double dnum;
 	char* str;
-	char** idlist;
-	//idlist* idlist;
-	//node *expr;
-	
-	//Value* value;
-	char* type;
-	//TableEntry* tableentry;
-	//TypeList* typelist;
-	//Expr* expression;
-	//ExprList* exprlist;
+	int nodetype;
+	struct Value* value;
+	struct Type* type;
+	struct TableEntry* tableentry;
+	struct TypeList* typelist;
+	struct Expr* expression;
+	struct ExprList* exprlist;
 		
 
-#line 213 "y.tab.h" /* yacc.c:1909  */
+#line 210 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
