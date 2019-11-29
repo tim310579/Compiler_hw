@@ -11,27 +11,23 @@ SymbolTable* BuildSymbolTable()
     new->pos = 0;
     new->capacity = 4;
     new->Entries = (TableEntry**)malloc(sizeof(TableEntry*) * 4);
-    strcpy(new->scope, "global");
-    strcpy(new->pre_scope, "global");
     return new;
 }
 
 
-TableEntry* BuildTableEntry(char* name, char* scope, int level, char* type, int line)
+TableEntry* BuildTableEntry(char* name, int level, char* type, int line)
 {
 //printf("%d  ", level);
     TableEntry* new = (TableEntry*)malloc(sizeof(TableEntry));
     strcpy(new->name, name);
-    strcpy(new->scope, scope);
     new->level = level;
     new->line = 0;
     strcpy(new->type, type);
     new->line = line;
     new->arr_dim = 0;
-    new->arr_begin = 0;
-    new->arr_end = 0;
-    if(!strcmp(scope, "para")) strcpy(new->para, "yes");
-    else strcpy(new->para, "no");
+    new->para_cnt = 0;
+    new->arr_range = (int**)malloc(sizeof(int*)*4);
+    new->para = (char**)malloc(sizeof(char*)*4);
     return new;
 }
 
@@ -104,13 +100,28 @@ void PrintSymbolTable(SymbolTable* t)
     TableEntry* ptr;
 
     printf("\n");
-    printf("%s%18s%18s%18s%18s\n", "Name", "Level", "Type", "return", "Line");
+    printf("%s       %s       %s       %s      %s       %s       %s\n", "Name", "Level", "Type", "Return", "Parameter", "Dim", "Array_range");
     for (i = 0; i < t->pos; i++) {
         ptr = t->Entries[i]; 
-            printf("%s\t\t", ptr->name);
-            PrintLevel(ptr->level);
-            printf("%8s%16s", ptr->type, ptr->ret);
-            printf("%16d", ptr->line);
+        printf("|%s|     ", ptr->name);
+        PrintLevel(ptr->level);
+        printf("|%s|     |%s|     |", ptr->type, ptr->ret);
+        int j;
+	printf("(");
+	for(j = 0; j < ptr->para_cnt; j++){
+		printf("%s, ", ptr->para[j]);
+	}
+	printf(")");
+	printf("|     |");
+	if(ptr->arr_dim != 0) printf("%d", ptr->arr_dim);
+	printf("|     |");
+	if(ptr->arr_dim != 0){
+		int k;
+		for(k = 0; k < ptr->arr_dim; k++){
+			printf("(%d, %d) ",ptr->arr_range[k][0], ptr->arr_range[k][1]);
+		}
+	}
+	printf("|");
         printf("\n"); 
         
     }
@@ -176,9 +187,9 @@ Type* BuildType(const char* typename)
 void PrintLevel(int l)
 {
     if (l == 0) {
-        printf("%d%s\t", l, "(global)");
+        printf("|%d%s|\t", l, "(global)");
     } else {
-        printf("%d%s\t", l, "(local)");
+        printf("|%d%s|\t", l, "(local)");
     }
 }
 void UpdateType(SymbolTable* s, char* type, int line){
@@ -202,14 +213,43 @@ int IsFunction(SymbolTable* s, char* name){
 	}
 	return 0;
 }
-void UpdateFunctionRet(SymbolTable* s, char* name, char* ret, int line){
+void UpdateFunctionRet(SymbolTable* s, char* ret, int line){
 	int i;
 	TableEntry* ptr;
         for(i = 0; i < s->pos; i++){
                 ptr = s->Entries[i];
-                if(!strcmp(ptr->name, name) && !strcmp(ptr->type, "function") && ptr->line == line){
+                if(!strcmp(ptr->type, "function") && ptr->line == line){
                         strcpy(ptr->ret, ret);
 			return;
                 }
         }
 }
+void AddparaToFunc(SymbolTable* s, char* name, int line){	
+	int i;
+	TableEntry* ptr;
+	for(i = 0; i < s->pos; i++){
+		ptr = s->Entries[i];
+		if(!strcmp(ptr->name, name) && ptr->line == line) break;
+	}
+	TableEntry* par;
+	for(i = 0; i < s->pos; i++){
+		par = s->Entries[i];
+		if(par->line == line && strcmp(par->type, ptr->type) && par->level != ptr->level){	//count parameter
+			ptr->para_cnt++;
+		}
+	}
+	ptr->para = (char**)malloc(sizeof(char*)*ptr->para_cnt);
+	for(i = 0; i < ptr->para_cnt; i++) {
+		ptr->para[i] = (char*)malloc(sizeof(char)*32);
+	}
+	
+	int j = 0;
+	for(i = 0; i < s->pos; i++){
+                par = s->Entries[i];
+                if(par->line == line && strcmp(par->type, ptr->type) && par->level != ptr->level){      //add parameter
+                        strcpy(ptr->para[j], par->name);
+			j++;
+                }
+        }
+}
+

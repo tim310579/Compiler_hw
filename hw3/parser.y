@@ -69,14 +69,16 @@ int loop_cnt =0;
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2,symbol_table->scope, symbol_table->current_level, "void", yylineno);
+      	TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, "program", yylineno);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
 		symbol_table->current_level++;
 
 	}identifier_list RPAREN{
+		AddparaToFunc(symbol_table, $2, yylineno);
 		symbol_table->current_level--;
+	
 	}
 	 SEMICOLON
 	declarations
@@ -95,11 +97,11 @@ id : IDENTIFIER
 
 
 identifier_list : id{
-		TableEntry* tmp=BuildTableEntry($1, symbol_table->scope, symbol_table->current_level, "void", yylineno);
+		TableEntry* tmp=BuildTableEntry($1, symbol_table->current_level, "void", yylineno);
 		InsertTableEntry(symbol_table,tmp);
 }
 		| identifier_list COMMA id {
-                TableEntry* tmp=BuildTableEntry($3, symbol_table->scope, symbol_table->current_level, "void", yylineno);
+                TableEntry* tmp=BuildTableEntry($3, symbol_table->current_level, "void", yylineno);
                 InsertTableEntry(symbol_table,tmp);
 }
 		;
@@ -134,16 +136,25 @@ subprogram_declaration :
 	compound_statement
 	;
 
-subprogram_head : FUNCTION id
-		arguments COLON standard_type{
-		TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, "function", yylineno);          
-                InsertTableEntry(symbol_table,tmp);
-		UpdateFunctionRet(symbol_table, $2, $5, yylineno);
-                } SEMICOLON
-		| PROCEDURE id arguments SEMICOLON
+subprogram_head : FUNCTION id {
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, "function", yylineno);                           
+	  		InsertTableEntry(symbol_table,tmp);
+		}arguments{ //printf("%s||", $2);
+			AddparaToFunc(symbol_table, $2, yylineno);
+		}
+		 COLON standard_type SEMICOLON{
+		//printf("%s", $2);	
+			UpdateFunctionRet(symbol_table, $2, yylineno);
+                }
+		| PROCEDURE id arguments SEMICOLON{
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, "procedure", yylineno);
+                	InsertTableEntry(symbol_table,tmp);
+			AddparaToFunc(symbol_table, $2, yylineno);
+		}
 		;
 
-arguments : LPAREN parameter_list RPAREN
+arguments : LPAREN {symbol_table->current_level++;}
+	  parameter_list RPAREN{symbol_table->current_level--;}
 		|
 		;
 

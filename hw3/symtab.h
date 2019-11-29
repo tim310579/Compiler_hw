@@ -20,8 +20,6 @@ struct SymbolTable {
 	int current_level;
 	int pos;
 	int capacity;
-	char scope[32];
-	char pre_scope[32];
 	TableEntry** Entries;
 } ;
 
@@ -29,13 +27,13 @@ struct TableEntry {
 	char name[33];
 	char scope[32];
 	char ret[32];
-	char para[32];
+	int para_cnt;
+	char** para;
 	int level;
 	char type[32];
 	int line;
 	int arr_dim;
-	int arr_begin;
-	int arr_end;
+	int** arr_range;
 	int* iarray;
 	float* farray;
 	char* sarray;
@@ -95,7 +93,7 @@ void InsertTableEntry(SymbolTable*,TableEntry*);
 void InsertTableEntryFromList(SymbolTable*,IdList*,const char*,Type*,Attribute*);
 void PopTableEntry(SymbolTable*);
 void PopTableEntryByName(SymbolTable*,char*);
-TableEntry* BuildTableEntry(char*, char*, int, char*, int);
+TableEntry* BuildTableEntry(char*, int, char*, int);
 
 void PrintSymbolTable(SymbolTable*);
 void PrintLevel(int);
@@ -144,4 +142,6 @@ int CheckFilename(char*,char*);
 
 void UpdateType(SymbolTable*, char*, int line);
 int IsFunction(SymbolTable*, char*);
-void UpdateFunctionRet(SymbolTable*, char*, char*, int);
+void UpdateFunctionRet(SymbolTable*, char*, int);
+void AddparaToFunc(SymbolTable*, char*, int);
+//void AddparaToFunc(SymbolTable*, int);
