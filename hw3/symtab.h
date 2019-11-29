@@ -27,13 +27,18 @@ struct SymbolTable {
 
 struct TableEntry {
 	char name[33];
-	char kind[20];
+	char scope[32];
+	char ret[32];
+	char para[32];
 	int level;
-	Type* type;
+	char type[32];
 	int line;
-	Attribute* attri;
-	float* array;
-	char arraytype[32];
+	int arr_dim;
+	int arr_begin;
+	int arr_end;
+	int* iarray;
+	float* farray;
+	char* sarray;
 };
 
 struct ArraySig{
@@ -90,7 +95,7 @@ void InsertTableEntry(SymbolTable*,TableEntry*);
 void InsertTableEntryFromList(SymbolTable*,IdList*,const char*,Type*,Attribute*);
 void PopTableEntry(SymbolTable*);
 void PopTableEntryByName(SymbolTable*,char*);
-TableEntry* BuildTableEntry(char*,const char*,int,Type*,Attribute*, int);
+TableEntry* BuildTableEntry(char*, char*, int, char*, int);
 
 void PrintSymbolTable(SymbolTable*);
 void PrintLevel(int);
@@ -137,4 +142,6 @@ int CanCoerce(Expr*,Expr*);
 int CheckSimple(Expr*);
 int CheckFilename(char*,char*);
 
-void UpdateType(SymbolTable*, Type*, int line);
+void UpdateType(SymbolTable*, char*, int line);
+int IsFunction(SymbolTable*, char*);
+void UpdateFunctionRet(SymbolTable*, char*, char*, int);

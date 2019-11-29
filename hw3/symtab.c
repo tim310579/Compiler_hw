@@ -11,67 +11,27 @@ SymbolTable* BuildSymbolTable()
     new->pos = 0;
     new->capacity = 4;
     new->Entries = (TableEntry**)malloc(sizeof(TableEntry*) * 4);
+    strcpy(new->scope, "global");
+    strcpy(new->pre_scope, "global");
     return new;
 }
 
-IdList* BuildIdList()
-{
-    IdList* new = (IdList*)malloc(sizeof(IdList));
-    new->pos = 0;
-    new->capacity = 4;
-    new->Ids = (char**)malloc(sizeof(char*) * 4);
-    return new;
-}
 
-void InsertIdList(IdList* l, char* id)
-{
-    char* id_tmp = strdup(id);
-
-    if (l->pos == l->capacity) {
-        l->capacity *= 2;
-        char** tmp_Ids = l->Ids;
-        l->Ids = (char**)malloc(sizeof(char*) * l->capacity);
-        int i;
-        for (i = 0; i < l->pos; i++) {
-            (l->Ids)[i] = tmp_Ids[i];
-        }
-        free(tmp_Ids);
-    }
-
-    l->Ids[l->pos++] = id_tmp;
-}
-
-void PrintIdList(IdList* l)
-{
-    int i;
-    for (i = 0; i < l->pos; i++) {
-        printf("%s ", l->Ids[i]);
-    }
-    printf("\n");
-}
-
-void ResetIdList(IdList* l)
-{
-    int i;
-    for (i = (l->pos) - 1; i >= 0; i--) {
-        free(l->Ids[i]);
-    }
-    l->pos = 0;
-    l->capacity = 4;
-    l->Ids = (char**)malloc(sizeof(char*) * 4);
-}
-
-TableEntry* BuildTableEntry(char* name, const char* kind, int level, Type* type, Attribute* attri, int line)
+TableEntry* BuildTableEntry(char* name, char* scope, int level, char* type, int line)
 {
 //printf("%d  ", level);
     TableEntry* new = (TableEntry*)malloc(sizeof(TableEntry));
     strcpy(new->name, name);
-    strcpy(new->kind, kind);
+    strcpy(new->scope, scope);
     new->level = level;
     new->line = 0;
-    new->type = type;
-    new->attri = attri;
+    strcpy(new->type, type);
     new->line = line;
+    new->arr_dim = 0;
+    new->arr_begin = 0;
+    new->arr_end = 0;
+    if(!strcmp(scope, "para")) strcpy(new->para, "yes");
+    else strcpy(new->para, "no");
     return new;
 }
 
@@ -80,7 +40,7 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
 	//printf("%s %s %d \n ", e->name, e->kind, e->level);
      
     if (FindEntryInScope(t, e->name) != NULL) {
-	    printf("Error at Line#%d: %s '%s' is redeclared\n", yylineno, e->kind, e->name);
+	    printf("Error at Line#%d: '%s' is redeclared\n", yylineno, e->name);
         return;
     }
     //printf("%s %s %d \n ", e->name, e->kind, e->level);
@@ -144,42 +104,18 @@ void PrintSymbolTable(SymbolTable* t)
     TableEntry* ptr;
 
     printf("\n");
-    printf("%s\t\t%s\t\t%s\t\t%s\t\t%s\n", "Name", "Kind", "Level", "Type", "Line");
+    printf("%s%18s%18s%18s%18s\n", "Name", "Level", "Type", "return", "Line");
     for (i = 0; i < t->pos; i++) {
-        ptr = t->Entries[i];
-        
-            printf("%s\t\t%s\t\t", ptr->name, ptr->kind);
+        ptr = t->Entries[i]; 
+            printf("%s\t\t", ptr->name);
             PrintLevel(ptr->level);
-            printf("%s\t\t", PrintType(ptr->type, 0));
-            printf("%d", ptr->line);
+            printf("%8s%16s", ptr->type, ptr->ret);
+            printf("%16d", ptr->line);
         printf("\n"); 
         
     }
     
     printf("\n");
-}
-
-char* PrintType(const Type* t, int current_dim)
-{
-    if (t == NULL)
-        return "type_error";
-    ArraySig* ptr = t->array_signature;
-    char* output_buf = (char*)malloc(sizeof(char) * 18);
-    char tmp_buf[5];
-    int name_len = strlen(t->name) + 1;
-    memset(output_buf, 0, 18);
-    snprintf(output_buf, name_len, "%s", t->name);
-
-    while (ptr != NULL) {
-        if (current_dim) {
-            current_dim--;
-        } else {
-            snprintf(tmp_buf, 4, "[%d]", ptr->capacity);
-            strcat(output_buf, tmp_buf);
-        }
-        ptr = ptr->next_dimension;
-    }
-    return output_buf;
 }
 
 
@@ -245,13 +181,35 @@ void PrintLevel(int l)
         printf("%d%s\t", l, "(local)");
     }
 }
-void UpdateType(SymbolTable* s, Type* type, int line){
+void UpdateType(SymbolTable* s, char* type, int line){
 	int i;
 	TableEntry* ptr;
 	for(i = 0; i < s->pos; i++){
 		ptr = s->Entries[i];
 		if(ptr->line == line && s->current_level == ptr->level){
-			ptr->type = type;
+			strcpy(ptr->type, type);
 		}
 	}
+}
+int IsFunction(SymbolTable* s, char* name){
+	int i;
+	TableEntry* ptr;
+	for(i = 0; i < s->pos; i++){
+		ptr = s->Entries[i];
+		if(!strcmp(ptr->name, name) && !strcmp(ptr->type, "function")){
+			return 1;
+		}
+	}
+	return 0;
+}
+void UpdateFunctionRet(SymbolTable* s, char* name, char* ret, int line){
+	int i;
+	TableEntry* ptr;
+        for(i = 0; i < s->pos; i++){
+                ptr = s->Entries[i];
+                if(!strcmp(ptr->name, name) && !strcmp(ptr->type, "function") && ptr->line == line){
+                        strcpy(ptr->ret, ret);
+			return;
+                }
+        }
 }

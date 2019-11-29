@@ -132,7 +132,7 @@ NQUOTE [^']
 [/][*][^*]*([/][*][^*]*[*][/])*[^*]*[*][/]	{};
 
 "//".* 	     {};
-["][^"\n]*["]   return(STRING);
+["][^"\n]*["]   return(STRINGCONST);
 {A}{N}{D}                    return(AND);
 {A}{R}{R}{A}{Y}              return(ARRAY);
 {C}{A}{S}{E}                 return(CASE);
@@ -175,6 +175,7 @@ NQUOTE [^']
 {I}{N}{T}{E}{G}{E}{R}	     return(INTEGER);
 {R}{E}{A}{L}		     return(REAL);
 
+{S}{T}{R}{I}{N}{G}	     return(STRING);
 [a-zA-Z]*		{
 	char* tmp;
 	tmp = strdup(yytext);

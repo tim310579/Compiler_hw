@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "symtab.h"
+#include <string.h>
 
 extern FILE *yyin;
 extern char *yytext;
@@ -53,11 +54,11 @@ int loop_cnt =0;
 %token <str> notEQUAL OF OR OTHERWISE PACKED PBEGIN PFILE PLUS PROCEDURE PROGRAM RBRAC
 %token <str> RECORD REPEAT RPAREN SEMICOLON SET SLASH STAR STARSTAR THEN
 %token <str> TO TYPE UNTIL UPARROW VAR WHILE WITH
-%token <str> STRING WRONGIDEN ERROR INTEGER REAL
+%token <str> STRING WRONGIDEN ERROR INTEGER REAL STRINGCONST
 
 %token <str> REALNUMBER 
 %type <str> relop mulop addop id 
-%type <type> type standard_type 
+%type <str> type standard_type 
 
 %type <value> num variable
 
@@ -68,11 +69,12 @@ int loop_cnt =0;
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2,"program",symbol_table->current_level,BuildType("void"),NULL, yylineno);
+      	TableEntry* tmp = BuildTableEntry($2,symbol_table->scope, symbol_table->current_level, "void", yylineno);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
 		symbol_table->current_level++;
+
 	}identifier_list RPAREN{
 		symbol_table->current_level--;
 	}
@@ -93,12 +95,12 @@ id : IDENTIFIER
 
 
 identifier_list : id{
-		TableEntry* tmp=BuildTableEntry($1, "var",symbol_table->current_level,BuildType("void"),NULL, yylineno);
-					InsertTableEntry(symbol_table,tmp);
+		TableEntry* tmp=BuildTableEntry($1, symbol_table->scope, symbol_table->current_level, "void", yylineno);
+		InsertTableEntry(symbol_table,tmp);
 }
 		| identifier_list COMMA id {
-                TableEntry* tmp=BuildTableEntry($3, "var",symbol_table->current_level,BuildType("void"),NULL, yylineno);
-                                        InsertTableEntry(symbol_table,tmp);
+                TableEntry* tmp=BuildTableEntry($3, symbol_table->scope, symbol_table->current_level, "void", yylineno);
+                InsertTableEntry(symbol_table,tmp);
 }
 		;
 
@@ -110,13 +112,13 @@ declarations : declarations VAR identifier_list COLON type {UpdateType(symbol_ta
 
 type : standard_type {$$ = $1;}
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type {
-				$$ = BuildType("array");
+				strcpy($$, "array");
 				}				
 		;
 
-standard_type : INTEGER {$$ = BuildType("integer");}
-		| REAL	{$$ = BuildType("real");}	
-		| STRING{$$ = BuildType("string");}
+standard_type : INTEGER {strcpy($$, "integer");}
+		| REAL	{strcpy($$, "real");}	
+		| STRING{strcpy($$, "string");}
 		;
 
 
@@ -126,13 +128,18 @@ subprogram_declarations :
 		;
 
 subprogram_declaration :
-	subprogram_head 
+	subprogram_head {symbol_table->current_level++;}
 	declarations 			
 	subprogram_declarations
 	compound_statement
 	;
 
-subprogram_head : FUNCTION id arguments COLON standard_type SEMICOLON
+subprogram_head : FUNCTION id
+		arguments COLON standard_type{
+		TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, "function", yylineno);          
+                InsertTableEntry(symbol_table,tmp);
+		UpdateFunctionRet(symbol_table, $2, $5, yylineno);
+                } SEMICOLON
 		| PROCEDURE id arguments SEMICOLON
 		;
 
@@ -140,7 +147,7 @@ arguments : LPAREN parameter_list RPAREN
 		|
 		;
 
-parameter_list : optional_var identifier_list COLON type 
+parameter_list : optional_var identifier_list COLON type {UpdateType(symbol_table, $4, yylineno);}
 		| optional_var identifier_list COLON type SEMICOLON parameter_list 
 		;
 
@@ -171,10 +178,14 @@ statement : variable ASSIGNMENT expression
 		;
 
 variable : id tail {
-	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is alreadyexisted
+	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed
 		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
-		}
 	}
+	if(IsFunction(symbol_table, $1) == 1){
+		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
+	}
+	
+}
 		;
 
 tail     : LBRAC expression RBRAC tail
