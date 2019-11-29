@@ -174,7 +174,6 @@ NQUOTE [^']
 {W}{I}{T}{H}                 return(WITH);
 {I}{N}{T}{E}{G}{E}{R}	     return(INTEGER);
 {R}{E}{A}{L}		     return(REAL);
-
 {S}{T}{R}{I}{N}{G}	     return(STRING);
 [a-zA-Z]*		{
 	char* tmp;
