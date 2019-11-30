@@ -57,8 +57,8 @@ int loop_cnt =0;
 %token <str> STRING WRONGIDEN ERROR INTEGER REAL STRINGCONST
 
 %token <str> REALNUMBER 
-%type <str> relop mulop addop id 
-%type <str> type standard_type 
+%type <str> relop mulop addop id
+%type <type> type standard_type 
 
 %type <value> num variable
 
@@ -69,7 +69,7 @@ int loop_cnt =0;
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, "program", yylineno);
+      	TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("program"), yylineno);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
@@ -88,7 +88,7 @@ prog  : PROGRAM id {
 	;
 
 num : DIGSEQ {$$ = BuildValue("integer", yytext);}
-	| REALNUMBER	{$$ = BuildValue("real", yytext);}
+	| REALNUMBER	{BuildValue("real", yytext);}
 	;
 
 
@@ -97,16 +97,17 @@ id : IDENTIFIER
 
 
 identifier_list : id{
-		TableEntry* tmp=BuildTableEntry($1, symbol_table->current_level, "void", yylineno);
+		TableEntry* tmp=BuildTableEntry($1, symbol_table->current_level, BuildType("void"), yylineno);
 		InsertTableEntry(symbol_table,tmp);
 }
 		| identifier_list COMMA id {
-                TableEntry* tmp=BuildTableEntry($3, symbol_table->current_level, "void", yylineno);
+                TableEntry* tmp=BuildTableEntry($3, symbol_table->current_level, BuildType("void"), yylineno);
                 InsertTableEntry(symbol_table,tmp);
 }
 		;
 
-declarations : declarations VAR identifier_list COLON type {UpdateType(symbol_table, $5, yylineno);}
+declarations : declarations VAR identifier_list COLON type{
+		UpdateType(symbol_table, $5, yylineno);}
 	     SEMICOLON
 		|
 		;
@@ -114,13 +115,22 @@ declarations : declarations VAR identifier_list COLON type {UpdateType(symbol_ta
 
 type : standard_type {$$ = $1;}
 		| ARRAY LBRAC num DOTDOT num RBRAC OF type {
-				strcpy($$, "array");
+				//$8->arr_dim++;
+				//$$ = $8;
+				//printf("%d, %d\n", $3->ival, $5->ival);
+				$8->arr_range[($8->arr_dim)*2] = $3->ival;
+				$8->arr_range[($8->arr_dim)*2+1] = $5->ival;
+				$8->arr_dim++;
+				$$ = $8;
+				//$$ = BuildType(
+				//$$ = BuildArrayType(tmp, $3->ival, $5->ival);
+				
 				}				
 		;
 
-standard_type : INTEGER {strcpy($$, "integer");}
-		| REAL	{strcpy($$, "real");}	
-		| STRING{strcpy($$, "string");}
+standard_type : INTEGER {$$ = BuildType("integer");}
+		| REAL	{$$ = BuildType("real");}	
+		| STRING{$$ = BuildType("string");}
 		;
 
 
@@ -130,24 +140,31 @@ subprogram_declarations :
 		;
 
 subprogram_declaration :
-	subprogram_head {symbol_table->current_level++;}
+	subprogram_head {symbol_table->current_level++;
+			strcpy(symbol_table->scope, "in_func_or_proc");
+	}
 	declarations 			
 	subprogram_declarations
-	compound_statement
+	compound_statement {symbol_table->current_level--;
+			strcpy(symbol_table->scope, "global");		
+	}
 	;
 
 subprogram_head : FUNCTION id {
-			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, "function", yylineno);                           
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("function"), yylineno);                           
 	  		InsertTableEntry(symbol_table,tmp);
 		}arguments{ //printf("%s||", $2);
 			AddparaToFunc(symbol_table, $2, yylineno);
 		}
 		 COLON standard_type SEMICOLON{
-		//printf("%s", $2);	
-			UpdateFunctionRet(symbol_table, $2, yylineno);
+			char* tmp;
+			tmp = (char*)malloc(sizeof(char)*32);
+			//printf("%s", $7);
+			strcpy(tmp, $7->name);
+			UpdateFunctionRet(symbol_table, $7, yylineno);
                 }
 		| PROCEDURE id arguments SEMICOLON{
-			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, "procedure", yylineno);
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("procedure"), yylineno);
                 	InsertTableEntry(symbol_table,tmp);
 			AddparaToFunc(symbol_table, $2, yylineno);
 		}
@@ -158,7 +175,9 @@ arguments : LPAREN {symbol_table->current_level++;}
 		|
 		;
 
-parameter_list : optional_var identifier_list COLON type {UpdateType(symbol_table, $4, yylineno);}
+parameter_list : optional_var identifier_list COLON type {
+		UpdateType(symbol_table, $4, yylineno);
+		}
 		| optional_var identifier_list COLON type SEMICOLON parameter_list 
 		;
 
@@ -192,7 +211,7 @@ variable : id tail {
 	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed
 		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
 	}
-	if(IsFunction(symbol_table, $1) == 1){
+	if(IsFunction(symbol_table, $1) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
 		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
 	}
 	

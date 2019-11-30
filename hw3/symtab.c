@@ -10,23 +10,24 @@ SymbolTable* BuildSymbolTable()
     new->current_level = 0;
     new->pos = 0;
     new->capacity = 4;
+    strcpy(new->scope, "global");
     new->Entries = (TableEntry**)malloc(sizeof(TableEntry*) * 4);
     return new;
 }
 
 
-TableEntry* BuildTableEntry(char* name, int level, char* type, int line)
+TableEntry* BuildTableEntry(char* name, int level, Type* type, int line)
 {
 //printf("%d  ", level);
     TableEntry* new = (TableEntry*)malloc(sizeof(TableEntry));
     strcpy(new->name, name);
     new->level = level;
     new->line = 0;
-    strcpy(new->type, type);
+    new->type = type;
     new->line = line;
     new->arr_dim = 0;
     new->para_cnt = 0;
-    new->arr_range = (int**)malloc(sizeof(int*)*4);
+    //new->arr_range = (int*)malloc(sizeof(int)*10);
     new->para = (char**)malloc(sizeof(char*)*4);
     return new;
 }
@@ -105,7 +106,7 @@ void PrintSymbolTable(SymbolTable* t)
         ptr = t->Entries[i]; 
         printf("|%s|     ", ptr->name);
         PrintLevel(ptr->level);
-        printf("|%s|     |%s|     |", ptr->type, ptr->ret);
+        printf("|%s|     |%s|     |", ptr->type->name, ptr->ret);
         int j;
 	printf("(");
 	for(j = 0; j < ptr->para_cnt; j++){
@@ -113,12 +114,14 @@ void PrintSymbolTable(SymbolTable* t)
 	}
 	printf(")");
 	printf("|     |");
-	if(ptr->arr_dim != 0) printf("%d", ptr->arr_dim);
+	//printf("%d|||\n", ptr->type->arr_dim);
+	if(ptr->type->arr_dim != 0) printf("%d", ptr->type->arr_dim);
 	printf("|     |");
-	if(ptr->arr_dim != 0){
+	if(ptr->type->arr_dim != 0){
 		int k;
-		for(k = 0; k < ptr->arr_dim; k++){
-			printf("(%d, %d) ",ptr->arr_range[k][0], ptr->arr_range[k][1]);
+		//printf("%d|||||||||", ptr->type->arr_dim);
+		for( k = ptr->type->arr_dim-1; k >= 0; k--){
+			printf("(%d, %d) ",ptr->type->arr_range[k*2], ptr->type->arr_range[k*2+1]);
 		}
 	}
 	printf("|");
@@ -126,33 +129,8 @@ void PrintSymbolTable(SymbolTable* t)
         
     }
     
-    printf("\n");
 }
 
-
-Value* BuildValue(const char* typename, const char* val)
-{
-    Type* t = BuildType(typename);
-    Value* v = (Value*)malloc(sizeof(Value));
-    v->type = t;
-    v->sval = NULL;
-    v->ival = 0;
-    if (strcmp(t->name, "real") == 0) {
-        v->dval = atof(val);
-        v->sval = strdup(val);
-    } else if (strcmp(t->name, "string") == 0) {
-        v->sval = strdup(val);
-    } else if (strcmp(t->name, "integer") == 0) {
-        v->ival = atoi(val);
-    } else if (strcmp(t->name, "octal") == 0) {
-        v->ival = strtol(val, NULL, 8);
-    } else if (strcmp(t->name, "scientific") == 0) {
-        v->sval = strdup(val);
-    } else if (strcmp(t->name, "boolean") == 0) {
-        v->sval = strdup(val);
-    }
-    return v;
-}
 
 TableEntry* FindEntryInScope(SymbolTable* tbl, char* name)
 {
@@ -177,11 +155,10 @@ TableEntry* FindEntryInGlobal(SymbolTable* tbl, char* name)
     }
     return NULL;
 }
-Type* BuildType(const char* typename)
+Type* BuildType(char* typename)
 {
     Type* new = (Type*)malloc(sizeof(Type));
     strcpy(new->name, typename);
-    new->array_signature = NULL; /*TODO*/
     return new;
 }
 void PrintLevel(int l)
@@ -192,13 +169,13 @@ void PrintLevel(int l)
         printf("|%d%s|\t", l, "(local)");
     }
 }
-void UpdateType(SymbolTable* s, char* type, int line){
+void UpdateType(SymbolTable* s, Type* type, int line){
 	int i;
 	TableEntry* ptr;
 	for(i = 0; i < s->pos; i++){
 		ptr = s->Entries[i];
 		if(ptr->line == line && s->current_level == ptr->level){
-			strcpy(ptr->type, type);
+			ptr->type = type;
 		}
 	}
 }
@@ -207,19 +184,20 @@ int IsFunction(SymbolTable* s, char* name){
 	TableEntry* ptr;
 	for(i = 0; i < s->pos; i++){
 		ptr = s->Entries[i];
-		if(!strcmp(ptr->name, name) && !strcmp(ptr->type, "function")){
+		if(!strcmp(ptr->name, name) && !strcmp(ptr->type->name, "function" )){
+			
 			return 1;
 		}
 	}
 	return 0;
 }
-void UpdateFunctionRet(SymbolTable* s, char* ret, int line){
+void UpdateFunctionRet(SymbolTable* s, Type* ret, int line){
 	int i;
 	TableEntry* ptr;
         for(i = 0; i < s->pos; i++){
                 ptr = s->Entries[i];
-                if(!strcmp(ptr->type, "function") && ptr->line == line){
-                        strcpy(ptr->ret, ret);
+                if(!strcmp(ptr->type->name, "function") && ptr->line == line){
+                        strcpy(ptr->ret, ret->name);
 			return;
                 }
         }
@@ -234,7 +212,7 @@ void AddparaToFunc(SymbolTable* s, char* name, int line){
 	TableEntry* par;
 	for(i = 0; i < s->pos; i++){
 		par = s->Entries[i];
-		if(par->line == line && strcmp(par->type, ptr->type) && par->level != ptr->level){	//count parameter
+		if(par->line == line && strcmp(par->type->name, ptr->type->name) && par->level != ptr->level){	//count parameter
 			ptr->para_cnt++;
 		}
 	}
@@ -246,10 +224,44 @@ void AddparaToFunc(SymbolTable* s, char* name, int line){
 	int j = 0;
 	for(i = 0; i < s->pos; i++){
                 par = s->Entries[i];
-                if(par->line == line && strcmp(par->type, ptr->type) && par->level != ptr->level){      //add parameter
+                if(par->line == line && strcmp(par->type->name, ptr->type->name) && par->level != ptr->level){      //add parameter
                         strcpy(ptr->para[j], par->name);
 			j++;
                 }
         }
 }
+Type* BuildArrayType(char* typename, int begin, int end){
+	Type* new = (Type*)malloc(sizeof(Type));
+	strcpy(new->name, typename);
+	new->arr_dim++;
+	int y = new->arr_dim;
+	//new->arr_range = (int*)malloc(sizeof(int)*10);
+	new->arr_range[y*2-2] = begin;
+	new->arr_range[y*2-1] = end;
+	
+	return new;
+}
 
+Value* BuildValue(char* typename, char* val)
+{
+    Type* t = BuildType(typename);
+    Value* v = (Value*)malloc(sizeof(Value));
+    v->type = t;
+    v->sval = NULL;
+    v->ival = 0;
+    if (strcmp(t->name, "real") == 0) {
+        v->dval = atof(val);
+        v->sval = strdup(val);
+    } else if (strcmp(t->name, "string") == 0) {
+        v->sval = strdup(val);
+    } else if (strcmp(t->name, "integer") == 0) {
+        v->ival = atoi(val);
+    } else if (strcmp(t->name, "octal") == 0) {
+        v->ival = strtol(val, NULL, 8);
+    } else if (strcmp(t->name, "scientific") == 0) {
+        v->sval = strdup(val);
+    } else if (strcmp(t->name, "boolean") == 0) {
+        v->sval = strdup(val);
+    }
+    return v;
+}

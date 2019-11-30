@@ -191,8 +191,9 @@ NQUOTE [^']
 '({NQUOTE}|'')+'             return(CHARACTER_STRING);
 ":"                          return(COLON);
 ","                          return(COMMA);
-[0-9]+                       return(DIGSEQ);
-[-][0-9]+		     return(DIGSEQ);
+[0-9]+                       {
+		
+		return(DIGSEQ);}
 "."                          return(DOT);
 ".."                         return(DOTDOT);
 "="                          return(EQUAL);

@@ -20,6 +20,7 @@ struct SymbolTable {
 	int current_level;
 	int pos;
 	int capacity;
+	char scope[32];
 	TableEntry** Entries;
 } ;
 
@@ -30,13 +31,14 @@ struct TableEntry {
 	int para_cnt;
 	char** para;
 	int level;
-	char type[32];
+	
 	int line;
 	int arr_dim;
-	int** arr_range;
+	int arr_range[10];
 	int* iarray;
 	float* farray;
 	char* sarray;
+	Type* type;
 };
 
 struct ArraySig{
@@ -51,7 +53,8 @@ struct Attribute{
 
 struct Type{
 	char name[32];
-	ArraySig* array_signature;
+	int arr_dim;
+	int arr_range[10];
 };
 
 struct TypeList{
@@ -93,7 +96,7 @@ void InsertTableEntry(SymbolTable*,TableEntry*);
 void InsertTableEntryFromList(SymbolTable*,IdList*,const char*,Type*,Attribute*);
 void PopTableEntry(SymbolTable*);
 void PopTableEntryByName(SymbolTable*,char*);
-TableEntry* BuildTableEntry(char*, int, char*, int);
+TableEntry* BuildTableEntry(char*, int, Type*, int);
 
 void PrintSymbolTable(SymbolTable*);
 void PrintLevel(int);
@@ -123,13 +126,13 @@ IdList* BuildIdList();
 void ResetIdList(IdList*);
 void InsertIdList(IdList*,char*);
 
-Type* BuildType(const char*);
+Type* BuildType(char*);
 TableEntry* AddArrayToType(SymbolTable*, int);
 
 TypeList* AddTypeToList(TypeList*,Type*,int);
 TypeList* ExtendTypelist(TypeList*,TypeList*);
 
-Value* BuildValue(const char*,const char*);
+Value* BuildValue(char*, char*);
 Value* SubOp(Value*);
 
 int CheckConstAssign(Expr*);
@@ -140,8 +143,9 @@ int CanCoerce(Expr*,Expr*);
 int CheckSimple(Expr*);
 int CheckFilename(char*,char*);
 
-void UpdateType(SymbolTable*, char*, int line);
+void UpdateType(SymbolTable*, Type*, int line);
 int IsFunction(SymbolTable*, char*);
-void UpdateFunctionRet(SymbolTable*, char*, int);
+void UpdateFunctionRet(SymbolTable*, Type*, int);
 void AddparaToFunc(SymbolTable*, char*, int);
+Type* BuildArrayType(char*, int, int);
 //void AddparaToFunc(SymbolTable*, int);

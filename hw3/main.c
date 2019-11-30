@@ -25,11 +25,12 @@ int  main( int argc, char **argv )
 
 	yyin = fp;
 	yyparse();	/* primary procedure of parser */
+	fprintf( stdout, "\nMy Symbol Table------------------------------------------------------------");
 	PrintSymbolTable(symbol_table);
-	
-	printf("%s\n", yytext);
+	fprintf( stdout, "\n-------------------------------------------------------------------------");
 	fprintf( stdout, "\n|--------------------------------|\n" );
 	fprintf( stdout, "|  There is no syntactic error!  |\n" );
 	fprintf( stdout, "|--------------------------------|\n" );
+	fprintf( stdout, "-----------------end-------------------\n\n");
 	exit(0);
 }
