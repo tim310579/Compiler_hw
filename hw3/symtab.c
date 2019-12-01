@@ -32,6 +32,14 @@ TableEntry* BuildTableEntry(char* name, int level, Type* type, int line)
     new->value = (Value*)malloc(sizeof(Value));
     new->value->sval =  strdup("0");
     new->init = 0;
+    new->value->index = (int**)malloc(sizeof(int*)*32);
+    new->value->indexf = (double**)malloc(sizeof(double*)*32);
+    int i = 0;
+    for(i = 0; i < 32; i++){
+        new->value->index[i] = (int*)malloc(sizeof(int)*32);
+        new->value->indexf[i] = (double*)malloc(sizeof(double)*32);
+    }
+
     return new;
 }
 
@@ -39,7 +47,7 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
 {
 	//printf("%s %s %d \n ", e->name, e->kind, e->level);
      
-    if (FindEntryInScope(t, e->name) != NULL) {
+    if (FindEntryInScope(t, e->name) != NULL && FindEntryInScope(t, e->name)->level == t->current_level) {
 	    printf("Error at Line#%d: '%s' is redeclared\n", yylineno, e->name);
         return;
     }
@@ -140,9 +148,13 @@ TableEntry* FindEntryInScope(SymbolTable* tbl, char* name)
     int i;
     for (i = 0; i < tbl->pos; i++) {
         TableEntry* it = tbl->Entries[i];
-        if (strcmp(name, it->name) == 0 && it->level == tbl->current_level) {
-            return it;
-        }
+        int j;
+	for(j = 0; j <= tbl->current_level; j++){
+		if (strcmp(name, it->name) == 0 && it->level+j == tbl->current_level) {
+            		return it;
+        	}
+	}
+
     }
     return NULL;
 }
@@ -254,6 +266,7 @@ Value* BuildValue(char* typename, char* val)
     v->type = t;
     v->sval = NULL;
     v->ival = 0;
+    v->is_array = 0;
     if (strcmp(t->name, "real") == 0) {
         v->dval = atof(val);
         v->sval = strdup(val);
@@ -297,20 +310,24 @@ char* itoa (int n)
 	return ne;
 }
 Value* Addtwo(Value* n1, Value* n2, char* op, int line){
+	Type* t = BuildType(n1->type->name);
+        Value* v = (Value*)malloc(sizeof(Value));
+        v->type = t;
+        v->sval = NULL;
+        v->ival = 0;
 	if(strcmp(n1->type->name, n2->type->name)){
-		printf("%s %s\n", n1->type->name, n2->type->name);
+		//printf("%s %s\n", n1->type->name, n2->type->name);
 		printf("Different type cannot add or minus at Line: %d\n", line);
-		return NULL;
+		return v;
 	}
 	if(!strcmp(n1->type->name, "string")) {
 		printf("String cannot add or minus at Line: %d\n", line);
-		return NULL;
+		return v;
 	}
-	Type* t = BuildType(n1->type->name);
-	Value* v = (Value*)malloc(sizeof(Value));
-	v->type = t;
-	v->sval = NULL;
-	v->ival = 0;
+	if(n1->is_array > 0 || n2->is_array > 0) {
+		printf("Cannot add or minus array at Line: %d\n", line);
+		return v;
+	}
 	
 	if(!strcmp(op, "+")) { 
 		if(!strcmp(n1->type->name, "integer")){
@@ -351,6 +368,10 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 		printf("String cannot mul or div at Line: %d\n", line);
 		return NULL;
 	}
+	if(n1->is_array > 0 || n2->is_array > 0) {
+                printf("Cannot add array at Line: %d\n", yylineno);
+                return NULL;
+        }
 	Type* t = BuildType(n1->type->name);
 	Value* v = (Value*)malloc(sizeof(Value));
 	v->type = t;
@@ -397,6 +418,58 @@ Value* BuildValueTail(char* typename, Var* tail){
    	v->type = t;
     	v->sval = NULL;
     	v->ival = 0;
-	//v->tail[v->tail_cnt] = tail->
+	v->index = (int**)malloc(sizeof(int*)*32);
+	v->indexf = (double**)malloc(sizeof(double*)*32);
+	int i = 0;
+	for(i = 0; i < 32; i++){
+		v->index[i] = (int*)malloc(sizeof(int)*32);
+		v->indexf[i] = (double*)malloc(sizeof(double)*32);
+	}
+	v->has_tail = 0;
 	return v;
+}
+void UpdateValue(SymbolTable* s, Value* v){
+	TableEntry* tmp = FindEntryInScope(s, v->name);
+	if(tmp == NULL) tmp = FindEntryInGlobal(s, v->name);
+	if(tmp == NULL) return;
+	if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
+		printf("Type assign error in Line: %d\n", yylineno);
+		return;
+	}
+	if(!strcmp(v->type->name, "real")){
+		tmp->value->dval = v->dval;
+		tmp->value->sval = strdup(v->sval);
+	}
+	else if(!strcmp(v->type->name, "integer")){
+                tmp->value->ival = v->ival;
+        }
+	else if(!strcmp(v->type->name, "srting")){
+                tmp->value->sval = strdup(v->sval);
+        }	
+}
+void UpdateIndex(TableEntry* t, int* tail, int tail_cnt){
+	int i;
+	int tmp = t->value->has_tail;
+	for(i = 0; i < tail_cnt; i++){
+		t->value->index[tmp][i] = tail[i];
+	}
+	t->value->has_tail++;
+}
+void UpdateIndexValue(SymbolTable* s, Value* v){
+	TableEntry* tmp = FindEntryInScope(s, v->name);
+        if(tmp == NULL) tmp = FindEntryInGlobal(s, v->name);
+        if(tmp == NULL) return;
+        if(strcmp(v->type->name, tmp->type->name)) {    //type erroe
+                printf("Type assign error in Line: %d\n", yylineno);
+                return;
+        }
+	int index = tmp->value->has_tail;
+	int tail_cnt = tmp->value->tail_cnt;
+        if(!strcmp(v->type->name, "real")){
+                tmp->value->indexf[index][tail_cnt] = v->dval;
+        }
+        else if(!strcmp(v->type->name, "integer")){
+                tmp->value->index[index][tail_cnt] = v->ival;
+        }
+
 }

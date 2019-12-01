@@ -87,8 +87,12 @@ struct Value{
 	int ival;
 	double dval;
 	char* sval;
-	int tail_cnt;
+	int tail_cnt;	//dimension
 	int tail[32];
+	int** index;
+	double** indexf;
+	int has_tail;
+	int is_array;
 };
 
 SymbolTable* BuildSymbolTable();
@@ -152,3 +156,6 @@ char* itoa(int);
 Value* Addtwo(Value*, Value*, char*, int);
 Value* Multwo(Value*, Value*, char*, int);
 //void AddparaToFunc(SymbolTable*, int);
+void UpdateValue(SymbolTable*, Value*);
+void UpdateIndex(TableEntry*, int*, int);
+void UpdateIndexValue(SymbolTable*, Value*);

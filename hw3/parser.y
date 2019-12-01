@@ -208,7 +208,8 @@ statement : variable ASSIGNMENT expression {
 	strcpy(tmp, $1->name);	//remain first
 	$1 = $3;
 	strcpy($1->name, tmp);
-	//UpdateValue(symbol_table, $1
+	UpdateValue(symbol_table, $1);
+	UpdateIndexValue(symbol_table, $1);
 	  }
 		| procedure_statement
 		| compound_statement
@@ -218,14 +219,16 @@ statement : variable ASSIGNMENT expression {
 		;
 
 variable : id tail {
+	 int flag = 0;
 	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed
 		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
-		
+		flag = 1; //no need to continie
 	}
 	if(IsFunction(symbol_table, $1) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
 		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
-		
+		flag = 1;
 	}
+	if(flag == 0){
 	TableEntry* tmp = FindEntryInGlobal(symbol_table, $1);
                 if(!strcmp(tmp->type->name, "integer")){
                         char* tmp1;
@@ -243,32 +246,43 @@ variable : id tail {
 		
 		for(j = 0; j < tail_cnt; j++){
 			$$->tail[j] = tail[j];
-			tail[j] = 0;
 		}
-		tail_cnt = 0;
-		if(tmp->type->arr_dim != $$->tail_cnt) {
+		int flag2 = 0;
+		if(tmp->type->arr_dim != $$->tail_cnt && $$->tail_cnt > 0) {
 			printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
 			printf("Wrong array dimention at Line: %d\n", yylineno);
+			flag2 = 1; //no need to update
 		}
-		for(j = tmp->type->arr_dim-1; j>=0; j--){
-			printf("%d  %d  %d\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
-			if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
-				printf("Array out of bound at Line: %d\n", yylineno);
-			}
+		if($$->tail_cnt > 0){
+			for(j = tmp->type->arr_dim-1; j>=0; j--){
+				printf("%d  %d  %dppp\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
+				if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
+					printf("Array out of bound at Line: %d\n", yylineno);
+					flag2 = 1;
+				}
 		}
-		printf("\n");
+		}
+		if(flag2 == 0){
+			UpdateIndex(tmp, tail, tail_cnt);
+		
+		}
+		for(j = 0; j < tail_cnt; j++){
+                        tail[j] = 0;
+                }
+		tail_cnt = 0;
+}
 }
 		;
 
 tail     : LBRAC expression RBRAC tail {
-	 	printf("%f ", $2->dval);
+	 	//printf("%f ", $2->dval);
 		if(!strcmp($2->type->name, "integer")){
 			tail[tail_cnt] = $2->ival;
 			tail_cnt++;
 		}
 		else{
-			printf("%f|||||",$2->dval);
-			tail[tail_cnt] = $2->dval;
+			printf("Real cannot be index Wrong in Line: %d\n", yylineno);
+			tail[tail_cnt] = -1;
 			tail_cnt++;
 		}
 	}
@@ -293,7 +307,10 @@ boolexpression : simple_expression {$$ = $1;/*printf("%s", $1->sval);*/}
 
 simple_expression : term {$$ = $1; }
 		| simple_expression addop term { 
+		//printf("%s %d, %s %d  ", $1->name, $1->is_array, $3->name, $3->is_array);
+		printf("%d %d    ", $1->ival, $3->ival);
 		$$ = Addtwo($1, $3, $2, yylineno);
+		printf("success\n");
 		}
 		
 		;
@@ -307,9 +324,17 @@ term : factor {$$ = $1; }
 		;
 
 factor : id tail {
-       int flag = 0;
-       TableEntry* tmp = FindEntryInGlobal(symbol_table, $1);
-                if(!strcmp(tmp->type->name, "integer")){
+       //$$ = BuildValue("integer", "0");
+       //printf("%s||", $1);
+	int flag = 0;
+        
+	TableEntry* tmp = FindEntryInScope(symbol_table, $1);
+	if(tmp == NULL) {
+	tmp = FindEntryInGlobal(symbol_table, $1);
+	}
+	        //printf("%s", tmp->type->name);
+
+		if(!strcmp(tmp->type->name, "integer")){
                         char* tmp1;
                         tmp1 = (char*)malloc(sizeof(char)*32);
                         tmp1 = itoa(tmp->value->ival);
@@ -318,6 +343,8 @@ factor : id tail {
                 else{
                         $$ = BuildValue(tmp->type->name, tmp->value->sval);
                 }
+
+		if(tmp->type->arr_dim > 0) $$->is_array = 1;
                 //printf("%d", tail_cnt);
                 $$->tail_cnt = tail_cnt;
 		strcpy($$->name, $1);
@@ -327,14 +354,25 @@ factor : id tail {
                         $$->tail[j] = tail[j];
                         tail[j] = 0;
                 }
+		
                 tail_cnt = 0;
-                if(tmp->type->arr_dim != $$->tail_cnt) {
+                if(tmp->type->arr_dim != $$->tail_cnt && $$->tail_cnt > 0) {
                         //printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
                         printf("Wrong array dimention at Line: %d\n", yylineno);
                 	flag = 1;	//means no need to continuw
 		}
-
-
+		if($$->tail_cnt > 0){
+			for(j = tmp->type->arr_dim-1; j>=0; j--){
+				printf("%d  %d  %d\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
+				if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
+					printf("Array out of bound at Line: %d\n", yylineno);
+					flag = 1;
+				}
+			}
+		}
+		
+	
+		
 	}
 	| id LPAREN expression_list RPAREN{$$ = BuildValue("integer", "49");}
 	| num {
