@@ -54,7 +54,7 @@ struct Attribute{
 struct Type{
 	char name[32];
 	int arr_dim;
-	int arr_range[10];
+	int arr_range[32];
 };
 
 struct TypeList{
@@ -89,6 +89,8 @@ struct Value{
 	int ival;
 	double dval;
 	char* sval;
+	int tail_cnt;
+	int* tail;
 };
 
 SymbolTable* BuildSymbolTable();
@@ -148,4 +150,7 @@ int IsFunction(SymbolTable*, char*);
 void UpdateFunctionRet(SymbolTable*, Type*, int);
 void AddparaToFunc(SymbolTable*, char*, int);
 Type* BuildArrayType(char*, int, int);
+char* itoa(int);
+Value* Addtwo(Value*, Value*, char*);
+Value* Multwo(Value*, Value*, char*);
 //void AddparaToFunc(SymbolTable*, int);

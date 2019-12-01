@@ -265,3 +265,81 @@ Value* BuildValue(char* typename, char* val)
     }
     return v;
 }
+char* itoa (int n)
+{
+	char s[32];
+	int i, sign;
+	if((sign = n)<0) n=-n;
+	i = 0;
+	do{
+    	  s[i++] = n % 10 + '0';
+	}
+	while ((n /= 10) > 0);
+	if(sign < 0){
+		s[i++]='-';
+		s[i]='\0';
+	}
+      //printf("%s",s);
+    char* ne;
+    ne = (char*)malloc(sizeof(char)*32);
+    int k = 0;
+    int cnt = 0;
+	for(k = i-1; k >= 0; k--){	//reverse
+		ne[cnt] = s[k];
+		cnt++;
+	}
+	//printf("%s",ne);
+	return ne;
+}
+Value* Addtwo(Value* n1, Value* n2, char* op){
+	if(strcmp(n1->type->name, n2->type->name)){
+		printf("Different type cannot add or minus\n");
+		return NULL;
+	}
+	if(!strcmp(n1->type->name, "string")) {
+		printf("String cannot add or minus\n");
+		return NULL;
+	}
+	Type* t = BuildType(n1->type->name);
+	Value* v = (Value*)malloc(sizeof(Value));
+	v->type = n1->type;
+	v->sval = NULL;
+	v->ival = 0;
+	
+	if(!strcmp(op, "+")) { printf("%s ", n1->type->name);
+		if(!strcmp(n1->type->name, "integer")){
+			v->ival = n1->ival + n2->ival;
+		}
+		else  if(!strcmp(n1->type->name, "real")){
+			double t1, t2;
+			t1 = atof(n1->sval);
+			t2 = atof(n2->sval);
+			v->dval = t1+t2;
+			char* tmp;
+			tmp = (char*)malloc(sizeof(char)*32);
+			sprintf(tmp, "%f", v->dval);
+			//printf("%s", tmp);
+			v->sval = strdup(tmp);
+		}
+	}
+	else if(!strcmp(op, "-")) {
+		if(!strcmp(n1->type->name, "integer")){
+                        v->ival = n1->ival - n2->ival;
+                }
+                else  if(!strcmp(n1->type->name, "real")){
+                        double t1, t2;
+                        t1 = atof(n1->sval);
+                        t2 = atof(n2->sval);
+                        v->dval = t1-t2;
+                        char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        //printf("%s", tmp);
+                        v->sval = strdup(tmp);
+                }
+        }
+	return v;
+}
+Value* Multwo(Value* n1, Value* n2, char* op){
+	
+}

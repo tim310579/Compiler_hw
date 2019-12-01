@@ -56,11 +56,11 @@ int loop_cnt =0;
 %token <str> TO TYPE UNTIL UPARROW VAR WHILE WITH
 %token <str> STRING WRONGIDEN ERROR INTEGER REAL STRINGCONST
 
-%token <str> REALNUMBER 
+%token <str> REALNUMBER
 %type <str> relop mulop addop id
 %type <type> type standard_type 
-
-%type <value> num variable
+%type <value> expression term factor tail boolexpression simple_expression
+%type <value> variable num
 
   
 
@@ -88,7 +88,7 @@ prog  : PROGRAM id {
 	;
 
 num : DIGSEQ {$$ = BuildValue("integer", yytext);}
-	| REALNUMBER	{BuildValue("real", yytext);}
+	| REALNUMBER	{$$ = BuildValue("real", yytext);}
 	;
 
 
@@ -218,8 +218,8 @@ variable : id tail {
 }
 		;
 
-tail     : LBRAC expression RBRAC tail
-		| 
+tail     : LBRAC expression RBRAC tail {}
+		| {}
 		;
 
 procedure_statement : id
@@ -238,21 +238,43 @@ expression : boolexpression
 boolexpression : simple_expression
 	       | simple_expression relop simple_expression 
 
-simple_expression : term
-		| simple_expression addop term
+simple_expression : term {$$ = $1; printf("%d  %s|||", $$->ival, $$->sval);}
+		| simple_expression addop term { $$ = $3; printf("%d  %s  %s|||", $$->ival, $$->sval, $2);
+		$$ = Addtwo($1, $3, $2);
+		printf("||||%s}}}}", $$->sval);
+		}
+		
 		;
 
-term : factor
-		| term mulop factor
+term : factor {$$ = $1;}
+		| term mulop factor { $$ = BuildValue("real", "16");
+		/*$$ = Multwo($1, $3, $2);*/}
 				
 		;
 
-factor : id tail
-	| id LPAREN expression_list RPAREN
-	| num
-        | STRING
-	| LPAREN expression RPAREN
-	| NOT factor
+factor : id tail {$$ = BuildValue("integer", "99");}
+	| id LPAREN expression_list RPAREN{$$ = BuildValue("integer", "49");}
+	| num {
+		//$$ = $1;
+		//printf("%s", $1->sval);
+		char* tmp;
+		tmp = (char*)malloc(sizeof(char)*32);
+		if(!strcmp($1->type->name, "integer")){
+			tmp = itoa($1->ival);
+			$$ = BuildValue("integer", tmp);
+			//printf("%s", tmp);
+		}
+		else{
+			strcpy(tmp, $1->sval);
+			$$ = BuildValue("real", tmp);
+		}
+		
+		//printf("%s  ", $$->sval);
+		
+		}
+        | STRINGCONST {$$ = BuildValue("string", yytext);}
+	| LPAREN expression RPAREN {$$ = $2;}
+	| NOT factor {$$ = $2;}
 	;
 
 addop : PLUS | MINUS
