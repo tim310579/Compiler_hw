@@ -266,6 +266,7 @@ Value* BuildValue(char* typename, char* val)
     v->type = t;
     v->sval = NULL;
     v->ival = 0;
+    v->dval = 0;
     v->is_array = 0;
     if (strcmp(t->name, "real") == 0) {
         v->dval = atof(val);
@@ -313,7 +314,7 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	Type* t = BuildType(n1->type->name);
         Value* v = (Value*)malloc(sizeof(Value));
         v->type = t;
-        v->sval = NULL;
+        v->sval = "";
         v->ival = 0;
 	if(strcmp(n1->type->name, n2->type->name)){
 		//printf("%s %s\n", n1->type->name, n2->type->name);

@@ -297,21 +297,21 @@ expression_list : expression
 		| expression_list COMMA expression 
 		;
 
-expression : boolexpression {$$ = $1; }
+expression : boolexpression {$$ = $1;} 
 		| boolexpression AND boolexpression 
 		| boolexpression OR boolexpression 
 		;
 
-boolexpression : simple_expression {$$ = $1;/*printf("%s", $1->sval);*/}
+boolexpression : simple_expression {$$ = $1;printf("%d", $1->ival);}
 	       | simple_expression relop simple_expression 
 
 simple_expression : term {$$ = $1; }
 		| simple_expression addop term { 
 		//printf("%s %d, %s %d  ", $1->name, $1->is_array, $3->name, $3->is_array);
-		printf("%d %d    ", $1->ival, $3->ival);
+		
 		$$ = Addtwo($1, $3, $2, yylineno);
-		printf("success\n");
-		}
+		//if($$ == NULL) printf("8787");  //$$ = BuildValue("integer", "1");
+	}
 		
 		;
 
@@ -324,53 +324,60 @@ term : factor {$$ = $1; }
 		;
 
 factor : id tail {
-       //$$ = BuildValue("integer", "0");
-       //printf("%s||", $1);
 	int flag = 0;
-        
-	TableEntry* tmp = FindEntryInScope(symbol_table, $1);
-	if(tmp == NULL) {
-	tmp = FindEntryInGlobal(symbol_table, $1);
+        if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed
+		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
+		flag = 1; //no need to continie
 	}
+	if(IsFunction(symbol_table, $1) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
+		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
+		flag = 1;
+	}
+	if(flag == 0){
+	int  flag2 = 0;
+		TableEntry* tmp = FindEntryInScope(symbol_table, $1);
+		if(tmp == NULL) {
+		tmp = FindEntryInGlobal(symbol_table, $1);
+		}
 	        //printf("%s", tmp->type->name);
 
-		if(!strcmp(tmp->type->name, "integer")){
-                        char* tmp1;
-                        tmp1 = (char*)malloc(sizeof(char)*32);
-                        tmp1 = itoa(tmp->value->ival);
-                        $$ = BuildValue(tmp->type->name, tmp1);
-                }
-                else{
-                        $$ = BuildValue(tmp->type->name, tmp->value->sval);
-                }
+			if(!strcmp(tmp->type->name, "integer")){
+                        	char* tmp1;
+       	        	        tmp1 = (char*)malloc(sizeof(char)*32);
+        	                tmp1 = itoa(tmp->value->ival);
+                        	$$ = BuildValue(tmp->type->name, tmp1);
+                	}
+                	else{
+                        	$$ = BuildValue(tmp->type->name, tmp->value->sval);
+                	}
 
-		if(tmp->type->arr_dim > 0) $$->is_array = 1;
-                //printf("%d", tail_cnt);
-                $$->tail_cnt = tail_cnt;
-		strcpy($$->name, $1);
-		int j;
+			if(tmp->type->arr_dim > 0) $$->is_array = 1;
+                	//printf("%d", tail_cnt);
+                	$$->tail_cnt = tail_cnt;
+			strcpy($$->name, $1);
+			int j;
 
-                for(j = 0; j < tail_cnt; j++){
-                        $$->tail[j] = tail[j];
-                        tail[j] = 0;
-                }
+                	for(j = 0; j < tail_cnt; j++){
+                        	$$->tail[j] = tail[j];
+                        	tail[j] = 0;
+                	}
 		
-                tail_cnt = 0;
-                if(tmp->type->arr_dim != $$->tail_cnt && $$->tail_cnt > 0) {
-                        //printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
-                        printf("Wrong array dimention at Line: %d\n", yylineno);
-                	flag = 1;	//means no need to continuw
-		}
-		if($$->tail_cnt > 0){
-			for(j = tmp->type->arr_dim-1; j>=0; j--){
-				printf("%d  %d  %d\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
-				if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
-					printf("Array out of bound at Line: %d\n", yylineno);
-					flag = 1;
+               		tail_cnt = 0;
+                	if(tmp->type->arr_dim != $$->tail_cnt && $$->tail_cnt > 0) {
+                        	//printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
+                        	printf("Wrong array dimention at Line: %d\n", yylineno);
+                		flag2 = 1;	//means no need to continuw
+			}
+			if($$->tail_cnt > 0){
+				for(j = tmp->type->arr_dim-1; j>=0; j--){
+					//printf("%d  %d  %d\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
+					if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
+						printf("Array out of bound at Line: %d\n", yylineno);
+						flag2 = 1;
+					}
 				}
 			}
 		}
-		
 	
 		
 	}
@@ -389,8 +396,6 @@ factor : id tail {
 			strcpy(tmp, $1->sval);
 			$$ = BuildValue("real", tmp);
 		}
-		
-		//printf("%f  ", $$->dval);
 		
 		}
         | STRINGCONST {$$ = BuildValue("string", yytext);}
