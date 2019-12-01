@@ -106,11 +106,11 @@ NQUOTE [^']
         yylval.str = tmp;
         return(IDENTIFIER);
 }
-":="                         return(ASSIGNMENT);
-'({NQUOTE}|'')+'             return(CHARACTER_STRING);
-":"                          return(COLON);
-","                          return(COMMA);
-[0-9]+                       { return(DIGSEQ);}
+":="                         { yylval.str=strdup(yytext); return(ASSIGNMENT);}
+'({NQUOTE}|'')+'             { yylval.str=strdup(yytext); return(CHARACTER_STRING);}
+":"                          { yylval.str=strdup(yytext); return(COLON);}
+","                          { yylval.str=strdup(yytext); return(COMMA);}
+[0-9]+                       { yylval.num = atoi(yytext); return(DIGSEQ);}
 "."                          { yylval.str=strdup(yytext); return(DOT); }
 ".."                         { yylval.str=strdup(yytext); return(DOTDOT); }
 "="                          { yylval.str=strdup(yytext); return(EQUAL); }
@@ -125,12 +125,12 @@ NQUOTE [^']
 "+"                          { yylval.str=strdup(yytext); return(PLUS);}
 "]"                          { yylval.str=strdup(yytext); return(RBRAC);}
 [-]?[0-9]+("."[0-9]+)*?({E}("+"|"-")[0-9]+)	{
-	yylval.num = atoi(yytext);
+	yylval.str = strdup(yytext);
      	return(REALNUMBER);
 }
 
 [-]?[0-9]+"."[0-9]+  {
-	yylval.num = atoi(yytext);
+	yylval.dnum = atof(yytext);
        	return(REALNUMBER);
 }
 ")"                          { yylval.str=strdup(yytext); return(RPAREN);}

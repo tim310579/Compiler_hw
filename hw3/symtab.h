@@ -41,7 +41,6 @@ struct TableEntry {
 	char* sarray;
 	Type* type;
 	Value* value;
-	Var* var;
 };
 struct Var{
 	char name[32];
@@ -159,3 +158,5 @@ Value* Multwo(Value*, Value*, char*, int);
 void UpdateValue(SymbolTable*, Value*);
 void UpdateIndex(TableEntry*, int*, int);
 void UpdateIndexValue(SymbolTable*, Value*);
+Value* BuildValueTail(char*);
+Value* ReturnIdValue(SymbolTable*, char*, int*, int);
