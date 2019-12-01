@@ -29,6 +29,9 @@ TableEntry* BuildTableEntry(char* name, int level, Type* type, int line)
     new->para_cnt = 0;
     //new->arr_range = (int*)malloc(sizeof(int)*10);
     new->para = (char**)malloc(sizeof(char*)*4);
+    new->value = (Value*)malloc(sizeof(Value));
+    new->value->sval =  strdup("0");
+    new->init = 0;
     return new;
 }
 
@@ -246,6 +249,8 @@ Value* BuildValue(char* typename, char* val)
 {
     Type* t = BuildType(typename);
     Value* v = (Value*)malloc(sizeof(Value));
+    //v->tail = (int*)malloc(sizeof(int)*32);
+    v->tail_cnt = 0;
     v->type = t;
     v->sval = NULL;
     v->ival = 0;
@@ -291,22 +296,23 @@ char* itoa (int n)
 	//printf("%s",ne);
 	return ne;
 }
-Value* Addtwo(Value* n1, Value* n2, char* op){
+Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	if(strcmp(n1->type->name, n2->type->name)){
-		printf("Different type cannot add or minus\n");
+		printf("%s %s\n", n1->type->name, n2->type->name);
+		printf("Different type cannot add or minus at Line: %d\n", line);
 		return NULL;
 	}
 	if(!strcmp(n1->type->name, "string")) {
-		printf("String cannot add or minus\n");
+		printf("String cannot add or minus at Line: %d\n", line);
 		return NULL;
 	}
 	Type* t = BuildType(n1->type->name);
 	Value* v = (Value*)malloc(sizeof(Value));
-	v->type = n1->type;
+	v->type = t;
 	v->sval = NULL;
 	v->ival = 0;
 	
-	if(!strcmp(op, "+")) { printf("%s ", n1->type->name);
+	if(!strcmp(op, "+")) { 
 		if(!strcmp(n1->type->name, "integer")){
 			v->ival = n1->ival + n2->ival;
 		}
@@ -340,6 +346,57 @@ Value* Addtwo(Value* n1, Value* n2, char* op){
         }
 	return v;
 }
-Value* Multwo(Value* n1, Value* n2, char* op){
+Value* Multwo(Value* n1, Value* n2, char* op, int line){
+	if(!strcmp(n1->type->name, "string")) {
+		printf("String cannot mul or div at Line: %d\n", line);
+		return NULL;
+	}
+	Type* t = BuildType(n1->type->name);
+	Value* v = (Value*)malloc(sizeof(Value));
+	v->type = t;
+	v->sval = NULL;
+	v->ival = 0;
 	
+	if(!strcmp(op, "*")) {
+		if(!strcmp(n1->type->name, "integer")){
+			v->ival = n1->ival * n2->ival;
+		}
+		else  if(!strcmp(n1->type->name, "real")){
+			double t1, t2;
+			t1 = atof(n1->sval);
+			t2 = atof(n2->sval);
+			v->dval = t1*t2;
+			char* tmp;
+			tmp = (char*)malloc(sizeof(char)*32);
+			sprintf(tmp, "%f", v->dval);
+			//printf("%s", tmp);
+			v->sval = strdup(tmp);
+		}
+	}
+	else if(!strcmp(op, "/")) {
+		if(!strcmp(n1->type->name, "integer")){
+                        v->ival = n1->ival / n2->ival;
+                }
+                else  if(!strcmp(n1->type->name, "real")){
+                        double t1, t2;
+                        t1 = atof(n1->sval);
+                        t2 = atof(n2->sval);
+                        v->dval = t1/t2;
+                        char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        //printf("%s", tmp);
+                        v->sval = strdup(tmp);
+                }
+        }
+	return v;	
+}
+Value* BuildValueTail(char* typename, Var* tail){
+	Type* t = BuildType(typename);
+    	Value* v = (Value*)malloc(sizeof(Value));
+   	v->type = t;
+    	v->sval = NULL;
+    	v->ival = 0;
+	//v->tail[v->tail_cnt] = tail->
+	return v;
 }

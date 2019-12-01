@@ -15,6 +15,7 @@ typedef struct Attribute Attribute;
 typedef struct Expr Expr;
 typedef struct ExprList ExprList;
 typedef struct FunctionInnvocation FunctionInnvocation;
+typedef struct Var Var;
 extern SymbolTable* symbol_table;
 struct SymbolTable {
 	int current_level;
@@ -31,7 +32,7 @@ struct TableEntry {
 	int para_cnt;
 	char** para;
 	int level;
-	
+	int init;
 	int line;
 	int arr_dim;
 	int arr_range[10];
@@ -39,8 +40,16 @@ struct TableEntry {
 	float* farray;
 	char* sarray;
 	Type* type;
+	Value* value;
+	Var* var;
 };
-
+struct Var{
+	char name[32];
+	Type* type;
+	Value* value;
+	int tail_cnt;
+	int tail[20];
+};
 struct ArraySig{
 	int capacity;
 	ArraySig* next_dimension;
@@ -72,25 +81,14 @@ struct Expr{
 	TypeList* para;
 };
 
-struct ExprList{
-	int current_size;
-	int capacity;
-	Expr** exprs;
-};
-
-struct IdList{
-	int pos;
-	int capacity;
-	char** Ids;
-};
-
 struct Value{
 	Type* type;
+	char name[32];
 	int ival;
 	double dval;
 	char* sval;
 	int tail_cnt;
-	int* tail;
+	int tail[32];
 };
 
 SymbolTable* BuildSymbolTable();
@@ -151,6 +149,6 @@ void UpdateFunctionRet(SymbolTable*, Type*, int);
 void AddparaToFunc(SymbolTable*, char*, int);
 Type* BuildArrayType(char*, int, int);
 char* itoa(int);
-Value* Addtwo(Value*, Value*, char*);
-Value* Multwo(Value*, Value*, char*);
+Value* Addtwo(Value*, Value*, char*, int);
+Value* Multwo(Value*, Value*, char*, int);
 //void AddparaToFunc(SymbolTable*, int);

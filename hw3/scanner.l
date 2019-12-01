@@ -110,20 +110,20 @@ NQUOTE [^']
 '({NQUOTE}|'')+'             return(CHARACTER_STRING);
 ":"                          return(COLON);
 ","                          return(COMMA);
-[0-9]+                       {	return(DIGSEQ);}
+[0-9]+                       { return(DIGSEQ);}
 "."                          { yylval.str=strdup(yytext); return(DOT); }
 ".."                         { yylval.str=strdup(yytext); return(DOTDOT); }
-"="                         { yylval.str=strdup(yytext); return(EQUAL); }
-"!="                        { yylval.str=strdup(yytext); return(notEQUAL); }
-">="                       { yylval.str=strdup(yytext); return(GE); }
+"="                          { yylval.str=strdup(yytext); return(EQUAL); }
+"!="                         { yylval.str=strdup(yytext); return(notEQUAL); }
+">="                         { yylval.str=strdup(yytext); return(GE); }
 ">"                          { yylval.str=strdup(yytext); return(GT); }
-"["                           { yylval.str=strdup(yytext); return(LBRAC); }
-"<="                       { yylval.str=strdup(yytext); return(LE); }
-"("                           { yylval.str=strdup(yytext); return(LPAREN); }
+"["                          { yylval.str=strdup(yytext); return(LBRAC); }
+"<="                         { yylval.str=strdup(yytext); return(LE); }
+"("                          { yylval.str=strdup(yytext); return(LPAREN); }
 "<"                          { yylval.str=strdup(yytext); return(LT); }
-"-"                           { yylval.str=strdup(yytext); return(MINUS);}
-"+"                          { yylval.str=strdup(yytext);return(PLUS);}
-"]"                           { yylval.str=strdup(yytext); return(RBRAC);}
+"-"                          { yylval.str=strdup(yytext); return(MINUS);}
+"+"                          { yylval.str=strdup(yytext); return(PLUS);}
+"]"                          { yylval.str=strdup(yytext); return(RBRAC);}
 [-]?[0-9]+("."[0-9]+)*?({E}("+"|"-")[0-9]+)	{
 	yylval.num = atoi(yytext);
      	return(REALNUMBER);
@@ -133,12 +133,12 @@ NQUOTE [^']
 	yylval.num = atoi(yytext);
        	return(REALNUMBER);
 }
-")"                          return(RPAREN);
-";"                          return(SEMICOLON);
-"/"                          return(SLASH);
-"*"                          return(STAR);
-"**"   		 	     return(STARSTAR);
-"->"    		     return(UPARROW);
+")"                          { yylval.str=strdup(yytext); return(RPAREN);}
+";"                          { yylval.str=strdup(yytext); return(SEMICOLON);}
+"/"                          { yylval.str=strdup(yytext); return(SLASH);}
+"*"                          { yylval.str=strdup(yytext); return(STAR);}
+"**"   		 	     { yylval.str=strdup(yytext); return(STARSTAR);}
+"->"    		     { yylval.str=strdup(yytext); return(UPARROW);}
 
 "(*"   |
 "{"    { register int c;

@@ -32,6 +32,8 @@ TableEntry* entry_buf;
 IdList* idlist_buf;
 Type* return_buf;
 int has_ret=0;
+int tail_cnt = 0;
+int tail[32] = {0};
 int loop_cnt =0;
 %}
 
@@ -46,7 +48,8 @@ int loop_cnt =0;
 	struct TypeList* typelist;
 	struct Expr* expression;
 	struct ExprList* exprlist;
-		}
+	struct Var* var;
+	}
 %token <num> DIGSEQ 
 %token <str> AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST 
 %token <str> DIV DO DOT DOTDOT DOWNTO ELSE END EQUAL EXTERNAL FOR FORWARD FUNCTION
@@ -59,9 +62,10 @@ int loop_cnt =0;
 %token <str> REALNUMBER
 %type <str> relop mulop addop id
 %type <type> type standard_type 
-%type <value> expression term factor tail boolexpression simple_expression
-%type <value> variable num
-
+%type <value> expression term factor boolexpression simple_expression
+%type <value> num
+%type <value> variable 
+%type <value> tail
   
 
 %start prog
@@ -199,7 +203,13 @@ statement_list : statement
 		| statement_list SEMICOLON statement
 		;
 
-statement : variable ASSIGNMENT expression
+statement : variable ASSIGNMENT expression { 
+	char tmp[32];
+	strcpy(tmp, $1->name);	//remain first
+	$1 = $3;
+	strcpy($1->name, tmp);
+	//UpdateValue(symbol_table, $1
+	  }
 		| procedure_statement
 		| compound_statement
 		| IF expression THEN statement ELSE statement
@@ -210,16 +220,59 @@ statement : variable ASSIGNMENT expression
 variable : id tail {
 	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed
 		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
+		
 	}
 	if(IsFunction(symbol_table, $1) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
 		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
+		
 	}
-	
+	TableEntry* tmp = FindEntryInGlobal(symbol_table, $1);
+                if(!strcmp(tmp->type->name, "integer")){
+                        char* tmp1;
+                        tmp1 = (char*)malloc(sizeof(char)*32);
+                        tmp1 = itoa(tmp->value->ival);
+                        $$ = BuildValue(tmp->type->name, tmp1);
+                }
+                else{
+                        $$ = BuildValue(tmp->type->name, tmp->value->sval);
+                }
+                //printf("%d", tail_cnt);
+                $$->tail_cnt = tail_cnt;
+		strcpy($$->name, $1);
+		int j;
+		
+		for(j = 0; j < tail_cnt; j++){
+			$$->tail[j] = tail[j];
+			tail[j] = 0;
+		}
+		tail_cnt = 0;
+		if(tmp->type->arr_dim != $$->tail_cnt) {
+			printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
+			printf("Wrong array dimention at Line: %d\n", yylineno);
+		}
+		for(j = tmp->type->arr_dim-1; j>=0; j--){
+			printf("%d  %d  %d\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
+			if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
+				printf("Array out of bound at Line: %d\n", yylineno);
+			}
+		}
+		printf("\n");
 }
 		;
 
-tail     : LBRAC expression RBRAC tail {}
-		| {}
+tail     : LBRAC expression RBRAC tail {
+	 	printf("%f ", $2->dval);
+		if(!strcmp($2->type->name, "integer")){
+			tail[tail_cnt] = $2->ival;
+			tail_cnt++;
+		}
+		else{
+			printf("%f|||||",$2->dval);
+			tail[tail_cnt] = $2->dval;
+			tail_cnt++;
+		}
+	}
+		| {$$ = NULL;}
 		;
 
 procedure_statement : id
@@ -230,29 +283,59 @@ expression_list : expression
 		| expression_list COMMA expression 
 		;
 
-expression : boolexpression 
+expression : boolexpression {$$ = $1; }
 		| boolexpression AND boolexpression 
 		| boolexpression OR boolexpression 
 		;
 
-boolexpression : simple_expression
+boolexpression : simple_expression {$$ = $1;/*printf("%s", $1->sval);*/}
 	       | simple_expression relop simple_expression 
 
-simple_expression : term {$$ = $1; printf("%d  %s|||", $$->ival, $$->sval);}
-		| simple_expression addop term { $$ = $3; printf("%d  %s  %s|||", $$->ival, $$->sval, $2);
-		$$ = Addtwo($1, $3, $2);
-		printf("||||%s}}}}", $$->sval);
+simple_expression : term {$$ = $1; }
+		| simple_expression addop term { 
+		$$ = Addtwo($1, $3, $2, yylineno);
 		}
 		
 		;
 
-term : factor {$$ = $1;}
-		| term mulop factor { $$ = BuildValue("real", "16");
-		/*$$ = Multwo($1, $3, $2);*/}
+term : factor {$$ = $1; }
+		| term mulop factor {
+		$$ = Multwo($1, $3, $2, yylineno);
+		//printf("%s", $$->sval);
+		}
 				
 		;
 
-factor : id tail {$$ = BuildValue("integer", "99");}
+factor : id tail {
+       int flag = 0;
+       TableEntry* tmp = FindEntryInGlobal(symbol_table, $1);
+                if(!strcmp(tmp->type->name, "integer")){
+                        char* tmp1;
+                        tmp1 = (char*)malloc(sizeof(char)*32);
+                        tmp1 = itoa(tmp->value->ival);
+                        $$ = BuildValue(tmp->type->name, tmp1);
+                }
+                else{
+                        $$ = BuildValue(tmp->type->name, tmp->value->sval);
+                }
+                //printf("%d", tail_cnt);
+                $$->tail_cnt = tail_cnt;
+		strcpy($$->name, $1);
+		int j;
+
+                for(j = 0; j < tail_cnt; j++){
+                        $$->tail[j] = tail[j];
+                        tail[j] = 0;
+                }
+                tail_cnt = 0;
+                if(tmp->type->arr_dim != $$->tail_cnt) {
+                        //printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
+                        printf("Wrong array dimention at Line: %d\n", yylineno);
+                	flag = 1;	//means no need to continuw
+		}
+
+
+	}
 	| id LPAREN expression_list RPAREN{$$ = BuildValue("integer", "49");}
 	| num {
 		//$$ = $1;
@@ -269,7 +352,7 @@ factor : id tail {$$ = BuildValue("integer", "99");}
 			$$ = BuildValue("real", tmp);
 		}
 		
-		//printf("%s  ", $$->sval);
+		//printf("%f  ", $$->dval);
 		
 		}
         | STRINGCONST {$$ = BuildValue("string", yytext);}
