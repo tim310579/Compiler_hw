@@ -22,6 +22,7 @@ struct SymbolTable {
 	int pos;
 	int capacity;
 	char scope[32];
+	char pre_scope[32];
 	TableEntry** Entries;
 } ;
 
@@ -92,6 +93,9 @@ struct Value{
 	double** indexf;
 	int has_tail;
 	int is_array;
+	int para_cnt;
+	int para[32];
+	double paraf[32];
 };
 
 SymbolTable* BuildSymbolTable();
@@ -159,4 +163,8 @@ void UpdateValue(SymbolTable*, Value*);
 void UpdateIndex(TableEntry*, int*, int);
 void UpdateIndexValue(SymbolTable*, Value*);
 Value* BuildValueTail(char*);
-Value* ReturnIdValue(SymbolTable*, char*, int*, int);
+Value* ReturnIdValue(SymbolTable*, char*, int*, int, char);
+Value* BuildNegValue(char*, char*);
+TableEntry* FindEntryFuncInScope(SymbolTable*, char*);
+char* FindTypeOfPara(SymbolTable*, char*, int);
+Value* BuildFuncId(SymbolTable*, char*, char*, int);

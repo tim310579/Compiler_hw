@@ -11,6 +11,7 @@ SymbolTable* BuildSymbolTable()
     new->pos = 0;
     new->capacity = 4;
     strcpy(new->scope, "global");
+    strcpy(new->scope, "global");
     new->Entries = (TableEntry**)malloc(sizeof(TableEntry*) * 4);
     return new;
 }
@@ -205,7 +206,9 @@ int IsFunction(SymbolTable* s, char* name){
 	for(i = 0; i < s->pos; i++){
 		ptr = s->Entries[i];
 		if(!strcmp(ptr->name, name) && !strcmp(ptr->type->name, "function" )){
-			
+			return 1;
+		}
+		if(!strcmp(ptr->name, name) && !strcmp(ptr->type->name, "procedure")){
 			return 1;
 		}
 	}
@@ -261,7 +264,21 @@ Type* BuildArrayType(char* typename, int begin, int end){
 	
 	return new;
 }
-
+Value* BuildNegValue(char* typename, char* val){
+	Type* t = BuildType(typename);
+    Value* v = (Value*)malloc(sizeof(Value));
+    //v->tail = (int*)malloc(sizeof(int)*32);
+    v->tail_cnt = 0;
+    v->type = t;
+    v->sval = NULL;
+    v->ival = 0;
+    v->dval = 0;
+    if(!strcmp(t->name, "integer")){
+	v->ival = atoi(val);
+	v->ival*= -1;
+    }
+    return v;
+}
 Value* BuildValue(char* typename, char* val)
 {
     Type* t = BuildType(typename);
@@ -330,12 +347,12 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
         v->sval = "";
         v->ival = 0;
 	if(!strcmp(n1->type->name, "null")){
-		printf("Undeclared var cannot add or minus at Line: %d\n", yylineno);
+		printf("Undeclared var cannot add or minus at Line %d : %s\n", yylineno, n1->name);
 		v->type = n1->type;
 		return v;
 	}
 	if(!strcmp(n2->type->name, "null")){
-                printf("Undeclared var cannot add or minus at Line: %d\n", yylineno);
+                printf("Undeclared var cannot add or minus at Line %d : %s\n", yylineno, n2->name);
                 v->type = n2->type;
                 return v;
         }
@@ -467,9 +484,10 @@ void UpdateValue(SymbolTable* s, Value* v){
 	if(tmp == NULL) tmp = FindEntryInGlobal(s, v->name);
 	if(tmp == NULL) return;
 	if(!strcmp(v->type->name, "null")){
-		printf("Cannot update value because RHS is illegal\n");
+		printf("Cannot update value because RHS is illegal at Line : %d\n", yylineno);
 		return;
 	}
+	
 	if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
 		printf("Type assign error in Line: %d\n", yylineno);
 		return;
@@ -511,7 +529,7 @@ void UpdateIndexValue(SymbolTable* s, Value* v){
         }
 
 }
-Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_cnt){
+Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_cnt, char lr){
 	Value* v = (Value*)malloc(sizeof(Value));
 	int flag = 0;
         if(FindEntryInGlobal(symbol_table, name) == NULL){	//is not already existed
@@ -521,7 +539,7 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 			flag = 1; //no need to continie
 		}
 	}
-	if(IsFunction(symbol_table, name) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
+	if(IsFunction(symbol_table, name) == 1 && strcmp(symbol_table->scope, name) && lr == 'l'){
 		printf("In Line %d, Function cannot in left side: %s\n", yylineno, name);
 		flag = 1;
 	}
@@ -566,5 +584,58 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 		}
 		
 	}
+	return v;
+}
+TableEntry* FindEntryFuncInScope(SymbolTable* s, char* name){
+	int i;
+	TableEntry* tmp;
+	for(i = 0; i < s->pos; i++){
+		tmp = s->Entries[i];
+		if(!strcmp(tmp->name, name) && !strcmp(tmp->type->name, "function")){
+			return tmp;
+		}
+		if(!strcmp(tmp->name, name) && !strcmp(tmp->type->name, "procedure")){
+			return tmp;
+		}
+	}
+	return NULL;
+}
+char* FindTypeOfPara(SymbolTable* s, char* name, int line){
+	int i;
+	TableEntry* tmp;
+	for(i = 0; i < s->pos; i++){
+		tmp = s->Entries[i];
+		if(!strcmp(tmp->name, name) && tmp->line == line){
+			return tmp->type->name;
+		}
+	}
+	return NULL;
+}
+Value* BuildFuncId(SymbolTable* symbol_table, char* name, char* para, int para_cnt){
+	Value* v = (Value*)malloc(sizeof(Value));
+	TableEntry* tmp = FindEntryFuncInScope(symbol_table, name);
+		if(tmp == NULL) {
+			printf("Undeclared function at Line %d: %s\n", yylineno, name);
+			v = BuildValue("null", "null");
+		}
+		else {
+			if(tmp->para_cnt != para_cnt){
+				printf("Wrong function parameters at Line %d : %s\n", yylineno, name);
+				v = BuildValue("null", "null");
+			}
+			else{
+				int j;
+				for(j = 0; j < para_cnt; j++){
+					char* type;
+					type = (char*)malloc(sizeof(char)*32);
+					type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
+					if(para[j] != type[0]){	//error type
+						printf("Error type of parameter at Line : %d \n", yylineno);
+					}
+				}
+				//printf("corrext %s\n\n", tmp->ret);
+				v = BuildValue(tmp->ret, "0");
+			}
+		}
 	return v;
 }

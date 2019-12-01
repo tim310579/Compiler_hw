@@ -32,6 +32,9 @@ TableEntry* entry_buf;
 IdList* idlist_buf;
 Type* return_buf;
 int has_ret=0;
+int para_cnt = 0;
+char para[32];
+float parav[32];
 int tail_cnt = 0;
 int tail[32] = {0};
 int loop_cnt =0;
@@ -62,7 +65,7 @@ int loop_cnt =0;
 %token <str> REALNUMBER
 %type <str> relop mulop addop id
 %type <type> type standard_type 
-%type <value> expression term factor boolexpression simple_expression
+%type <value> expression term factor boolexpression simple_expression expression_list 
 %type <value> num
 %type <value> variable 
 %type <value> tail
@@ -93,6 +96,11 @@ prog  : PROGRAM id {
 
 num : DIGSEQ {$$ = BuildValue("integer", yytext);}
 	| REALNUMBER	{$$ = BuildValue("real", yytext);}
+	| MINUS DIGSEQ{
+	//printf("%s|||", yytext);
+	$$ = BuildNegValue("integer", yytext);
+	}
+	
 	;
 
 
@@ -145,18 +153,19 @@ subprogram_declarations :
 
 subprogram_declaration :
 	subprogram_head {symbol_table->current_level++;
-			strcpy(symbol_table->scope, "in_func_or_proc");
+			
 	}
 	declarations 			
 	subprogram_declarations
 	compound_statement {symbol_table->current_level--;
-			strcpy(symbol_table->scope, "global");		
+			strcpy(symbol_table->scope, symbol_table->pre_scope);		
 	}
 	;
 
 subprogram_head : FUNCTION id {
 			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("function"), yylineno);                           
 	  		InsertTableEntry(symbol_table,tmp);
+			strcpy(symbol_table->scope, $2);
 		}arguments{ //printf("%s||", $2);
 			AddparaToFunc(symbol_table, $2, yylineno);
 		}
@@ -205,8 +214,15 @@ statement_list : statement
 
 statement : variable ASSIGNMENT expression {
 	char tmp[32];
-	strcpy(tmp, $1->name);	//remain first
+	char tmptype[32];
+	char flag = 'n';
+	strcpy(tmp, $1->name);	//remain first name
+	if(!strcmp($1->type->name, "function") || !strcmp($1->type->name, "procedure")){
+		flag = 'f';
+		strcpy(tmptype, $1->type->name);
+	}
 	$1 = $3;
+	if(flag == 'f') strcpy($1->type->name, tmptype);
 	strcpy($1->name, tmp);
 	UpdateValue(symbol_table, $1);
 	UpdateIndexValue(symbol_table, $1);
@@ -219,54 +235,7 @@ statement : variable ASSIGNMENT expression {
 		;
 
 variable : id tail {
-	 $$ = ReturnIdValue(symbol_table, $1, tail, tail_cnt);/*
-	 int flag = 0;
-	 if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed
-		printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
-		flag = 1; //no need to continie
-	}
-	if(IsFunction(symbol_table, $1) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
-		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
-		flag = 1;
-	}
-	if(flag == 0){
-	TableEntry* tmp = FindEntryInGlobal(symbol_table, $1);
-                if(!strcmp(tmp->type->name, "integer")){
-                        char* tmp1;
-                        tmp1 = (char*)malloc(sizeof(char)*32);
-                        tmp1 = itoa(tmp->value->ival);
-                        $$ = BuildValue(tmp->type->name, tmp1);
-                }
-                else{
-                        $$ = BuildValue(tmp->type->name, tmp->value->sval);
-                }
-                //printf("%d", tail_cnt);
-                $$->tail_cnt = tail_cnt;
-		strcpy($$->name, $1);
-		int j;
-		
-		for(j = 0; j < tail_cnt; j++){
-			$$->tail[j] = tail[j];
-		}
-		int flag2 = 0;
-		if(tmp->type->arr_dim != $$->tail_cnt && $$->tail_cnt > 0) {
-			//printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
-			printf("Wrong array dimention at Line: %d\n", yylineno);
-			flag2 = 1; //no need to update
-		}
-		if($$->tail_cnt > 0){
-			for(j = tmp->type->arr_dim-1; j>=0; j--){
-				//printf("%d  %d  %dppp\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
-				if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
-					printf("Array out of bound at Line: %d\n", yylineno);
-					flag2 = 1;
-				}
-		}
-		}
-		if(flag2 == 0){
-			UpdateIndex(tmp, tail, tail_cnt);
-		
-		}*/
+	 $$ = ReturnIdValue(symbol_table, $1, tail, tail_cnt, 'l');
 		int j;
 		for(j = 0; j < tail_cnt; j++){
                         tail[j] = 0;
@@ -294,8 +263,29 @@ procedure_statement : id
 		| id LPAREN expression_list RPAREN
 		;
 
-expression_list : expression 
-		| expression_list COMMA expression 
+expression_list : expression {
+		if(!strcmp($1->type->name, "integer")) {
+			para[para_cnt] = 'i';
+			parav[para_cnt] = $1->ival;
+		}
+		else if(!strcmp($1->type->name, "real")){
+			para[para_cnt] = 'r';
+			parav[para_cnt] = $1->dval;
+		}
+		para_cnt++;
+		
+		}
+		| expression_list COMMA expression {
+		if(!strcmp($3->type->name, "integer")) {
+                	para[para_cnt] =  'i';
+                	parav[para_cnt] = $3->ival;
+                }
+                else if(!strcmp($3->type->name, "real")){
+                	para[para_cnt] = 'r';
+                	parav[para_cnt] = $3->dval;
+                }
+                para_cnt++;
+		}
 		;
 
 expression : boolexpression {$$ = $1;} 
@@ -308,10 +298,8 @@ boolexpression : simple_expression {$$ = $1;}
 
 simple_expression : term {$$ = $1; }
 		| simple_expression addop term { 
-		//printf("%s %d, %s %d  ", $1->name, $1->is_array, $3->name, $3->is_array);
-		//if($$ == NULL){ printf("8787o");}
+		//printf("%s %s||\n", $1->type->name, $3->type->name);
 		$$ = Addtwo($1, $3, $2, yylineno);
-		//if($$ == NULL) printf("8787");  //$$ = BuildValue("integer", "1");
 	}
 		
 		;
@@ -325,71 +313,44 @@ term : factor {$$ = $1; }
 		;
 
 factor : id tail {
-	//$$ = ReturnIdValue(symbol_table, $1, tail, tail_cnt);
-	
-	int flag = 0;
-        if(FindEntryInGlobal(symbol_table, $1) == NULL){	//is not already existed	
-		if(FindEntryInScope(symbol_table, $1) == NULL){
-			
-			printf("Undeclared variable in Line %d : %s\n", yylineno, $1);
-			flag = 1; //no need to continie	
-		}
-	}
-	if(IsFunction(symbol_table, $1) == 1 && strcmp(symbol_table->scope, "in_func_or_proc")){
-		printf("In Line %d, Function cannot in left side: %s\n", yylineno, $1);
-		flag = 1;
-	}
-	if(flag == 1) {$$ = BuildValue("null", "null");}
-	if(flag == 0){
-	//int  flag2 = 0;
-		TableEntry* tmp = FindEntryInScope(symbol_table, $1);
-		if(tmp == NULL) {
-		tmp = FindEntryInGlobal(symbol_table, $1);
-		}
-	        //printf("%s", tmp->type->name);
-
-			if(!strcmp(tmp->type->name, "integer")){
-                        	char* tmp1;
-       	        	        tmp1 = (char*)malloc(sizeof(char)*32);
-        	                tmp1 = itoa(tmp->value->ival);
-                        	$$ = BuildValue(tmp->type->name, tmp1);
-                	}
-                	else{
-                        	$$ = BuildValue(tmp->type->name, tmp->value->sval);
-                	}
-
-			if(tmp->type->arr_dim > 0) $$->is_array = 1;
-                	//printf("%d", tail_cnt);
-                	$$->tail_cnt = tail_cnt;
-			strcpy($$->name, $1);
-			int j;
-
-                	for(j = 0; j < tail_cnt; j++){
-                        	$$->tail[j] = tail[j];
-                	}
-		
-                	if(tmp->type->arr_dim != $$->tail_cnt && $$->tail_cnt > 0) {
-                        	//printf("%d||%d|", tmp->type->arr_dim, $$->tail_cnt);
-                        	printf("Wrong array dimention at Line: %d\n", yylineno);
-          //      		flag2 = 1;	//means no need to continuw
-			}
-			if($$->tail_cnt > 0){
-				for(j = tmp->type->arr_dim-1; j>=0; j--){
-					//printf("%d  %d  %d\n", tmp->type->arr_range[j*2], tmp->type->arr_range[j*2+1], $$->tail[j]);
-					if($$->tail[j] < tmp->type->arr_range[j*2] || $$->tail[j] > tmp->type->arr_range[j*2+1]){	//out of bound
-						printf("Array out of bound at Line: %d\n", yylineno);
-	//					flag2 = 1;
-					}
-				}
-			}
-		}
+	$$ = ReturnIdValue(symbol_table, $1, tail, tail_cnt, 'r');
 		int j;
 		for(j = 0; j < tail_cnt; j++){
         	        tail[j] = 0;
                 }
 		tail_cnt = 0;
 	}
-	| id LPAREN expression_list RPAREN{$$ = BuildValue("integer", "49");}
+	| id LPAREN expression_list RPAREN{//$$ = BuildValue("integer", "-88");
+		$$ = BuildFuncId(symbol_table, $1, para, para_cnt);
+		/*TableEntry* tmp = FindEntryFuncInScope(symbol_table, $1);
+		if(tmp == NULL) {
+			printf("Undeclared function at Line %d: %s\n", yylineno, $1);
+			$$ = BuildValue("null", "null");
+		}
+		else {
+			if(tmp->para_cnt != para_cnt){
+				printf("Wrong function parameters at Line %d : %s\n", yylineno, $1);
+				$$ = BuildValue("null", "null");
+			}
+			else{
+				int j;
+				for(j = 0; j < para_cnt; j++){
+					char* type;
+					type = (char*)malloc(sizeof(char)*32);
+					type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
+					if(para[j] != type[0]){	//error type
+						printf("Error type of parameter at Line : %d \n", yylineno);
+					}
+				}
+				//printf("corrext %s\n\n", tmp->ret);
+				$$ = BuildValue(tmp->ret, "0");
+			}
+		}*/
+		para_cnt = 0;
+		
+		//$$ = ReturnFuncValue(symbol_table, $1, $3);
+		//printf("%d|||", $3->ival);
+	}
 	| num {
 		//$$ = $1;
 		//printf("%s", $1->sval);
