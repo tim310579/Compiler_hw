@@ -305,13 +305,7 @@ Value* BuildValue(char* typename, char* val)
     } 
     else if (strcmp(t->name, "integer") == 0) {
         v->ival = atoi(val);
-    } 
-    else if (strcmp(t->name, "octal") == 0) {
-        v->ival = strtol(val, NULL, 8);
-    } 
-    else if (strcmp(t->name, "scientific") == 0) {
-        v->sval = strdup(val);
-    } 
+    }  
     else if (strcmp(t->name, "boolean") == 0) {
         v->sval = strdup(val);
     }
@@ -345,11 +339,11 @@ char* itoa (int n)
 }
 Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	Type* t;
-	if(strcmp(n1->type->name, "function")) t = BuildType(n1->type->name);
-	else if(strcmp(n2->type->name, "function")) t = BuildType(n2->type->name);
-	else {	//above are functions
-		t = BuildType(n2->ret);
-	}
+	if(!strcmp(n1->type->name, "function") && !strcmp(n2->type->name, "function")){    //above are functions
+                t = BuildType(n2->ret);
+        }
+        else if(!strcmp(n1->type->name, "function")) t = BuildType(n2->type->name);     //n1 is function
+        else t = BuildType(n1->type->name);
         Value* v = (Value*)malloc(sizeof(Value));
         v->type = t;
         v->sval = "";
@@ -431,12 +425,19 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	return v;
 }
 Value* Multwo(Value* n1, Value* n2, char* op, int line){
-	Type* t = BuildType(n1->type->name);
-        Value* v = (Value*)malloc(sizeof(Value));
+	
+	Type* t;
+	//printf("8787");
+	if(!strcmp(n1->type->name, "function") && !strcmp(n2->type->name, "function")){    //above are functions
+                t = BuildType(n2->ret);
+        }
+	else if(!strcmp(n1->type->name, "function")) t = BuildType(n2->type->name);	//n1 is function
+        else t = BuildType(n1->type->name);
+        //printf("%s", n1->name);
+	Value* v = (Value*)malloc(sizeof(Value));
         v->type = t;
-        v->sval = NULL;
+        v->sval = "";
         v->ival = 0;
-
 	if(!strcmp(n1->type->name, "null")){
                 printf("Undeclared var cannot mul or div at Line: %d\n", yylineno);
                 v->type = n1->type;
@@ -450,11 +451,11 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 	
 	if(!strcmp(n1->type->name, "string")) {
 		printf("String cannot mul or div at Line: %d\n", line);
-		return NULL;
+		return v;
 	}
 	if(n1->is_array > 0 || n2->is_array > 0) {
                 printf("Cannot mul array at Line: %d\n", yylineno);
-                return NULL;
+                return v;
         }
 	if(!strcmp(op, "*")) {
 		if(!strcmp(n1->type->name, "integer")){
@@ -494,7 +495,7 @@ Value* BuildValueTail(char* typename){
 	Type* t = BuildType(typename);
     	Value* v = (Value*)malloc(sizeof(Value));
    	v->type = t;
-    	v->sval = NULL;
+    	v->sval = "";
     	v->ival = 0;
 	v->index = (int**)malloc(sizeof(int*)*32);
 	v->indexf = (double**)malloc(sizeof(double*)*32);
@@ -509,16 +510,16 @@ Value* BuildValueTail(char* typename){
 int CheckAssignCanOrNot(Value* v1, Value* v2){
 	//printf("%s ||%s\n", v1->type->name, v2->type->name);
 	if(!strcmp(v1->type->name, v2->type->name)){
-		return 1;
+		printf("9");return 1;
 	}
 	if(!strcmp(v1->type->name, "function")){
 		if(!strcmp(v1->ret, v2->type->name)){	//return value == RHS type
-			return 1;
+			printf("8");return 1;
 		}
 	}
 	if(!strcmp(v2->type->name, "function")){
 		if(!strcmp(v2->ret, v1->type->name)){   //return LHS == return value type
-                     return 1;
+                     printf("7");return 1;
                 }
 	}
 	

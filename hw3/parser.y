@@ -225,7 +225,7 @@ statement_list : statement
 
 statement : variable ASSIGNMENT expression {
 	char tmp[32];
-	Type* type = (Type*)malloc(sizeof(Type*));
+	Type* type;
 	type = $1->type;
 	char flag = 'n';
 	strcpy(tmp, $1->name);	//remain first name
@@ -236,16 +236,19 @@ statement : variable ASSIGNMENT expression {
 	
 	//$1 = $3;
 	//CopyValue($1, $3);
-	//printf("%s   %s  %s  %s %d\n", $1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
+	printf("%s   %s  %s  %s %d\n", $1->name, $1->type->name, $1->ret, $3->type->name, yylineno);
 	CopyValue($1, $3);
+	
 	if(flag == 'f') {
 		$1->type = type;	//restore
 		//strcpy($1->ret, $3->type->name);
 	}
 	
-	printf("%s   %s  %s  %s %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $3->ret, $1->ival);
+	printf("%s   %s  %s  %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
 	//strcpy($1->name, tmp);
+	printf("0887");
 	int ch = CheckAssignCanOrNot($1, $3);
+	printf("5487");
 	if(ch == 1){
 		UpdateValue(symbol_table, $1);
 		UpdateIndexValue(symbol_table, $1);
@@ -352,6 +355,7 @@ simple_expression : term {$$ = $1; }
 		| simple_expression addop term { 
 		//printf("%s %s||\n", $1->type->name, $3->type->name);
 		$$ = Addtwo($1, $3, $2, yylineno);
+		printf("%doepwo",$$->ival);
 	}
 		
 		;
@@ -359,7 +363,7 @@ simple_expression : term {$$ = $1; }
 term : factor {$$ = $1;}
 		| term mulop factor {
 		$$ = Multwo($1, $3, $2, yylineno);
-		//printf("%s", $$->sval);
+		//`printf("%s", $$->sval);
 		}
 				
 		;
@@ -374,6 +378,7 @@ factor : id tail {
 	}
 	| id LPAREN expression_list RPAREN{//$$ = BuildValue("integer", "-88");
 		$$ = BuildFuncId(symbol_table, $1, para, para_cnt);
+		printf("%d", para_cnt);
 		para_cnt = 0;
 	}
 	| num {
@@ -447,7 +452,6 @@ int main(int argc, char **argv)
 		//fprintf(stdout, "%d  ", tok);
 	//}
 	
-
 	fprintf( stdout, "--------------------------------\n" );
 	fprintf( stdout, "  OK!!\n" );
 	fprintf( stdout, "--------------------------------\n" );
