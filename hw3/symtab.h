@@ -20,6 +20,7 @@ extern SymbolTable* symbol_table;
 struct SymbolTable {
 	int current_level;
 	int pos;
+	int cnt_upd;
 	int capacity;
 	char scope[32];
 	char pre_scope[32];
@@ -33,6 +34,7 @@ struct TableEntry {
 	int para_cnt;
 	char** para;
 	int level;
+	int cnt_upd;
 	int init;
 	int line;
 	int arr_dim;
@@ -96,6 +98,7 @@ struct Value{
 	int para_cnt;
 	int para[32];
 	double paraf[32];
+	char ret[32];
 };
 
 SymbolTable* BuildSymbolTable();
@@ -103,7 +106,7 @@ void InsertTableEntry(SymbolTable*,TableEntry*);
 void InsertTableEntryFromList(SymbolTable*,IdList*,const char*,Type*,Attribute*);
 void PopTableEntry(SymbolTable*);
 void PopTableEntryByName(SymbolTable*,char*);
-TableEntry* BuildTableEntry(char*, int, Type*, int);
+TableEntry* BuildTableEntry(char*, int, Type*, int, int);
 
 void PrintSymbolTable(SymbolTable*);
 void PrintLevel(int);
@@ -168,3 +171,4 @@ Value* BuildNegValue(char*, char*);
 TableEntry* FindEntryFuncInScope(SymbolTable*, char*);
 char* FindTypeOfPara(SymbolTable*, char*, int);
 Value* BuildFuncId(SymbolTable*, char*, char*, int);
+void BuildProcId(SymbolTable*, char*, char*, int);

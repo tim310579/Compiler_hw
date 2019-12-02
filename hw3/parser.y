@@ -64,7 +64,7 @@ int loop_cnt =0;
 
 %token <str> REALNUMBER
 %type <str> relop mulop addop id
-%type <type> type standard_type 
+%type <type> type standard_type identifier_list
 %type <value> expression term factor boolexpression simple_expression expression_list 
 %type <value> num
 %type <value> variable 
@@ -76,7 +76,7 @@ int loop_cnt =0;
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("program"), yylineno);
+      	TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("program"), yylineno, symbol_table->cnt_upd);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
@@ -87,7 +87,7 @@ prog  : PROGRAM id {
 		symbol_table->current_level--;
 	
 	}
-	 SEMICOLON
+	 SEMICOLON{symbol_table->cnt_upd++;}
 	declarations
 	subprogram_declarations
 	compound_statement
@@ -109,18 +109,18 @@ id : IDENTIFIER
 
 
 identifier_list : id{
-		TableEntry* tmp=BuildTableEntry($1, symbol_table->current_level, BuildType("void"), yylineno);
+		TableEntry* tmp=BuildTableEntry($1, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
 		InsertTableEntry(symbol_table,tmp);
 }
 		| identifier_list COMMA id {
-                TableEntry* tmp=BuildTableEntry($3, symbol_table->current_level, BuildType("void"), yylineno);
+                TableEntry* tmp=BuildTableEntry($3, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
                 InsertTableEntry(symbol_table,tmp);
 }
 		;
 
 declarations : declarations VAR identifier_list COLON type{
 		UpdateType(symbol_table, $5, yylineno);}
-	     SEMICOLON
+	     SEMICOLON{symbol_table->cnt_upd++;}
 		|
 		;
 
@@ -147,7 +147,7 @@ standard_type : INTEGER {$$ = BuildType("integer");}
 
 
 subprogram_declarations :
-	subprogram_declarations subprogram_declaration SEMICOLON
+	subprogram_declarations subprogram_declaration SEMICOLON{symbol_table->cnt_upd++;}
 		| 
 		;
 
@@ -163,13 +163,14 @@ subprogram_declaration :
 	;
 
 subprogram_head : FUNCTION id {
-			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("function"), yylineno);                           
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("function"), yylineno, symbol_table->cnt_upd);                           
 	  		InsertTableEntry(symbol_table,tmp);
 			strcpy(symbol_table->scope, $2);
 		}arguments{ //printf("%s||", $2);
 			AddparaToFunc(symbol_table, $2, yylineno);
 		}
 		 COLON standard_type SEMICOLON{
+			symbol_table->cnt_upd++;
 			char* tmp;
 			tmp = (char*)malloc(sizeof(char)*32);
 			//printf("%s", $7);
@@ -177,9 +178,10 @@ subprogram_head : FUNCTION id {
 			UpdateFunctionRet(symbol_table, $7, yylineno);
                 }
 		| PROCEDURE id arguments SEMICOLON{
-			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("procedure"), yylineno);
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("procedure"), yylineno, symbol_table->cnt_upd);
                 	InsertTableEntry(symbol_table,tmp);
 			AddparaToFunc(symbol_table, $2, yylineno);
+			symbol_table->cnt_upd++;
 		}
 		;
 
@@ -189,9 +191,17 @@ arguments : LPAREN {symbol_table->current_level++;}
 		;
 
 parameter_list : optional_var identifier_list COLON type {
-		UpdateType(symbol_table, $4, yylineno);
+			UpdateType(symbol_table, $4, yylineno);
+			//printf("}}%d{{", symbol_table->cnt_upd);
 		}
-		| optional_var identifier_list COLON type SEMICOLON parameter_list 
+		| optional_var identifier_list COLON type{
+			//printf("}}%d{{", symbol_table->cnt_upd);
+                        UpdateType(symbol_table, $4, yylineno);
+		}
+		 SEMICOLON{
+			symbol_table->cnt_upd++;
+		}
+		parameter_list
 		;
 
 optional_var   : VAR
@@ -209,7 +219,8 @@ optional_statements : statement_list
 		;
 
 statement_list : statement
-		| statement_list SEMICOLON statement
+		| statement_list SEMICOLON {symbol_table->cnt_upd++;}
+		statement
 		;
 
 statement : variable ASSIGNMENT expression {
@@ -217,12 +228,18 @@ statement : variable ASSIGNMENT expression {
 	char tmptype[32];
 	char flag = 'n';
 	strcpy(tmp, $1->name);	//remain first name
+	strcpy(tmptype, $1->type->name);
 	if(!strcmp($1->type->name, "function") || !strcmp($1->type->name, "procedure")){
 		flag = 'f';
-		strcpy(tmptype, $1->type->name);
 	}
 	$1 = $3;
-	if(flag == 'f') strcpy($1->type->name, tmptype);
+	if(flag == 'f') {
+		strcpy($1->type->name, tmptype);
+		strcpy($1->ret, $3->type->name);
+	}
+	else{
+		strcpy($1->type->name, tmptype);
+	}
 	strcpy($1->name, tmp);
 	UpdateValue(symbol_table, $1);
 	UpdateIndexValue(symbol_table, $1);
@@ -259,8 +276,14 @@ tail     : LBRAC expression RBRAC tail {
 		| {$$ = NULL;}
 		;
 
-procedure_statement : id
-		| id LPAREN expression_list RPAREN
+procedure_statement : id {
+		    BuildProcId(symbol_table, $1, para, para_cnt);
+		    para_cnt = 0;
+			}
+		| id LPAREN expression_list RPAREN{
+		    BuildProcId(symbol_table, $1, para, para_cnt);
+                    para_cnt = 0;
+			}
 		;
 
 expression_list : expression {
@@ -272,6 +295,17 @@ expression_list : expression {
 			para[para_cnt] = 'r';
 			parav[para_cnt] = $1->dval;
 		}
+		else if(!strcmp($1->type->name, "function")){
+			if(!strcmp($1->ret, "integer")) {
+				parav[para_cnt] = $1->ival;
+				para[para_cnt] = 'i';
+			}
+			else {
+				parav[para_cnt] = $1->dval;
+				para[para_cnt] = 'r';
+				}
+		}
+		//printf("|%s|%s|%d|||||||||", $1->type->name, $1->ret, para_cnt);
 		para_cnt++;
 		
 		}
@@ -284,7 +318,18 @@ expression_list : expression {
                 	para[para_cnt] = 'r';
                 	parav[para_cnt] = $3->dval;
                 }
-                para_cnt++;
+		else if(!strcmp($3->type->name, "function")) {
+			if(!strcmp($3->ret, "integer")) {
+				para[para_cnt] = 'i';
+				parav[para_cnt] = $3->ival;
+			}
+			else{
+				para[para_cnt] = 'r';
+				parav[para_cnt] = $3->dval;
+                		}
+		}
+		//printf("|%s|%s|%d||||||||", $3->type->name, $3->ret, para_cnt);
+		para_cnt++;
 		}
 		;
 
@@ -304,7 +349,7 @@ simple_expression : term {$$ = $1; }
 		
 		;
 
-term : factor {$$ = $1; }
+term : factor {$$ = $1;}
 		| term mulop factor {
 		$$ = Multwo($1, $3, $2, yylineno);
 		//printf("%s", $$->sval);
@@ -322,34 +367,7 @@ factor : id tail {
 	}
 	| id LPAREN expression_list RPAREN{//$$ = BuildValue("integer", "-88");
 		$$ = BuildFuncId(symbol_table, $1, para, para_cnt);
-		/*TableEntry* tmp = FindEntryFuncInScope(symbol_table, $1);
-		if(tmp == NULL) {
-			printf("Undeclared function at Line %d: %s\n", yylineno, $1);
-			$$ = BuildValue("null", "null");
-		}
-		else {
-			if(tmp->para_cnt != para_cnt){
-				printf("Wrong function parameters at Line %d : %s\n", yylineno, $1);
-				$$ = BuildValue("null", "null");
-			}
-			else{
-				int j;
-				for(j = 0; j < para_cnt; j++){
-					char* type;
-					type = (char*)malloc(sizeof(char)*32);
-					type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
-					if(para[j] != type[0]){	//error type
-						printf("Error type of parameter at Line : %d \n", yylineno);
-					}
-				}
-				//printf("corrext %s\n\n", tmp->ret);
-				$$ = BuildValue(tmp->ret, "0");
-			}
-		}*/
 		para_cnt = 0;
-		
-		//$$ = ReturnFuncValue(symbol_table, $1, $3);
-		//printf("%d|||", $3->ival);
 	}
 	| num {
 		//$$ = $1;
