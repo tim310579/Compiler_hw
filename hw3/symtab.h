@@ -172,3 +172,5 @@ TableEntry* FindEntryFuncInScope(SymbolTable*, char*);
 char* FindTypeOfPara(SymbolTable*, char*, int);
 Value* BuildFuncId(SymbolTable*, char*, char*, int);
 void BuildProcId(SymbolTable*, char*, char*, int);
+void CopyValue(Value*, Value*);
+int CheckAssignCanOrNot(Value*, Value*);

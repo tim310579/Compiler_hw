@@ -225,25 +225,32 @@ statement_list : statement
 
 statement : variable ASSIGNMENT expression {
 	char tmp[32];
-	char tmptype[32];
+	Type* type = (Type*)malloc(sizeof(Type*));
+	type = $1->type;
 	char flag = 'n';
 	strcpy(tmp, $1->name);	//remain first name
-	strcpy(tmptype, $1->type->name);
-	if(!strcmp($1->type->name, "function") || !strcmp($1->type->name, "procedure")){
+	//strcpy(tmptype, $1->type->name);
+	if(!strcmp($1->type->name, "function")){
 		flag = 'f';
 	}
-	$1 = $3;
+	
+	//$1 = $3;
+	//CopyValue($1, $3);
+	//printf("%s   %s  %s  %s %d\n", $1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
+	CopyValue($1, $3);
 	if(flag == 'f') {
-		strcpy($1->type->name, tmptype);
-		strcpy($1->ret, $3->type->name);
+		$1->type = type;	//restore
+		//strcpy($1->ret, $3->type->name);
 	}
-	else{
-		strcpy($1->type->name, tmptype);
+	
+	printf("%s   %s  %s  %s %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $3->ret, $1->ival);
+	//strcpy($1->name, tmp);
+	int ch = CheckAssignCanOrNot($1, $3);
+	if(ch == 1){
+		UpdateValue(symbol_table, $1);
+		UpdateIndexValue(symbol_table, $1);
+	}  
 	}
-	strcpy($1->name, tmp);
-	UpdateValue(symbol_table, $1);
-	UpdateIndexValue(symbol_table, $1);
-	  }
 		| procedure_statement
 		| compound_statement
 		| IF expression THEN statement ELSE statement
