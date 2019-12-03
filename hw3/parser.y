@@ -91,10 +91,13 @@ prog  : PROGRAM id {
 		strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
 	}
 	declarations
-	subprogram_declarations
+	subprogram_declarations{symbol_table->current_level--;
+        strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	}
 	compound_statement
- 	{symbol_table->current_level--;
-	strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);	
+ 	{//symbol_table->current_level--;
+	printf("%d\n", symbol_table->current_level);
+	//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);	
 	}
 	DOT
 	;
@@ -160,10 +163,12 @@ subprogram_declaration :
 	subprogram_head {symbol_table->current_level++;
 			
 	}
-	declarations 			
+	declarations
 	subprogram_declarations
-	compound_statement {symbol_table->current_level--;
-			strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);			}
+	{/*compound_statement*/}
+	 {symbol_table->current_level--;
+			strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	}compound_statement
 	;
 
 subprogram_head : FUNCTION id {
@@ -185,12 +190,16 @@ subprogram_head : FUNCTION id {
 		| PROCEDURE id{
 			TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("procedure"), yylineno, symbol_table->cnt_upd);
                 	InsertTableEntry(symbol_table,tmp);
-			AddparaToFunc(symbol_table, $2, yylineno);
+			//AddparaToFunc(symbol_table, $2, yylineno);
 			symbol_table->cnt_upd++;
 			strcpy(symbol_table->scopes[symbol_table->current_level], $2);
                         strcpy(symbol_table->scope, $2);
 		}
-		arguments SEMICOLON
+		arguments {
+			AddparaToFunc(symbol_table, $2, yylineno);
+		}SEMICOLON{
+			symbol_table->cnt_upd++;
+		}
 		;
 
 arguments : LPAREN {symbol_table->current_level++;}
@@ -216,9 +225,15 @@ optional_var   : VAR
         	| 
 		;
 
-compound_statement : PBEGIN {symbol_table->current_level++;}
+compound_statement : PBEGIN {symbol_table->current_level++;
+		//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);   
+		//symbol_table->current_level++;
+		}
 		     optional_statements
-		     END {symbol_table->current_level--;}
+		     END {symbol_table->current_level--;
+		//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+		//symbol_table->current_level--;
+		}
 		;
 
 

@@ -545,7 +545,7 @@ void UpdateValue(SymbolTable* s,char* name, Value* v){
 	}
 	else if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
 		//printf("%s  %s  \n", v->type->name, tmp->type->name);
-		printf("Type assign error in Line: %d\n", yylineno);
+		printf("Type assign error in Line: %d %s %s %s\n", yylineno, v->type->name, tmp->type->name, tmp->scope);
 		return;
 	}
 	tmp->value = v;
@@ -696,7 +696,7 @@ Value* BuildFuncId(SymbolTable* s, char* name, char* para, int para_cnt){
 			printf("Undeclared function at Line %d: %s\n", yylineno, name);
 			v = BuildValue("null", "null");
 		}
-		else {
+		else { //printf("%d %d\n",tmp->para_cnt, para_cnt);
 			if(tmp->para_cnt != para_cnt){
 				printf("Wrong function parameters at Line %d : %s\n", yylineno, name);
 				v = BuildValue("null", "null");
@@ -708,11 +708,11 @@ Value* BuildFuncId(SymbolTable* s, char* name, char* para, int para_cnt){
 				int j;
                                 for(j = 0; j < para_cnt; j++){
                                         if(para[j] != tmp->paratype[j]){
-                                                printf("Wrong procedure parameter type in Line %d\n", yylineno);
+                                                printf("Wrong function parameter type in Line %d\n", yylineno);
 					}
 				}
-					printf("%s\n",para);
-					printf("%s\n", tmp->paratype);
+					//printf("%s\n",para);
+					//printf("%s\n", tmp->paratype);
 					/*
 					char* type;
 					type = (char*)malloc(sizeof(char)*32);
@@ -737,6 +737,7 @@ void BuildProcId(SymbolTable* symbol_table, char* name, char* para, int para_cnt
                 }
                 else {
                         if(tmp->para_cnt != para_cnt){
+				//printf("%d %d\n",tmp->para_cnt, para_cnt);
                                 printf("Wrong procedure parameters at Line %d : %s\n", yylineno, name);
                         }
                         else{
@@ -747,8 +748,8 @@ void BuildProcId(SymbolTable* symbol_table, char* name, char* para, int para_cnt
 					}
                         	}
 			
-                                        printf("%s\n",para);
-					printf("%s\n", tmp->paratype);
+                                        //printf("%s\n",para);
+					//printf("%s\n", tmp->paratype);
                 	}
 		}
 }
