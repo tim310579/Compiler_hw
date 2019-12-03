@@ -80,56 +80,17 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
     t->Entries[t->pos++] = e;
 }
 
-void PopTableEntry(SymbolTable* s)
-{
-    int i;
-    TableEntry* ptr;
-    for (i = 0; i < s->pos; i++) {
-        ptr = s->Entries[i];
-        if (ptr->level == s->current_level) {
-            free(ptr);
-            if (i < (s->pos) - 1) {                     //如果不是最後的話
-                s->Entries[i] = s->Entries[--(s->pos)]; //把最後的拿過來
-                i--;                                    //同一個
-                continue;                               //再檢查一次
-            } else {
-                s->pos--;
-            }
-        }
-    }
-}
-
-void PopTableEntryByName(SymbolTable* s, char* name)
-{
-    int i;
-    TableEntry* ptr;
-    for (i = 0; i < s->pos; i++) {
-        ptr = s->Entries[i];
-        if (ptr->level == s->current_level && strcmp(ptr->name, name) == 0) {
-            free(ptr);
-            if (i < (s->pos) - 1) {                     //如果不是最後的話
-                s->Entries[i] = s->Entries[--(s->pos)]; //把最後的拿過來
-                i--;                                    //同一個
-                continue;                               //再檢查一次
-            } else {
-                s->pos--;
-            }
-        }
-    }
-}
-
-
 void PrintSymbolTable(SymbolTable* t)
 {
     int i;
     TableEntry* ptr;
 
     printf("\n");
-    printf("%s|%13s|%13s|%13s|%13s|%13s|%13s|%13s|\n","test", "Name", "Scope", "Type", "Return", "Parameter", "Dim", "Array_range");
+    printf("|%13s|%13s|%13s|%13s|%13s|%13s|%13s|\n", "Name", "Scope", "Type", "Return", "Parameter", "Dim", "Array_range");
     for (i = 0; i < t->pos; i++) {
         ptr = t->Entries[i]; 
-	printf("%sPPPPP   ", ptr->scope);
-        printf("|%13s|%13d|%13s|%13s|", ptr->name, ptr->level, ptr->type->name, ptr->ret);
+	//printf("%sPPPPP   ", ptr->scope);
+        printf("|%13s|(%d)%10s|%13s|%13s|", ptr->name, ptr->level, ptr->scope, ptr->type->name, ptr->ret);
         
         int j;
 	printf("(");
@@ -293,6 +254,7 @@ Value* BuildNegValue(char* typename, char* val){
     v->sval = "";
     v->ival = 0;
     v->dval = 0;
+    v->is_const = 0;
     if(!strcmp(t->name, "integer")){
 	v->ival = atoi(val);
 	v->ival*= -1;
@@ -380,30 +342,15 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 		printf("Cannot add or minus array at Line: %d\n", line);
 		return v;
 	}
+	if(strcmp(n1->type->name, n2->type->name)){
+		printf("Cannot add or minus different type at Line: %d\n", line);
+		return v;
+	}
 	if(!strcmp(n1->type->name, "null")){return v;}
 	if(!strcmp(op, "+")) { 
 		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
 			v->ival = n1->ival + n2->ival;
 			strcpy(v->type->name, "integer");
-		}
-		else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
-			double t2 = atof(n2->sval);
-			v->dval = n1->ival+t2;
-			char* tmp;
-			tmp = (char*)malloc(sizeof(char)*32);
-			sprintf(tmp, "%f", v->dval);
-			//printf("%s", tmp);
-			v->sval = strdup(tmp);
-			strcpy(v->type->name, "real");
-		}
-		else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
-			double t1 = atof(n1->sval);;
-			v->dval = t1 + n2->ival;
-			char* tmp;
-			tmp = (char*)malloc(sizeof(char)*32);
-			sprintf(tmp, "%f", v->dval);
-			v->sval = strdup(tmp);
-			strcpy(v->type->name, "real");
 		}
 		else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
 			double t1, t2;
@@ -422,25 +369,6 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
                         v->ival = n1->ival - n2->ival;
                         strcpy(v->type->name, "integer");
                 }
-                else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
-                        double t2 = atof(n2->sval);
-                        v->dval = n1->ival-t2;
-                        char* tmp;
-                        tmp = (char*)malloc(sizeof(char)*32);
-                        sprintf(tmp, "%f", v->dval);
-                        //printf("%s", tmp);
-                        v->sval = strdup(tmp);
-                        strcpy(v->type->name, "real");
-                }
-                else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
-                        double t1 = atof(n1->sval);;
-                        v->dval = t1 - n2->ival;
-                        char* tmp;
-                        tmp = (char*)malloc(sizeof(char)*32);
-                        sprintf(tmp, "%f", v->dval);
-                        v->sval = strdup(tmp);
-                        strcpy(v->type->name, "real");
-                }
                 else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
                         double t1, t2;
                         t1 = atof(n1->sval);
@@ -453,6 +381,7 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
                         strcpy(v->type->name, "real");
                 }
         }
+	v->is_const = 1;
 	return v;
 }
 Value* Multwo(Value* n1, Value* n2, char* op, int line){
@@ -482,29 +411,15 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
                 printf("Cannot mul or div array at Line: %d\n", yylineno);
                 return v;
         }
+	if(strcmp(n1->type->name, n2->type->name)){
+                printf("Cannot mul or div different type at Line: %d\n", line);
+                return v;
+        }
 	if(!strcmp(n1->type->name, "null")){return v;}
 	if(!strcmp(op, "*")) {
 		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
 			v->ival = n1->ival * n2->ival;
 			strcpy(v->type->name, "integer");
-		}
-		else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
-			double t2 = atof(n2->sval);
-			v->dval = n1->ival * t2;
-			char* tmp;
-                        tmp = (char*)malloc(sizeof(char)*32);
-                        sprintf(tmp, "%f", v->dval);
-			v->sval = strdup(tmp);
-			strcpy(v->type->name, "real");
-		}
-		else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
-			double t1 = atof(n1->sval);;
-			v->dval = t1 * n2->ival;
-			char* tmp;
-			tmp = (char*)malloc(sizeof(char)*32);
-			sprintf(tmp, "%f", v->dval);
-			v->sval = strdup(tmp);
-			strcpy(v->type->name, "real");
 		}
 		else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
 			double t1, t2;
@@ -533,24 +448,6 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 			v->both = 1;	//means both type are possible
 			strcpy(v->type->name, "integer");
                 }
-                else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
-                        double t2 = atof(n2->sval);
-                        v->dval = n1->ival/t2;
-                        char* tmp;
-                        tmp = (char*)malloc(sizeof(char)*32);
-                        sprintf(tmp, "%f", v->dval);
-                        v->sval = strdup(tmp);
-                        strcpy(v->type->name, "real");
-                }
-                else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
-                        double t1 = atof(n1->sval);;
-                        v->dval = t1/n2->ival;
-                        char* tmp;
-                        tmp = (char*)malloc(sizeof(char)*32);
-                        sprintf(tmp, "%f", v->dval);
-                        v->sval = strdup(tmp);
-                        strcpy(v->type->name, "real");
-                }
                 else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
                         double t1, t2;
                         t1 = atof(n1->sval);
@@ -563,6 +460,7 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
                         strcpy(v->type->name, "real");
 		}
 	}
+	v->is_const = 1;
 	return v;	
 }
 Value* BuildValueTail(char* typename){
@@ -610,16 +508,14 @@ void UpdateValue(SymbolTable* s,char* name, Value* v){
 		return;
 	}
 	if(!strcmp(tmp->type->name, "function")){	//function return value error
-		if(!strcmp(tmp->ret, "integer") && !strcmp(v->type->name, "real")){	//int != real
+		if(strcmp(tmp->ret, v->type->name)){	//type error
 			printf("Type mismatch for return value in Line: %d\n", yylineno);
 			return;
 		}
 	}
 	else if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
-		if(!strcmp(tmp->type->name, "integer") && !strcmp(v->type->name, "real")){
-			printf("Type assign error in Line: %d\n", yylineno);
-			return;
-		}
+		printf("Type assign error in Line: %d\n", yylineno);
+		return;		
 	}
 	tmp->value = v;
 	tmp->init = 1;
@@ -650,17 +546,16 @@ void UpdateIndexValue(SymbolTable* s, Value* v){
         }
 
 }
-Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_cnt, char lr){
+Value* ReturnIdValue(SymbolTable* s, char* name, int* tail, int tail_cnt, char lr){
 	Value* v = (Value*)malloc(sizeof(Value));
 	int flag = 0;
-        if(FindEntryInGlobal(symbol_table, name) == NULL){	//is not already existed
-		if(FindEntryInScope(symbol_table, name) == NULL){
-
+        if(FindEntryInGlobal(s, name) == NULL){	//is not already existed
+		if(FindEntryInScope(s, name) == NULL){
 			printf("Undeclared variable in Line %d : %s\n", yylineno, name);
 			flag = 1; //no need to continie
 		}
 	}
-	if(IsFunction(symbol_table, name) == 1 && strcmp(symbol_table->scope, name) && lr == 'l'){
+	if(IsFunction(s, name) == 1 && strcmp(s->scope, name) && lr == 'l'){
 		printf("In Line %d, Function cannot in left side: %s\n", yylineno, name);
 		flag = 1;
 	}
@@ -677,12 +572,16 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 	//printf("test\n\n");
 
 		//int  flag2 = 0;
-		TableEntry* tmp = FindEntryInScope(symbol_table, name);
+		TableEntry* tmp = FindEntryInScope(s, name);
 		if(tmp == NULL) {
-			tmp = FindEntryInGlobal(symbol_table, name);
+			tmp = FindEntryInGlobal(s, name);
 		}
 		if(lr == 'r'){
-			if(tmp->init == 0){	//uninitialized
+			if(!strcmp(tmp->scope, s->scope)) {
+				//OK in function, not uninit
+				//printf("OKOK at line %d\n", yylineno);
+				}
+			else if(tmp->init == 0 && strcmp(tmp->type->name, "function") && strcmp(tmp->type->name, "procedure")){	//uninitialized
 				printf("%s is uninitialized before used at Line %d\n", name, yylineno);
 			}
 		}
@@ -711,7 +610,7 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 				strcpy(v->ret, "real");
 			}
 		}
-		if(tmp->type->arr_dim > 0) v->is_array = 1;
+		if(tmp->type->arr_dim > 0 && tail_cnt == 0) v->is_array = 1;
                	//printf("%d", tail_cnt);
                	v->tail_cnt = tail_cnt;	
 		strcpy(v->name, name);

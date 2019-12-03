@@ -61,13 +61,12 @@ struct Value{
 	double paraf[32];
 	char ret[32];
 	int both;
+	int is_const;
 };
 
 SymbolTable* BuildSymbolTable();
 void InsertTableEntry(SymbolTable*,TableEntry*);
 
-void PopTableEntry(SymbolTable*);
-void PopTableEntryByName(SymbolTable*,char*);
 TableEntry* BuildTableEntry(char*, char*, int, Type*, int, int);
 
 void PrintSymbolTable(SymbolTable*);

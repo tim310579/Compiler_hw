@@ -619,14 +619,14 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyrline[] =
 {
        0,    72,    72,    76,    81,    87,    94,    98,    72,   105,
-     106,   107,   115,   119,   123,   129,   129,   132,   136,   137,
-     151,   152,   153,   158,   159,   163,   168,   169,   163,   174,
-     179,   174,   190,   198,   190,   205,   205,   207,   210,   214,
-     218,   214,   224,   225,   228,   228,   240,   241,   244,   245,
-     245,   249,   284,   285,   286,   287,   288,   291,   301,   313,
-     316,   320,   326,   342,   358,   359,   360,   363,   364,   366,
-     367,   375,   376,   383,   391,   396,   412,   413,   414,   417,
-     417,   420,   420,   424,   425,   426,   427,   428,   429
+     107,   109,   116,   120,   124,   130,   130,   133,   137,   138,
+     152,   153,   154,   159,   160,   164,   169,   170,   164,   175,
+     180,   175,   191,   199,   191,   206,   206,   216,   219,   223,
+     227,   223,   233,   234,   237,   237,   250,   251,   254,   255,
+     255,   259,   263,   264,   265,   266,   267,   270,   280,   292,
+     295,   299,   305,   321,   337,   338,   339,   342,   343,   345,
+     346,   354,   355,   362,   370,   375,   393,   395,   396,   399,
+     399,   402,   402,   406,   407,   408,   409,   410,   411
 };
 #endif
 
@@ -1565,7 +1565,7 @@ yyreduce:
   case 7:
 #line 98 "parser.y" /* yacc.c:1646  */
     {//symbol_table->current_level--;
-	printf("%d\n", symbol_table->current_level);
+	//printf("%d\n", symbol_table->current_level);
 	//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);	
 	}
 #line 1572 "y.tab.c" /* yacc.c:1646  */
@@ -1573,64 +1573,66 @@ yyreduce:
 
   case 9:
 #line 105 "parser.y" /* yacc.c:1646  */
-    {(yyval.value) = BuildValue("integer", yytext);}
-#line 1578 "y.tab.c" /* yacc.c:1646  */
+    {(yyval.value) = BuildValue("integer", yytext);
+    		(yyval.value)->is_const = 1;}
+#line 1579 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 106 "parser.y" /* yacc.c:1646  */
-    {(yyval.value) = BuildValue("real", yytext);}
-#line 1584 "y.tab.c" /* yacc.c:1646  */
+#line 107 "parser.y" /* yacc.c:1646  */
+    {(yyval.value) = BuildValue("real", yytext);
+		(yyval.value)->is_const = 1;}
+#line 1586 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 107 "parser.y" /* yacc.c:1646  */
+#line 109 "parser.y" /* yacc.c:1646  */
     {
 	//printf("%s|||", yytext);
-	(yyval.value) = BuildNegValue("integer", yytext);
-	}
-#line 1593 "y.tab.c" /* yacc.c:1646  */
+		(yyval.value) = BuildNegValue("integer", yytext);
+		(yyval.value)->is_const = 1;}
+#line 1595 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 119 "parser.y" /* yacc.c:1646  */
+#line 120 "parser.y" /* yacc.c:1646  */
     {
 		TableEntry* tmp=BuildTableEntry((yyvsp[0].str), symbol_table->scope, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
 		InsertTableEntry(symbol_table,tmp);
 }
-#line 1602 "y.tab.c" /* yacc.c:1646  */
+#line 1604 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 123 "parser.y" /* yacc.c:1646  */
+#line 124 "parser.y" /* yacc.c:1646  */
     {
                 TableEntry* tmp=BuildTableEntry((yyvsp[0].str), symbol_table->scope, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
                 InsertTableEntry(symbol_table,tmp);
 }
-#line 1611 "y.tab.c" /* yacc.c:1646  */
+#line 1613 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 129 "parser.y" /* yacc.c:1646  */
+#line 130 "parser.y" /* yacc.c:1646  */
     {
 		UpdateType(symbol_table, (yyvsp[0].type), yylineno);}
-#line 1618 "y.tab.c" /* yacc.c:1646  */
+#line 1620 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 131 "parser.y" /* yacc.c:1646  */
+#line 132 "parser.y" /* yacc.c:1646  */
     {symbol_table->cnt_upd++;}
-#line 1624 "y.tab.c" /* yacc.c:1646  */
+#line 1626 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 136 "parser.y" /* yacc.c:1646  */
+#line 137 "parser.y" /* yacc.c:1646  */
     {(yyval.type) = (yyvsp[0].type);}
-#line 1630 "y.tab.c" /* yacc.c:1646  */
+#line 1632 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 137 "parser.y" /* yacc.c:1646  */
+#line 138 "parser.y" /* yacc.c:1646  */
     {
 				//$8->arr_dim++;
 				//$$ = $8;
@@ -1643,76 +1645,76 @@ yyreduce:
 				//$$ = BuildArrayType(tmp, $3->ival, $5->ival);
 				
 				}
-#line 1647 "y.tab.c" /* yacc.c:1646  */
+#line 1649 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 151 "parser.y" /* yacc.c:1646  */
+#line 152 "parser.y" /* yacc.c:1646  */
     {(yyval.type) = BuildType("integer");}
-#line 1653 "y.tab.c" /* yacc.c:1646  */
+#line 1655 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 152 "parser.y" /* yacc.c:1646  */
+#line 153 "parser.y" /* yacc.c:1646  */
     {(yyval.type) = BuildType("real");}
-#line 1659 "y.tab.c" /* yacc.c:1646  */
+#line 1661 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 153 "parser.y" /* yacc.c:1646  */
+#line 154 "parser.y" /* yacc.c:1646  */
     {(yyval.type) = BuildType("string");}
-#line 1665 "y.tab.c" /* yacc.c:1646  */
+#line 1667 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 158 "parser.y" /* yacc.c:1646  */
+#line 159 "parser.y" /* yacc.c:1646  */
     {symbol_table->cnt_upd++;}
-#line 1671 "y.tab.c" /* yacc.c:1646  */
+#line 1673 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 163 "parser.y" /* yacc.c:1646  */
+#line 164 "parser.y" /* yacc.c:1646  */
     {symbol_table->current_level++;
 			
 	}
-#line 1679 "y.tab.c" /* yacc.c:1646  */
+#line 1681 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 168 "parser.y" /* yacc.c:1646  */
+#line 169 "parser.y" /* yacc.c:1646  */
     {/*compound_statement*/}
-#line 1685 "y.tab.c" /* yacc.c:1646  */
+#line 1687 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 169 "parser.y" /* yacc.c:1646  */
+#line 170 "parser.y" /* yacc.c:1646  */
     {symbol_table->current_level--;
 			strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
 	}
-#line 1693 "y.tab.c" /* yacc.c:1646  */
+#line 1695 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 174 "parser.y" /* yacc.c:1646  */
+#line 175 "parser.y" /* yacc.c:1646  */
     {
 			TableEntry* tmp = BuildTableEntry((yyvsp[0].str), symbol_table->scope, symbol_table->current_level, BuildType("function"), yylineno, symbol_table->cnt_upd);                           
 	  		InsertTableEntry(symbol_table,tmp);
 			strcpy(symbol_table->scopes[symbol_table->current_level], (yyvsp[0].str));
 			strcpy(symbol_table->scope, (yyvsp[0].str));
 		}
-#line 1704 "y.tab.c" /* yacc.c:1646  */
+#line 1706 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 179 "parser.y" /* yacc.c:1646  */
+#line 180 "parser.y" /* yacc.c:1646  */
     { //printf("%s||", $2);
 			AddparaToFunc(symbol_table, (yyvsp[-2].str), yylineno);
 		}
-#line 1712 "y.tab.c" /* yacc.c:1646  */
+#line 1714 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 182 "parser.y" /* yacc.c:1646  */
+#line 183 "parser.y" /* yacc.c:1646  */
     {
 			symbol_table->cnt_upd++;
 			char* tmp;
@@ -1721,11 +1723,11 @@ yyreduce:
 			strcpy(tmp, (yyvsp[-1].type)->name);
 			UpdateFunctionRet(symbol_table, (yyvsp[-1].type), yylineno);
                 }
-#line 1725 "y.tab.c" /* yacc.c:1646  */
+#line 1727 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 190 "parser.y" /* yacc.c:1646  */
+#line 191 "parser.y" /* yacc.c:1646  */
     {
 			TableEntry* tmp = BuildTableEntry((yyvsp[0].str), symbol_table->scope, symbol_table->current_level, BuildType("procedure"), yylineno, symbol_table->cnt_upd);
                 	InsertTableEntry(symbol_table,tmp);
@@ -1734,129 +1736,107 @@ yyreduce:
 			strcpy(symbol_table->scopes[symbol_table->current_level], (yyvsp[0].str));
                         strcpy(symbol_table->scope, (yyvsp[0].str));
 		}
-#line 1738 "y.tab.c" /* yacc.c:1646  */
+#line 1740 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 198 "parser.y" /* yacc.c:1646  */
+#line 199 "parser.y" /* yacc.c:1646  */
     {
 			AddparaToFunc(symbol_table, (yyvsp[-2].str), yylineno);
 		}
-#line 1746 "y.tab.c" /* yacc.c:1646  */
+#line 1748 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 200 "parser.y" /* yacc.c:1646  */
+#line 201 "parser.y" /* yacc.c:1646  */
     {
 			symbol_table->cnt_upd++;
 		}
-#line 1754 "y.tab.c" /* yacc.c:1646  */
+#line 1756 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 205 "parser.y" /* yacc.c:1646  */
-    {symbol_table->current_level++;}
-#line 1760 "y.tab.c" /* yacc.c:1646  */
+#line 206 "parser.y" /* yacc.c:1646  */
+    {
+	  symbol_table->current_level++;
+	//printf("2.%s  \n", symbol_table->scopes[symbol_table->current_level]);
+	  strcpy(symbol_table->scopes[symbol_table->current_level], symbol_table->scopes[symbol_table->current_level-1]);
+	  strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	//printf("1.%s  \n", symbol_table->scopes[symbol_table->current_level]);
+	}
+#line 1768 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 206 "parser.y" /* yacc.c:1646  */
-    {symbol_table->current_level--;}
-#line 1766 "y.tab.c" /* yacc.c:1646  */
+#line 213 "parser.y" /* yacc.c:1646  */
+    {symbol_table->current_level--;
+	  strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	}
+#line 1776 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 210 "parser.y" /* yacc.c:1646  */
+#line 219 "parser.y" /* yacc.c:1646  */
     {
 			UpdateType(symbol_table, (yyvsp[0].type), yylineno);
 			//printf("}}%d{{", symbol_table->cnt_upd);
 		}
-#line 1775 "y.tab.c" /* yacc.c:1646  */
+#line 1785 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 214 "parser.y" /* yacc.c:1646  */
+#line 223 "parser.y" /* yacc.c:1646  */
     {
 			//printf("}}%d{{", symbol_table->cnt_upd);
                         UpdateType(symbol_table, (yyvsp[0].type), yylineno);
 		}
-#line 1784 "y.tab.c" /* yacc.c:1646  */
+#line 1794 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 218 "parser.y" /* yacc.c:1646  */
+#line 227 "parser.y" /* yacc.c:1646  */
     {
 			symbol_table->cnt_upd++;
 		}
-#line 1792 "y.tab.c" /* yacc.c:1646  */
+#line 1802 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 228 "parser.y" /* yacc.c:1646  */
+#line 237 "parser.y" /* yacc.c:1646  */
     {symbol_table->current_level++;
-		//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);   
-		//symbol_table->current_level++;
+	strcpy(symbol_table->scopes[symbol_table->current_level], symbol_table->scopes[symbol_table->current_level-1]);
+	strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);   
+	//symbol_table->current_level++;
 		}
-#line 1801 "y.tab.c" /* yacc.c:1646  */
+#line 1812 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 233 "parser.y" /* yacc.c:1646  */
+#line 243 "parser.y" /* yacc.c:1646  */
     {symbol_table->current_level--;
-		//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+		strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
 		//symbol_table->current_level--;
 		}
-#line 1810 "y.tab.c" /* yacc.c:1646  */
+#line 1821 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 245 "parser.y" /* yacc.c:1646  */
+#line 255 "parser.y" /* yacc.c:1646  */
     {symbol_table->cnt_upd++;}
-#line 1816 "y.tab.c" /* yacc.c:1646  */
+#line 1827 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 249 "parser.y" /* yacc.c:1646  */
+#line 259 "parser.y" /* yacc.c:1646  */
     {
 	//TableEntry* tmp = FindEntryInScope(symbol_table, $1->name);
 	UpdateValue(symbol_table, (yyvsp[-2].value)->name, (yyvsp[0].value));
-	
-	//printf("%s %d\n", $1->type->name, yylineno);
-	/*char tmp[32];
-	Type* type;
-	type = $1->type;
-	char flag = 'n';
-	strcpy(tmp, $1->name);	//remain first name
-	//strcpy(tmptype, $1->type->name);
-	if(!strcmp($1->type->name, "function")){
-		flag = 'f';
 	}
-	
-	//$1 = $3;
-	//CopyValue($1, $3);
-	printf("%s   %s  %s  %s %d\n", $1->name, $1->type->name, $1->ret, $3->type->name, yylineno);
-	CopyValue($1, $3);
-	
-	if(flag == 'f') {
-		$1->type = type;	//restore
-		//strcpy($1->ret, $3->type->name);
-	}
-	
-	//printf("%s   %s  %s  %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
-	//strcpy($1->name, tmp);
-	//printf("0887");
-	int ch = CheckAssignCanOrNot($1, $3);
-	//printf("5487");
-	if(ch == 1){
-		UpdateValue(symbol_table, $1);
-		UpdateIndexValue(symbol_table, $1);
-	}  
-	*/}
-#line 1856 "y.tab.c" /* yacc.c:1646  */
+#line 1836 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 291 "parser.y" /* yacc.c:1646  */
+#line 270 "parser.y" /* yacc.c:1646  */
     {
 	 (yyval.value) = ReturnIdValue(symbol_table, (yyvsp[-1].str), tail, tail_cnt, 'l');
 		int j;
@@ -1865,11 +1845,11 @@ yyreduce:
                 }
 		tail_cnt = 0;
 }
-#line 1869 "y.tab.c" /* yacc.c:1646  */
+#line 1849 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 301 "parser.y" /* yacc.c:1646  */
+#line 280 "parser.y" /* yacc.c:1646  */
     {
 	 	//printf("%f ", $2->dval);
 		if(!strcmp((yyvsp[-2].value)->type->name, "integer")){
@@ -1882,35 +1862,35 @@ yyreduce:
 			tail_cnt++;
 		}
 	}
-#line 1886 "y.tab.c" /* yacc.c:1646  */
+#line 1866 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 313 "parser.y" /* yacc.c:1646  */
+#line 292 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = NULL;}
-#line 1892 "y.tab.c" /* yacc.c:1646  */
+#line 1872 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 316 "parser.y" /* yacc.c:1646  */
+#line 295 "parser.y" /* yacc.c:1646  */
     {
 		    BuildProcId(symbol_table, (yyvsp[0].str), para, para_cnt);
 		    para_cnt = 0;
 			}
-#line 1901 "y.tab.c" /* yacc.c:1646  */
+#line 1881 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 320 "parser.y" /* yacc.c:1646  */
+#line 299 "parser.y" /* yacc.c:1646  */
     {
 		    BuildProcId(symbol_table, (yyvsp[-3].str), para, para_cnt);
                     para_cnt = 0;
 			}
-#line 1910 "y.tab.c" /* yacc.c:1646  */
+#line 1890 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 326 "parser.y" /* yacc.c:1646  */
+#line 305 "parser.y" /* yacc.c:1646  */
     {
 		if(!strcmp((yyvsp[0].value)->type->name, "integer")) {
 			para[para_cnt] = 'i';
@@ -1927,11 +1907,11 @@ yyreduce:
 		para_cnt++;
 		
 		}
-#line 1931 "y.tab.c" /* yacc.c:1646  */
+#line 1911 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 342 "parser.y" /* yacc.c:1646  */
+#line 321 "parser.y" /* yacc.c:1646  */
     {
 		if(!strcmp((yyvsp[0].value)->type->name, "integer")) {
                 	para[para_cnt] =  'i';
@@ -1946,54 +1926,54 @@ yyreduce:
 		//printf("|%s|%s|%d||||||||", $3->type->name, $3->ret, para_cnt);
 		para_cnt++;
 		}
-#line 1950 "y.tab.c" /* yacc.c:1646  */
+#line 1930 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 358 "parser.y" /* yacc.c:1646  */
+#line 337 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = (yyvsp[0].value);}
-#line 1956 "y.tab.c" /* yacc.c:1646  */
+#line 1936 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 363 "parser.y" /* yacc.c:1646  */
+#line 342 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = (yyvsp[0].value);}
-#line 1962 "y.tab.c" /* yacc.c:1646  */
+#line 1942 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 366 "parser.y" /* yacc.c:1646  */
+#line 345 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = (yyvsp[0].value); }
-#line 1968 "y.tab.c" /* yacc.c:1646  */
+#line 1948 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 367 "parser.y" /* yacc.c:1646  */
+#line 346 "parser.y" /* yacc.c:1646  */
     { 
 		//printf("%s %s||\n", $1->type->name, $3->type->name);
 		(yyval.value) = Addtwo((yyvsp[-2].value), (yyvsp[0].value), (yyvsp[-1].str), yylineno);
 		//printf("%doepwo",$$->ival);
 	}
-#line 1978 "y.tab.c" /* yacc.c:1646  */
+#line 1958 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 375 "parser.y" /* yacc.c:1646  */
+#line 354 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = (yyvsp[0].value);}
-#line 1984 "y.tab.c" /* yacc.c:1646  */
+#line 1964 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 376 "parser.y" /* yacc.c:1646  */
+#line 355 "parser.y" /* yacc.c:1646  */
     {
 		(yyval.value) = Multwo((yyvsp[-2].value), (yyvsp[0].value), (yyvsp[-1].str), yylineno);
 		//`printf("%s", $$->sval);
 		}
-#line 1993 "y.tab.c" /* yacc.c:1646  */
+#line 1973 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 383 "parser.y" /* yacc.c:1646  */
+#line 362 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.value) = ReturnIdValue(symbol_table, (yyvsp[-1].str), tail, tail_cnt, 'r');
 		int j;
@@ -2002,21 +1982,21 @@ yyreduce:
                 }
 		tail_cnt = 0;
 	}
-#line 2006 "y.tab.c" /* yacc.c:1646  */
+#line 1986 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 391 "parser.y" /* yacc.c:1646  */
+#line 370 "parser.y" /* yacc.c:1646  */
     {//$$ = BuildValue("integer", "-88");
 		(yyval.value) = BuildFuncId(symbol_table, (yyvsp[-3].str), para, para_cnt);
 		//printf("%d", para_cnt);
 		para_cnt = 0;
 	}
-#line 2016 "y.tab.c" /* yacc.c:1646  */
+#line 1996 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 396 "parser.y" /* yacc.c:1646  */
+#line 375 "parser.y" /* yacc.c:1646  */
     {
 		//$$ = $1;
 		//printf("%s", $1->sval);
@@ -2025,37 +2005,40 @@ yyreduce:
 		if(!strcmp((yyvsp[0].value)->type->name, "integer")){
 			tmp = itoa((yyvsp[0].value)->ival);
 			(yyval.value) = BuildValue("integer", tmp);
+			(yyval.value)->is_const = 1;
 			//printf("%s", tmp);
 		}
 		else{
 			strcpy(tmp, (yyvsp[0].value)->sval);
 			(yyval.value) = BuildValue("real", tmp);
+			(yyval.value)->is_const = 1;
 		}
 		//printf("%skkkk%d %d\n", $$->type->name, $$->ival, yylineno);
 		}
-#line 2037 "y.tab.c" /* yacc.c:1646  */
+#line 2019 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 412 "parser.y" /* yacc.c:1646  */
-    {(yyval.value) = BuildValue("string", yytext);}
-#line 2043 "y.tab.c" /* yacc.c:1646  */
+#line 393 "parser.y" /* yacc.c:1646  */
+    {(yyval.value) = BuildValue("string", yytext);
+			(yyval.value)->is_const = 1;}
+#line 2026 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 413 "parser.y" /* yacc.c:1646  */
+#line 395 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = (yyvsp[-1].value);}
-#line 2049 "y.tab.c" /* yacc.c:1646  */
+#line 2032 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 414 "parser.y" /* yacc.c:1646  */
+#line 396 "parser.y" /* yacc.c:1646  */
     {(yyval.value) = (yyvsp[0].value);}
-#line 2055 "y.tab.c" /* yacc.c:1646  */
+#line 2038 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2059 "y.tab.c" /* yacc.c:1646  */
+#line 2042 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2283,7 +2266,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 432 "parser.y" /* yacc.c:1906  */
+#line 414 "parser.y" /* yacc.c:1906  */
 
 
 //fprintf("%d", yyparse());

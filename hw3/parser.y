@@ -96,19 +96,20 @@ prog  : PROGRAM id {
 	}
 	compound_statement
  	{//symbol_table->current_level--;
-	printf("%d\n", symbol_table->current_level);
+	//printf("%d\n", symbol_table->current_level);
 	//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);	
 	}
 	DOT
 	;
 
-num : DIGSEQ {$$ = BuildValue("integer", yytext);}
-	| REALNUMBER	{$$ = BuildValue("real", yytext);}
+num : DIGSEQ {$$ = BuildValue("integer", yytext);
+    		$$->is_const = 1;}
+	| REALNUMBER	{$$ = BuildValue("real", yytext);
+		$$->is_const = 1;}
 	| MINUS DIGSEQ{
 	//printf("%s|||", yytext);
-	$$ = BuildNegValue("integer", yytext);
-	}
-	
+		$$ = BuildNegValue("integer", yytext);
+		$$->is_const = 1;}
 	;
 
 
@@ -202,8 +203,16 @@ subprogram_head : FUNCTION id {
 		}
 		;
 
-arguments : LPAREN {symbol_table->current_level++;}
-	  parameter_list RPAREN{symbol_table->current_level--;}
+arguments : LPAREN {
+	  symbol_table->current_level++;
+	//printf("2.%s  \n", symbol_table->scopes[symbol_table->current_level]);
+	  strcpy(symbol_table->scopes[symbol_table->current_level], symbol_table->scopes[symbol_table->current_level-1]);
+	  strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	//printf("1.%s  \n", symbol_table->scopes[symbol_table->current_level]);
+	}
+	  parameter_list RPAREN{symbol_table->current_level--;
+	  strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	}
 		|
 		;
 
@@ -226,12 +235,13 @@ optional_var   : VAR
 		;
 
 compound_statement : PBEGIN {symbol_table->current_level++;
-		//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);   
-		//symbol_table->current_level++;
+	strcpy(symbol_table->scopes[symbol_table->current_level], symbol_table->scopes[symbol_table->current_level-1]);
+	strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);   
+	//symbol_table->current_level++;
 		}
 		     optional_statements
 		     END {symbol_table->current_level--;
-		//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+		strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
 		//symbol_table->current_level--;
 		}
 		;
@@ -249,38 +259,7 @@ statement_list : statement
 statement : variable ASSIGNMENT expression {
 	//TableEntry* tmp = FindEntryInScope(symbol_table, $1->name);
 	UpdateValue(symbol_table, $1->name, $3);
-	
-	//printf("%s %d\n", $1->type->name, yylineno);
-	/*char tmp[32];
-	Type* type;
-	type = $1->type;
-	char flag = 'n';
-	strcpy(tmp, $1->name);	//remain first name
-	//strcpy(tmptype, $1->type->name);
-	if(!strcmp($1->type->name, "function")){
-		flag = 'f';
 	}
-	
-	//$1 = $3;
-	//CopyValue($1, $3);
-	printf("%s   %s  %s  %s %d\n", $1->name, $1->type->name, $1->ret, $3->type->name, yylineno);
-	CopyValue($1, $3);
-	
-	if(flag == 'f') {
-		$1->type = type;	//restore
-		//strcpy($1->ret, $3->type->name);
-	}
-	
-	//printf("%s   %s  %s  %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
-	//strcpy($1->name, tmp);
-	//printf("0887");
-	int ch = CheckAssignCanOrNot($1, $3);
-	//printf("5487");
-	if(ch == 1){
-		UpdateValue(symbol_table, $1);
-		UpdateIndexValue(symbol_table, $1);
-	}  
-	*/}
 		| procedure_statement
 		| compound_statement
 		| IF expression THEN statement ELSE statement
@@ -401,15 +380,18 @@ factor : id tail {
 		if(!strcmp($1->type->name, "integer")){
 			tmp = itoa($1->ival);
 			$$ = BuildValue("integer", tmp);
+			$$->is_const = 1;
 			//printf("%s", tmp);
 		}
 		else{
 			strcpy(tmp, $1->sval);
 			$$ = BuildValue("real", tmp);
+			$$->is_const = 1;
 		}
 		//printf("%skkkk%d %d\n", $$->type->name, $$->ival, yylineno);
 		}
-        | STRINGCONST {$$ = BuildValue("string", yytext);}
+        | STRINGCONST {$$ = BuildValue("string", yytext);
+			$$->is_const = 1;}
 	| LPAREN expression RPAREN {$$ = $2;}
 	| NOT factor {$$ = $2;}
 	;
