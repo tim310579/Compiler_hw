@@ -1,0 +1,25 @@
+Type mismatch for return value in Line: 10
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|           aa|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)        aa|         void|             |()|           ||           ||
+|       output|(1)        aa|         void|             |()|           ||           ||
+|        error|(1)        aa|         void|             |()|           ||           ||
+|            a|(1)        aa|      integer|             |()|           ||           ||
+|            b|(1)        aa|      integer|             |()|           ||           ||
+|            c|(1)        aa|         real|             |()|           ||           ||
+|           tt|(1)        aa|     function|         real|()|           ||           ||
+|          aaa|(2)        tt|      integer|             |()|           ||           ||
+|           bb|(1)        tt|     function|      integer|(a, b, )|           ||           ||
+|            a|(2)        bb|         real|             |()|           ||           ||
+|            b|(2)        bb|         real|             |()|           ||           ||
+|            c|(2)        bb|      integer|             |()|           ||           ||
+|            d|(2)        bb|      integer|             |()|           |1|           |(1, 2) |
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

@@ -1,4 +1,17 @@
---------------------------------------------with output in output file
+這次作業真的好難XD，和上次差好多
+我有寫一個Makefile，直接在終端機打make就可以了
+之後的執行code都在testcode.txt裡面
+先打make，之後複製貼上就可以了
+因為太多了，就不放在這裡了
+是說這次測資好多，檢查得好累==
+另外也有附上output file
+執行時也可以選看要顯示在螢幕還是output.txt
+
+還是放一下好了
+
+make
+
+---------------------------with output in output file-------------------
 
 ./parser t/test-wrong-func-parameter.p > out/test-wrong-func-parameter.txt
 ./parser t/test-duplicate2.p > out/test-duplicate2.txt
@@ -14,6 +27,8 @@
 ./parser t/semantics-test02-errors.p > out/semantics-test02-errors.txt
 ./parser t/test-undeclared2.p > out/test-undeclared2.txt
 
+---------------------error部分--------------------------------------
+
 ./parser t/e/test-LHS.p > out/e/test-LHS.txt
 ./parser t/e/test-parameter.p > out/e/test-parameter.txt
 ./parser t/e/test-procedure.p > out/e/test-procedure.txt 
@@ -25,7 +40,7 @@
 ./parser t/e/test-uninitialized_2.p > out/e/test-uninitialized_2.txt
 ./parser t/e/test-type-error_2.p > out/e/test-type-error_2.txt
 
-------------------------------------------------------with output in screen
+------------------------with output in screen--------------------------
 
 ./parser t/test-wrong-func-parameter.p;
 ./parser t/test-duplicate2.p;
@@ -40,6 +55,8 @@
 ./parser t/test-correct.p ; 
 ./parser t/semantics-test02-errors.p;
 ./parser t/test-undeclared2.p;
+
+----------------------error部分---------------------------
 
 ./parser t/e/test-LHS.p;
 ./parser t/e/test-parameter.p ;

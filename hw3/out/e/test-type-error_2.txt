@@ -1,0 +1,25 @@
+Type assign error in Line: 10
+Cannot add or minus array at Line: 12
+Cannot update value because RHS is illegal at Line : 12
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|           aa|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)        aa|         void|             |()|           ||           ||
+|       output|(1)        aa|         void|             |()|           ||           ||
+|        error|(1)        aa|         void|             |()|           ||           ||
+|            a|(1)        aa|      integer|             |()|           ||           ||
+|            b|(1)        aa|      integer|             |()|           ||           ||
+|            c|(1)        aa|         real|             |()|           ||           ||
+|           bb|(1)        aa|     function|      integer|(a, b, )|           ||           ||
+|            a|(2)        bb|      integer|             |()|           ||           ||
+|            b|(2)        bb|      integer|             |()|           ||           ||
+|            c|(2)        bb|      integer|             |()|           ||           ||
+|            d|(2)        bb|      integer|             |()|           |1|           |(1, 2) |
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

@@ -1,0 +1,23 @@
+Wrong function parameters at Line 14 : sum
+Cannot update value because RHS is illegal at Line : 14
+Wrong function parameters at Line 16 : sum
+Cannot update value because RHS is illegal at Line : 17
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|          foo|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)       foo|         void|             |()|           ||           ||
+|       output|(1)       foo|         void|             |()|           ||           ||
+|        error|(1)       foo|         void|             |()|           ||           ||
+|            a|(1)       foo|      integer|             |()|           ||           ||
+|            b|(1)       foo|      integer|             |()|           ||           ||
+|          sum|(1)       foo|     function|      integer|(a, b, )|           ||           ||
+|            a|(2)       sum|      integer|             |()|           ||           ||
+|            b|(2)       sum|      integer|             |()|           ||           ||
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

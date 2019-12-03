@@ -1,0 +1,21 @@
+Error at Line#2: 'aa' is redeclared
+Undeclared variable in Line 4 : a
+bb is uninitialized before used at Line 4
+cc is uninitialized before used at Line 5
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|          aaa|(0)    global|      program|             |(aaa, bbb, ccc, )|           ||           ||
+|          aaa|(1)       aaa|         void|             |()|           ||           ||
+|          bbb|(1)       aaa|         void|             |()|           ||           ||
+|          ccc|(1)       aaa|         void|             |()|           ||           ||
+|           aa|(1)       aaa|      integer|             |()|           ||           ||
+|           bb|(1)       aaa|      integer|             |()|           ||           ||
+|           cc|(1)       aaa|      integer|             |()|           ||           ||
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

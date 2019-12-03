@@ -1,0 +1,33 @@
+Error at Line#11: 'a' is redeclared
+Error at Line#16: 'a' is redeclared
+d is uninitialized before used at Line 18
+Cannot add or minus array at Line: 18
+Cannot update value because RHS is illegal at Line : 18
+Undeclared variable in Line 19 : qqq
+Undeclared variable in Line 19 : rrr
+Undeclared var cannot add or minus at Line 19 : qqq
+Cannot update value because RHS is illegal at Line : 19
+k is uninitialized before used at Line 20
+e is uninitialized before used at Line 20
+Undeclared function at Line 20: f
+Cannot update value because RHS is illegal at Line : 20
+Error at Line#31: 'addition' is redeclared
+Error at Line#31: 'c' is redeclared
+Error at Line#39: 'addition' is redeclared
+Error at Line#39: 'a' is redeclared
+Error at Line#39: 'b' is redeclared
+Error at Line#41: 'c' is redeclared
+Undeclared variable in Line 51 : sum
+Undeclared variable in Line 51 : sum
+Undeclared var cannot add or minus at Line 51 : sum
+Type assign error in Line: 63
+Cannot add or minus different type at Line: 65
+Cannot update value because RHS is illegal at Line : 65
+Array out of bound at Line: 66
+Array out of bound at Line: 67
+Array out of bound at Line: 68
+Array out of bound at Line: 68
+Undeclared variable in Line 69 : sum
+Undeclared function at Line 69: extf
+Cannot update value because RHS is illegal at Line : 69
+Undeclared procedure at Line 74: include

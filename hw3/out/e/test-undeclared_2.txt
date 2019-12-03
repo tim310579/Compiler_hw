@@ -1,0 +1,22 @@
+Undeclared variable in Line 11 : d
+Undeclared var cannot add or minus at Line 11 : d
+Cannot update value because RHS is illegal at Line : 11
+Undeclared procedure at Line 12: ooo
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|           aa|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)        aa|         void|             |()|           ||           ||
+|       output|(1)        aa|         void|             |()|           ||           ||
+|        error|(1)        aa|         void|             |()|           ||           ||
+|            a|(1)        aa|      integer|             |()|           ||           ||
+|            b|(1)        aa|      integer|             |()|           ||           ||
+|            c|(1)        aa|         real|             |()|           ||           ||
+|          xxx|(1)        aa|    procedure|             |()|           ||           ||
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

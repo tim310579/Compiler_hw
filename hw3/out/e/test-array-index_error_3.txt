@@ -1,0 +1,23 @@
+Array out of bound at Line: 10
+Array out of bound at Line: 11
+Real cannot be index, Wrong in Line: 12
+Array out of bound at Line: 12
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|           aa|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)        aa|         void|             |()|           ||           ||
+|       output|(1)        aa|         void|             |()|           ||           ||
+|        error|(1)        aa|         void|             |()|           ||           ||
+|            a|(1)        aa|      integer|             |()|           ||           ||
+|            b|(1)        aa|      integer|             |()|           ||           ||
+|           rr|(1)        aa|         real|             |()|           ||           ||
+|            c|(1)        aa|      integer|             |()|           |3|           |(0, 1) (2, 3) (4, 5) |
+|            d|(1)        aa|         real|             |()|           |2|           |(3, 4) (5, 6) |
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

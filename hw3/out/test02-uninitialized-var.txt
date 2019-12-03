@@ -1,0 +1,27 @@
+Error at Line#8: 'g' is redeclared
+a is uninitialized before used at Line 13
+Array out of bound at Line: 16
+k is uninitialized before used at Line 16
+Array out of bound at Line: 16
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|          foo|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)       foo|         void|             |()|           ||           ||
+|       output|(1)       foo|         void|             |()|           ||           ||
+|        error|(1)       foo|         void|             |()|           ||           ||
+|            a|(1)       foo|      integer|             |()|           ||           ||
+|            b|(1)       foo|      integer|             |()|           ||           ||
+|            c|(1)       foo|      integer|             |()|           ||           ||
+|            d|(1)       foo|      integer|             |()|           |1|           |(1, 10) |
+|            e|(1)       foo|      integer|             |()|           |1|           |(1, 10) |
+|            g|(1)       foo|         real|             |()|           ||           ||
+|            h|(1)       foo|         real|             |()|           ||           ||
+|            k|(1)       foo|         real|             |()|           |2|           |(23, 57) (23, 57) |
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

@@ -1,0 +1,41 @@
+Error at Line#10: 'a' is redeclared
+Undeclared variable in Line 26 : sum
+Undeclared variable in Line 26 : sum
+Undeclared var cannot add or minus at Line 26 : sum
+Type assign error in Line: 38
+Cannot add or minus different type at Line: 40
+Cannot update value because RHS is illegal at Line : 40
+Array out of bound at Line: 41
+Array out of bound at Line: 42
+Array out of bound at Line: 43
+Array out of bound at Line: 43
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|          foo|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)       foo|         void|             |()|           ||           ||
+|       output|(1)       foo|         void|             |()|           ||           ||
+|        error|(1)       foo|         void|             |()|           ||           ||
+|            a|(1)       foo|      integer|             |()|           ||           ||
+|            b|(1)       foo|      integer|             |()|           ||           ||
+|            c|(1)       foo|      integer|             |()|           ||           ||
+|            d|(1)       foo|      integer|             |()|           |1|           |(1, 10) |
+|            e|(1)       foo|      integer|             |()|           |1|           |(1, 10) |
+|            g|(1)       foo|         real|             |()|           ||           ||
+|            h|(1)       foo|         real|             |()|           ||           ||
+|            k|(1)       foo|         real|             |()|           |2|           |(23, 57) (23, 57) |
+|         sort|(1)       foo|    procedure|             |(a, )|           ||           ||
+|            a|(2)      sort|      integer|             |()|           |1|           |(1, 10) |
+|            b|(2)      sort|      integer|             |()|           ||           ||
+|            c|(2)      sort|      integer|             |()|           ||           ||
+|     addition|(1)      sort|     function|      integer|(a, b, )|           ||           ||
+|            a|(2)  addition|      integer|             |()|           ||           ||
+|            b|(2)  addition|      integer|             |()|           ||           ||
+|            c|(2)  addition|      integer|             |()|           ||           ||
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

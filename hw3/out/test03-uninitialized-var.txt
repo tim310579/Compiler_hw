@@ -1,0 +1,22 @@
+Undeclared variable in Line 8 : op
+ij is uninitialized before used at Line 8
+ij is uninitialized before used at Line 13
+Undeclared variable in Line 14 : op
+Undeclared variable in Line 15 : op
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|           ab|(0)    global|      program|             |(cd, ef, gh, )|           ||           ||
+|           cd|(1)        ab|         void|             |()|           ||           ||
+|           ef|(1)        ab|         void|             |()|           ||           ||
+|           gh|(1)        ab|         void|             |()|           ||           ||
+|           ij|(1)        ab|      integer|             |()|           ||           ||
+|           kl|(1)        ab|     function|      integer|(mn, )|           ||           ||
+|           mn|(2)        kl|      integer|             |()|           ||           ||
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

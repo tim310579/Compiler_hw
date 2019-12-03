@@ -1,0 +1,19 @@
+Undeclared variable in Line 7 : d
+a is uninitialized before used at Line 7
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|          foo|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)       foo|         void|             |()|           ||           ||
+|       output|(1)       foo|         void|             |()|           ||           ||
+|        error|(1)       foo|         void|             |()|           ||           ||
+|            a|(1)       foo|      integer|             |()|           ||           ||
+|            b|(1)       foo|      integer|             |()|           ||           ||
+|            c|(1)       foo|      integer|             |()|           ||           ||
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+

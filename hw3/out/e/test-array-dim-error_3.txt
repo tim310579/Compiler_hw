@@ -1,0 +1,28 @@
+Wrong array dimention at Line: 9
+Array out of bound at Line: 9
+Array out of bound at Line: 9
+Array out of bound at Line: 9
+Wrong array dimention at Line: 10
+Array out of bound at Line: 10
+Array out of bound at Line: 10
+Array out of bound at Line: 10
+Wrong array dimention at Line: 11
+Array out of bound at Line: 11
+Array out of bound at Line: 11
+
+My Symbol Table------------------------------------------------------------
+|         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|
+|           aa|(0)    global|      program|             |(input, output, error, )|           ||           ||
+|        input|(1)        aa|         void|             |()|           ||           ||
+|       output|(1)        aa|         void|             |()|           ||           ||
+|        error|(1)        aa|         void|             |()|           ||           ||
+|            a|(1)        aa|      integer|             |()|           ||           ||
+|            b|(1)        aa|      integer|             |()|           ||           ||
+|            c|(1)        aa|      integer|             |()|           |3|           |(0, 1) (2, 3) (4, 5) |
+
+-------------------------------------------------------------------------
+|--------------------------------|
+|  There is no syntactic error!  |
+|--------------------------------|
+-----------------end-------------------
+
