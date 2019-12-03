@@ -372,7 +372,6 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
                 v = n2;
                 return v;
         }
-	
 	if(!strcmp(n1->type->name, "string")) {
 		printf("String cannot add or minus at Line: %d\n", line);
 		return v;
@@ -383,15 +382,13 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	}
 	if(!strcmp(n1->type->name, "null")){return v;}
 	if(!strcmp(op, "+")) { 
-		if(!strcmp(n1->type->name, "integer")){
+		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
 			v->ival = n1->ival + n2->ival;
 			strcpy(v->type->name, "integer");
 		}
-		else{
-			double t1, t2;
-			t1 = atof(n1->sval);
-			t2 = atof(n2->sval);
-			v->dval = t1+t2;
+		else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
+			double t2 = atof(n2->sval);
+			v->dval = n1->ival+t2;
 			char* tmp;
 			tmp = (char*)malloc(sizeof(char)*32);
 			sprintf(tmp, "%f", v->dval);
@@ -399,14 +396,52 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 			v->sval = strdup(tmp);
 			strcpy(v->type->name, "real");
 		}
+		else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
+			double t1 = atof(n1->sval);;
+			v->dval = t1 + n2->ival;
+			char* tmp;
+			tmp = (char*)malloc(sizeof(char)*32);
+			sprintf(tmp, "%f", v->dval);
+			v->sval = strdup(tmp);
+			strcpy(v->type->name, "real");
+		}
+		else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
+			double t1, t2;
+			t1 = atof(n1->sval);
+			t2 = atof(n2->sval);
+			v->dval = t1+t2;
+			char* tmp;
+			tmp = (char*)malloc(sizeof(char)*32);
+			sprintf(tmp, "%f", v->dval);
+			v->sval = strdup(tmp);
+			strcpy(v->type->name, "real");
+		}
 	}
 	else if(!strcmp(op, "-")) {
-		if(!strcmp(n1->type->name, "integer")){
+		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
                         v->ival = n1->ival - n2->ival;
-                	strcpy(v->type->name, "integer");
-			//printf("%d %s\n", v->ival, v->type->name);
-		}
-                else {
+                        strcpy(v->type->name, "integer");
+                }
+                else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
+                        double t2 = atof(n2->sval);
+                        v->dval = n1->ival-t2;
+                        char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        //printf("%s", tmp);
+                        v->sval = strdup(tmp);
+                        strcpy(v->type->name, "real");
+                }
+                else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
+                        double t1 = atof(n1->sval);;
+                        v->dval = t1 - n2->ival;
+                        char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        v->sval = strdup(tmp);
+                        strcpy(v->type->name, "real");
+                }
+                else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
                         double t1, t2;
                         t1 = atof(n1->sval);
                         t2 = atof(n2->sval);
@@ -414,10 +449,9 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
                         char* tmp;
                         tmp = (char*)malloc(sizeof(char)*32);
                         sprintf(tmp, "%f", v->dval);
-                        //printf("%s", tmp);
                         v->sval = strdup(tmp);
-                	strcpy(v->type->name, "real");
-		}
+                        strcpy(v->type->name, "real");
+                }
         }
 	return v;
 }
@@ -445,7 +479,7 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 		return v;
 	}
 	if(n1->is_array > 0 || n2->is_array > 0) {
-                printf("Cannot mul array at Line: %d\n", yylineno);
+                printf("Cannot mul or div array at Line: %d\n", yylineno);
                 return v;
         }
 	if(!strcmp(n1->type->name, "null")){return v;}
@@ -472,7 +506,7 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 			v->sval = strdup(tmp);
 			strcpy(v->type->name, "real");
 		}
-		else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
+		else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
 			double t1, t2;
 			t1 = atof(n1->sval);
 			t2 = atof(n2->sval);
@@ -482,6 +516,7 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 			sprintf(tmp, "%f", v->dval);
 			v->sval = strdup(tmp);
 			strcpy(v->type->name, "real");
+			//printf("%s\n", v->sval);
 		}
 	}
 	else if(!strcmp(op, "/")) {
@@ -495,6 +530,7 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
                         tmp = (char*)malloc(sizeof(char)*32);
                         sprintf(tmp, "%f", v->dval);
                         v->sval = strdup(tmp);
+			v->both = 1;	//means both type are possible
 			strcpy(v->type->name, "integer");
                 }
                 else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
@@ -515,7 +551,7 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
                         v->sval = strdup(tmp);
                         strcpy(v->type->name, "real");
                 }
-                else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
+                else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
                         double t1, t2;
                         t1 = atof(n1->sval);
                         t2 = atof(n2->sval);
@@ -574,15 +610,16 @@ void UpdateValue(SymbolTable* s,char* name, Value* v){
 		return;
 	}
 	if(!strcmp(tmp->type->name, "function")){	//function return value error
-		if(strcmp(tmp->ret, v->type->name)){
+		if(!strcmp(tmp->ret, "integer") && !strcmp(v->type->name, "real")){	//int != real
 			printf("Type mismatch for return value in Line: %d\n", yylineno);
 			return;
 		}
 	}
 	else if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
-		//printf("%s  %s  \n", v->type->name, tmp->type->name);
-		printf("Type assign error in Line: %d %s %s %s\n", yylineno, v->type->name, tmp->type->name, tmp->scope);
-		return;
+		if(!strcmp(tmp->type->name, "integer") && !strcmp(v->type->name, "real")){
+			printf("Type assign error in Line: %d\n", yylineno);
+			return;
+		}
 	}
 	tmp->value = v;
 	tmp->init = 1;

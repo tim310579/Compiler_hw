@@ -60,6 +60,7 @@ struct Value{
 	int para[32];
 	double paraf[32];
 	char ret[32];
+	int both;
 };
 
 SymbolTable* BuildSymbolTable();
