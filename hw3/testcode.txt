@@ -1,3 +1,5 @@
+make
+
 --------------------------------------------with output in output file
 
 ./parser t/test-wrong-func-parameter.p > out/test-wrong-func-parameter.txt
