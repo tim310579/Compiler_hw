@@ -287,6 +287,7 @@ Value* BuildValue(char* typename, char* val)
     Type* t = BuildType(typename);
     Value* v = (Value*)malloc(sizeof(Value));
     //v->tail = (int*)malloc(sizeof(int)*32);
+    strcpy(v->name, "");
     v->tail_cnt = 0;
     v->type = t;
     v->sval = "";
@@ -339,11 +340,7 @@ char* itoa (int n)
 }
 Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	Type* t;
-	if(!strcmp(n1->type->name, "function") && !strcmp(n2->type->name, "function")){    //above are functions
-                t = BuildType(n2->ret);
-        }
-        else if(!strcmp(n1->type->name, "function")) t = BuildType(n2->type->name);     //n1 is function
-        else t = BuildType(n1->type->name);
+	t = BuildType("null");
         Value* v = (Value*)malloc(sizeof(Value));
         v->type = t;
         v->sval = "";
@@ -355,28 +352,11 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	}
 	if(!strcmp(n2->type->name, "null")){
                 printf("Undeclared var cannot add or minus at Line %d : %s\n", yylineno, n2->name);
-                v->type = n2->type;
+                v = n2;
                 return v;
         }
-	if(!strcmp(n1->type->name, "function") && !strcmp(n2->type->name, "function")){	//function can add
-			if(strcmp(n1->ret, n2->ret)){
-				printf("Different type cannot add or minus at Line: %d\n", line);	//return value diffenent
-				return v;
-			}
-	}
-	if(!strcmp(n1->type->name, "function")){
-		if(strcmp(n1->ret, n2->type->name)){
-			printf("Different type cannot add or minus at Line: %d\n", line);
-			return v;
-		}
-	}
-	if(!strcmp(n2->type->name, "function")){
-		if(strcmp(n2->ret, n1->type->name)){
-                        printf("Different type cannot add or minus at Line: %d\n", line);
-                        return v;
-                }
-	}
-	if(strcmp(n1->type->name, n2->type->name) && strcmp(n1->type->name, "function") && strcmp(n1->type->name, "function")){	//function can be add
+	
+	if(strcmp(n1->type->name, n2->type->name)){	//function can be add
 		//printf("%s %s\n", n1->type->name, n2->type->name);
 		printf("Different type cannot add or minus at Line: %d\n", line);
 		return v;
@@ -391,8 +371,9 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 	}
 	if(!strcmp(n1->type->name, "null")){return v;}
 	if(!strcmp(op, "+")) { 
-		if(!strcmp(n1->type->name, "integer") || !strcmp(n2->type->name, "integer") || !strcmp(n1->ret, "integer") || !strcmp(n2->ret, "integer")){
+		if(!strcmp(n1->type->name, "integer")){
 			v->ival = n1->ival + n2->ival;
+			strcpy(v->type->name, "integer");
 		}
 		else{
 			double t1, t2;
@@ -404,12 +385,15 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 			sprintf(tmp, "%f", v->dval);
 			//printf("%s", tmp);
 			v->sval = strdup(tmp);
+			strcpy(v->type->name, "real");
 		}
 	}
 	else if(!strcmp(op, "-")) {
-		if(!strcmp(n1->type->name, "integer") || !strcmp(n2->type->name, "integer") || !strcmp(n1->ret, "integer") || !strcmp(n2->ret, "integer")){
+		if(!strcmp(n1->type->name, "integer")){
                         v->ival = n1->ival - n2->ival;
-                }
+                	strcpy(v->type->name, "integer");
+			//printf("%d %s\n", v->ival, v->type->name);
+		}
                 else {
                         double t1, t2;
                         t1 = atof(n1->sval);
@@ -420,7 +404,8 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
                         sprintf(tmp, "%f", v->dval);
                         //printf("%s", tmp);
                         v->sval = strdup(tmp);
-                }
+                	strcpy(v->type->name, "real");
+		}
         }
 	return v;
 }
@@ -596,14 +581,17 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 		v = BuildValue("null", "null");
 		strcpy(v->name, name);
 	}
+	
 	if(flag == 0){
-	//int  flag2 = 0;
+	printf("test\n\n");
+
+		//int  flag2 = 0;
 		TableEntry* tmp = FindEntryInScope(symbol_table, name);
 		if(tmp == NULL) {
 		tmp = FindEntryInGlobal(symbol_table, name);
 		}
 	        //printf("%s", tmp->type->name);
-
+		printf("%s  %s\n", tmp->type->name, tmp->ret);
 		if(!strcmp(tmp->type->name, "integer")){
                        	char* tmp1;
        	       	        tmp1 = (char*)malloc(sizeof(char)*32);
@@ -616,17 +604,17 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 		else if(!strcmp(tmp->type->name, "function")){
 			if(!strcmp(tmp->ret, "integer")){
 				char* tmp1;
+				
                         	tmp1 = (char*)malloc(sizeof(char)*32);
                         	tmp1 = itoa(tmp->value->ival);
-				v = BuildValue(tmp->type->name, tmp1);
-				strcpy(v->ret, "integer");
+				v = BuildValue(tmp->ret, tmp1);
+				
 			}
 			else{
-				v = BuildValue(tmp->type->name, tmp->value->sval);
+				v = BuildValue(tmp->ret, tmp->value->sval);
 				strcpy(v->ret, "real");
 			}
 		}
-		strcpy(v->ret, tmp->ret); 
 		if(tmp->type->arr_dim > 0) v->is_array = 1;
                	//printf("%d", tail_cnt);
                	v->tail_cnt = tail_cnt;	
@@ -678,9 +666,9 @@ char* FindTypeOfPara(SymbolTable* s, char* name, int line){
 	}
 	return NULL;
 }
-Value* BuildFuncId(SymbolTable* symbol_table, char* name, char* para, int para_cnt){
+Value* BuildFuncId(SymbolTable* s, char* name, char* para, int para_cnt){
 	Value* v = (Value*)malloc(sizeof(Value));
-	TableEntry* tmp = FindEntryFuncInScope(symbol_table, name);
+	TableEntry* tmp = FindEntryFuncInScope(s, name);
 		if(tmp == NULL) {
 			printf("Undeclared function at Line %d: %s\n", yylineno, name);
 			v = BuildValue("null", "null");
@@ -691,21 +679,23 @@ Value* BuildFuncId(SymbolTable* symbol_table, char* name, char* para, int para_c
 				v = BuildValue("null", "null");
 			}
 			else{
-				int j;
+				TableEntry* tmp = FindEntryFuncInScope(s, name);
+				if(!strcmp(tmp->ret, "integer")) v  = BuildValue(tmp->ret, itoa(tmp->value->ival));
+				else v  = BuildValue(tmp->ret, tmp->value->sval);
+				int j;/*
 				for(j = 0; j < para_cnt; j++){
 					char* type;
 					type = (char*)malloc(sizeof(char)*32);
 					type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
 					if(para[j] != type[0]){	//error type
-						printf("Error type of parameter at Line : %d \n", yylineno);
+						printf("%c %s", para[j], type);
+								printf("Error type of parameter at Line : %d \n", yylineno);
 					}
-				}
+				}*/
 				//printf("corrext %s\n\n", tmp->ret);
-				v = BuildValue(tmp->type->name, tmp->value->sval);
-				strcpy(v->ret, tmp->value->ret);
-				
-				v->ival = tmp->value->ival;
-				strcpy(v->sval, tmp->value->sval);
+				//v = BuildValue(tmp->ret, tmp->value->sval);
+				//v->ival = tmp->value->ival;
+				//strcpy(v->sval, tmp->value->sval);
 			}
 		}
 	return v;
@@ -725,6 +715,7 @@ void BuildProcId(SymbolTable* symbol_table, char* name, char* para, int para_cnt
                                         char* type;
                                         type = (char*)malloc(sizeof(char)*32);
                                         type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
+					printf("%c  %s|||\n", para[j], type);
                                         if(para[j] != type[0]){ //error type
 						printf("Error type of parameter at Line : %d \n", yylineno);
                                         }

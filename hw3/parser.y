@@ -224,7 +224,10 @@ statement_list : statement
 		;
 
 statement : variable ASSIGNMENT expression {
-	char tmp[32];
+	printf("%s %d\n", $1->type->name, yylineno);
+	$1 = $3;
+	printf("%s %d\n", $1->type->name, yylineno);
+	/*char tmp[32];
 	Type* type;
 	type = $1->type;
 	char flag = 'n';
@@ -244,16 +247,16 @@ statement : variable ASSIGNMENT expression {
 		//strcpy($1->ret, $3->type->name);
 	}
 	
-	printf("%s   %s  %s  %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
+	//printf("%s   %s  %s  %s %d\n\n",$1->name, $1->type->name, $1->ret, $3->type->name, $1->ival);
 	//strcpy($1->name, tmp);
-	printf("0887");
+	//printf("0887");
 	int ch = CheckAssignCanOrNot($1, $3);
-	printf("5487");
+	//printf("5487");
 	if(ch == 1){
 		UpdateValue(symbol_table, $1);
 		UpdateIndexValue(symbol_table, $1);
 	}  
-	}
+	*/}
 		| procedure_statement
 		| compound_statement
 		| IF expression THEN statement ELSE statement
@@ -300,21 +303,14 @@ expression_list : expression {
 		if(!strcmp($1->type->name, "integer")) {
 			para[para_cnt] = 'i';
 			parav[para_cnt] = $1->ival;
+			printf("\n|%c|\n",para[para_cnt]);
 		}
 		else if(!strcmp($1->type->name, "real")){
 			para[para_cnt] = 'r';
 			parav[para_cnt] = $1->dval;
+			printf("\n%c\n",para[para_cnt]);
 		}
-		else if(!strcmp($1->type->name, "function")){
-			if(!strcmp($1->ret, "integer")) {
-				parav[para_cnt] = $1->ival;
-				para[para_cnt] = 'i';
-			}
-			else {
-				parav[para_cnt] = $1->dval;
-				para[para_cnt] = 'r';
-				}
-		}
+		else printf("8787%s%d8787\n", $1->name, yylineno);
 		//printf("|%s|%s|%d|||||||||", $1->type->name, $1->ret, para_cnt);
 		para_cnt++;
 		
@@ -323,21 +319,13 @@ expression_list : expression {
 		if(!strcmp($3->type->name, "integer")) {
                 	para[para_cnt] =  'i';
                 	parav[para_cnt] = $3->ival;
+			printf("\n|%c|\n",para[para_cnt]);
                 }
                 else if(!strcmp($3->type->name, "real")){
                 	para[para_cnt] = 'r';
                 	parav[para_cnt] = $3->dval;
                 }
-		else if(!strcmp($3->type->name, "function")) {
-			if(!strcmp($3->ret, "integer")) {
-				para[para_cnt] = 'i';
-				parav[para_cnt] = $3->ival;
-			}
-			else{
-				para[para_cnt] = 'r';
-				parav[para_cnt] = $3->dval;
-                		}
-		}
+		
 		//printf("|%s|%s|%d||||||||", $3->type->name, $3->ret, para_cnt);
 		para_cnt++;
 		}
@@ -353,7 +341,7 @@ boolexpression : simple_expression {$$ = $1;}
 
 simple_expression : term {$$ = $1; }
 		| simple_expression addop term { 
-		//printf("%s %s||\n", $1->type->name, $3->type->name);
+		printf("%s %s||\n", $1->type->name, $3->type->name);
 		$$ = Addtwo($1, $3, $2, yylineno);
 		printf("%doepwo",$$->ival);
 	}
@@ -395,7 +383,7 @@ factor : id tail {
 			strcpy(tmp, $1->sval);
 			$$ = BuildValue("real", tmp);
 		}
-		
+		//printf("%skkkk%d %d\n", $$->type->name, $$->ival, yylineno);
 		}
         | STRINGCONST {$$ = BuildValue("string", yytext);}
 	| LPAREN expression RPAREN {$$ = $2;}
