@@ -373,11 +373,6 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
                 return v;
         }
 	
-	if(strcmp(n1->type->name, n2->type->name)){	//function can be add
-		//printf("%s %s\n", n1->type->name, n2->type->name);
-		printf("Different type cannot add or minus at Line: %d\n", line);
-		return v;
-	}
 	if(!strcmp(n1->type->name, "string")) {
 		printf("String cannot add or minus at Line: %d\n", line);
 		return v;
@@ -429,13 +424,7 @@ Value* Addtwo(Value* n1, Value* n2, char* op, int line){
 Value* Multwo(Value* n1, Value* n2, char* op, int line){
 	
 	Type* t;
-	//printf("8787");
-	if(!strcmp(n1->type->name, "function") && !strcmp(n2->type->name, "function")){    //above are functions
-                t = BuildType(n2->ret);
-        }
-	else if(!strcmp(n1->type->name, "function")) t = BuildType(n2->type->name);	//n1 is function
-        else t = BuildType(n1->type->name);
-        //printf("%s", n1->name);
+	t = BuildType("null");
 	Value* v = (Value*)malloc(sizeof(Value));
         v->type = t;
         v->sval = "";
@@ -459,11 +448,31 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
                 printf("Cannot mul array at Line: %d\n", yylineno);
                 return v;
         }
+	if(!strcmp(n1->type->name, "null")){return v;}
 	if(!strcmp(op, "*")) {
-		if(!strcmp(n1->type->name, "integer")){
+		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
 			v->ival = n1->ival * n2->ival;
+			strcpy(v->type->name, "integer");
 		}
-		else  if(!strcmp(n1->type->name, "real")){
+		else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
+			double t2 = atof(n2->sval);
+			v->dval = n1->ival * t2;
+			char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+			v->sval = strdup(tmp);
+			strcpy(v->type->name, "real");
+		}
+		else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
+			double t1 = atof(n1->sval);;
+			v->dval = t1 * n2->ival;
+			char* tmp;
+			tmp = (char*)malloc(sizeof(char)*32);
+			sprintf(tmp, "%f", v->dval);
+			v->sval = strdup(tmp);
+			strcpy(v->type->name, "real");
+		}
+		else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
 			double t1, t2;
 			t1 = atof(n1->sval);
 			t2 = atof(n2->sval);
@@ -471,15 +480,42 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 			char* tmp;
 			tmp = (char*)malloc(sizeof(char)*32);
 			sprintf(tmp, "%f", v->dval);
-			//printf("%s", tmp);
 			v->sval = strdup(tmp);
+			strcpy(v->type->name, "real");
 		}
 	}
 	else if(!strcmp(op, "/")) {
-		if(!strcmp(n1->type->name, "integer")){
-                        v->ival = n1->ival / n2->ival;
+		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
+                        v->ival = n1->ival/n2->ival;
+                        double t1, t2;
+			t1 = n1->ival;
+			t2 = n2->ival;
+			v->dval = t1/t2;
+			char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        v->sval = strdup(tmp);
+			strcpy(v->type->name, "integer");
                 }
-                else  if(!strcmp(n1->type->name, "real")){
+                else if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "real")){
+                        double t2 = atof(n2->sval);
+                        v->dval = n1->ival/t2;
+                        char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        v->sval = strdup(tmp);
+                        strcpy(v->type->name, "real");
+                }
+                else  if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
+                        double t1 = atof(n1->sval);;
+                        v->dval = t1/n2->ival;
+                        char* tmp;
+                        tmp = (char*)malloc(sizeof(char)*32);
+                        sprintf(tmp, "%f", v->dval);
+                        v->sval = strdup(tmp);
+                        strcpy(v->type->name, "real");
+                }
+                else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "integer")){
                         double t1, t2;
                         t1 = atof(n1->sval);
                         t2 = atof(n2->sval);
@@ -487,10 +523,10 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
                         char* tmp;
                         tmp = (char*)malloc(sizeof(char)*32);
                         sprintf(tmp, "%f", v->dval);
-                        //printf("%s", tmp);
                         v->sval = strdup(tmp);
-                }
-        }
+                        strcpy(v->type->name, "real");
+		}
+	}
 	return v;	
 }
 Value* BuildValueTail(char* typename){
