@@ -194,22 +194,18 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 43 "parser.y" /* yacc.c:1909  */
+#line 41 "parser.y" /* yacc.c:1909  */
 
 	int num;
 	double dnum;
 	char* str;
-	int nodetype;
 	struct Value* value;
 	struct Type* type;
 	struct TableEntry* tableentry;
-	struct TypeList* typelist;
-	struct Expr* expression;
-	struct ExprList* exprlist;
-	struct Var* var;
+	
 	
 
-#line 213 "y.tab.h" /* yacc.c:1909  */
+#line 209 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

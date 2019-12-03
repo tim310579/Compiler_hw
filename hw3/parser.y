@@ -28,30 +28,24 @@ int yylex();
 int yyerror(char *);
 
 SymbolTable* symbol_table;
-TableEntry* entry_buf;
-IdList* idlist_buf;
-Type* return_buf;
+
 int has_ret=0;
 int para_cnt = 0;
 char para[32];
 float parav[32];
 int tail_cnt = 0;
 int tail[32] = {0};
-int loop_cnt =0;
+
 %}
 
 %union	{
 	int num;
 	double dnum;
 	char* str;
-	int nodetype;
 	struct Value* value;
 	struct Type* type;
 	struct TableEntry* tableentry;
-	struct TypeList* typelist;
-	struct Expr* expression;
-	struct ExprList* exprlist;
-	struct Var* var;
+	
 	}
 %token <num> DIGSEQ 
 %token <str> AND ARRAY ASSIGNMENT CASE CHARACTER_STRING COLON COMMA CONST 
@@ -76,24 +70,33 @@ int loop_cnt =0;
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("program"), yylineno, symbol_table->cnt_upd);
+      	TableEntry* tmp = BuildTableEntry($2, symbol_table->scopes[symbol_table->current_level], symbol_table->current_level, BuildType("program"), yylineno, symbol_table->cnt_upd);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
 		symbol_table->current_level++;
 		strcpy(symbol_table->scope, $2);
+		strcpy(symbol_table->scopes[symbol_table->current_level], $2);
 
 	}identifier_list RPAREN{
 		AddparaToFunc(symbol_table, $2, yylineno);
 		symbol_table->current_level--;
-		strcpy(symbol_table->scope, symbol_table->pre_scope);
+		strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
 	
 	}
-	 SEMICOLON{symbol_table->cnt_upd++;}
+	 SEMICOLON{
+		symbol_table->cnt_upd++;
+		symbol_table->current_level++;
+		strcpy(symbol_table->scopes[symbol_table->current_level], $2);
+		strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	}
 	declarations
 	subprogram_declarations
 	compound_statement
- 	DOT
+ 	{symbol_table->current_level--;
+	strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);	
+	}
+	DOT
 	;
 
 num : DIGSEQ {$$ = BuildValue("integer", yytext);}
@@ -160,13 +163,13 @@ subprogram_declaration :
 	declarations 			
 	subprogram_declarations
 	compound_statement {symbol_table->current_level--;
-			strcpy(symbol_table->scope, symbol_table->pre_scope);		
-	}
+			strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);			}
 	;
 
 subprogram_head : FUNCTION id {
 			TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("function"), yylineno, symbol_table->cnt_upd);                           
 	  		InsertTableEntry(symbol_table,tmp);
+			strcpy(symbol_table->scopes[symbol_table->current_level], $2);
 			strcpy(symbol_table->scope, $2);
 		}arguments{ //printf("%s||", $2);
 			AddparaToFunc(symbol_table, $2, yylineno);
@@ -179,12 +182,15 @@ subprogram_head : FUNCTION id {
 			strcpy(tmp, $7->name);
 			UpdateFunctionRet(symbol_table, $7, yylineno);
                 }
-		| PROCEDURE id arguments SEMICOLON{
+		| PROCEDURE id{
 			TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("procedure"), yylineno, symbol_table->cnt_upd);
                 	InsertTableEntry(symbol_table,tmp);
 			AddparaToFunc(symbol_table, $2, yylineno);
 			symbol_table->cnt_upd++;
+			strcpy(symbol_table->scopes[symbol_table->current_level], $2);
+                        strcpy(symbol_table->scope, $2);
 		}
+		arguments SEMICOLON
 		;
 
 arguments : LPAREN {symbol_table->current_level++;}

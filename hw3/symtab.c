@@ -11,6 +11,12 @@ SymbolTable* BuildSymbolTable()
     new->pos = 0;
     new->cnt_upd = 0;
     new->capacity = 4;
+    new->scopes = (char**)malloc(sizeof(char*)*32);	//can store 32 scopes
+    int i;
+    for(i = 0; i < 32; i++){
+	new->scopes[i] = (char*)malloc(sizeof(char)*32);
+    }
+    strcpy(new->scopes[0], "global");
     strcpy(new->scope, "global");
     strcpy(new->scope, "global");
     new->Entries = (TableEntry**)malloc(sizeof(TableEntry*) * 4);
@@ -119,22 +125,22 @@ void PrintSymbolTable(SymbolTable* t)
     TableEntry* ptr;
 
     printf("\n");
-    printf("%s       %s       %s       %s      %s       %s       %s\n", "Name", "Level", "Type", "Return", "Parameter", "Dim", "Array_range");
+    printf("%s|%13s|%13s|%13s|%13s|%13s|%13s|%13s|\n","test", "Name", "Scope", "Type", "Return", "Parameter", "Dim", "Array_range");
     for (i = 0; i < t->pos; i++) {
         ptr = t->Entries[i]; 
-        printf("|%s|     ", ptr->name);
-        PrintLevel(ptr->level);
-        printf("|%s|     |%s|     |", ptr->type->name, ptr->ret);
+	printf("%sPPPPP   ", ptr->scope);
+        printf("|%13s|%13d|%13s|%13s|", ptr->name, ptr->level, ptr->type->name, ptr->ret);
+        
         int j;
 	printf("(");
 	for(j = 0; j < ptr->para_cnt; j++){
 		printf("%s, ", ptr->para[j]);
 	}
 	printf(")");
-	printf("|     |");
+	printf("|           |");
 	//printf("%d|||\n", ptr->type->arr_dim);
 	if(ptr->type->arr_dim != 0) printf("%d", ptr->type->arr_dim);
-	printf("|     |");
+	printf("|           |");
 	if(ptr->type->arr_dim != 0){
 		int k;
 		//printf("%d|||||||||", ptr->type->arr_dim);
@@ -181,7 +187,7 @@ TableEntry* FindEntryInGlobal(SymbolTable* tbl, char* name)
     TableEntry* it;
     for (i = 0; i < tbl->pos; i++) {
         it = tbl->Entries[i];
-        if (strcmp(name, it->name) == 0 && it->level == 0) {
+        if (strcmp(name, it->name) == 0 && (it->level == 0||it->level == 1)) {
             return it;
         }
     }
@@ -193,14 +199,7 @@ Type* BuildType(char* typename)
     strcpy(new->name, typename);
     return new;
 }
-void PrintLevel(int l)
-{
-    if (l == 0) {
-        printf("|%d%s|\t", l, "(global)");
-    } else {
-        printf("|%d%s|\t", l, "(local)");
-    }
-}
+
 void UpdateType(SymbolTable* s, Type* type, int line){
 	int i;
 	TableEntry* ptr;
@@ -263,12 +262,13 @@ void AddparaToFunc(SymbolTable* s, char* name, int line){
 	for(i = 0; i < ptr->para_cnt; i++) {
 		ptr->para[i] = (char*)malloc(sizeof(char)*32);
 	}
-	
+	ptr->paratype = (char*)malloc(sizeof(char)*32);
 	int j = 0;
 	for(i = 0; i < s->pos; i++){
                 par = s->Entries[i];
                 if(par->line == line && strcmp(par->type->name, ptr->type->name) && par->level != ptr->level){      //add parameter
                         strcpy(ptr->para[j], par->name);
+			ptr->paratype[j] = par->type->name[0];
 			j++;
                 }
         }
@@ -705,8 +705,15 @@ Value* BuildFuncId(SymbolTable* s, char* name, char* para, int para_cnt){
 				TableEntry* tmp = FindEntryFuncInScope(s, name);
 				if(!strcmp(tmp->ret, "integer")) v  = BuildValue(tmp->ret, itoa(tmp->value->ival));
 				else v  = BuildValue(tmp->ret, tmp->value->sval);
-				int j;/*
-				for(j = 0; j < para_cnt; j++){
+				int j;
+                                for(j = 0; j < para_cnt; j++){
+                                        if(para[j] != tmp->paratype[j]){
+                                                printf("Wrong procedure parameter type in Line %d\n", yylineno);
+					}
+				}
+					printf("%s\n",para);
+					printf("%s\n", tmp->paratype);
+					/*
 					char* type;
 					type = (char*)malloc(sizeof(char)*32);
 					type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
@@ -733,22 +740,15 @@ void BuildProcId(SymbolTable* symbol_table, char* name, char* para, int para_cnt
                                 printf("Wrong procedure parameters at Line %d : %s\n", yylineno, name);
                         }
                         else{
-                        }
-                }
-}
-void CopyValue(Value* v1, Value* v2){
-	//strcpy(v1->name, v2->name);
-	v1->ival = v2->ival;
-	v1->dval = v2->dval;
-	v1->sval = strdup(v2->sval);
-	//v1->tail_cnt = v2->tail_cnt;	//dimension
-	//v1->tail = v2->tail;
-	v1->index = v2->index;
-	v1->indexf = v2->indexf;
-	v1->has_tail = v2->has_tail;
-	//v1->is_array = v2->is_array;
-	v1->para_cnt = v2->para_cnt;
-	//v1->para = v2->para;
-	//v1->paraf = v2->paraf;
-	//strcpy(v1->ret, v2->ret);
+				int j;
+				for(j = 0; j < para_cnt; j++){
+					if(para[j] != tmp->paratype[j]){
+						printf("Wrong procedure parameter type in Line %d\n", yylineno);
+					}
+                        	}
+			
+                                        printf("%s\n",para);
+					printf("%s\n", tmp->paratype);
+                	}
+		}
 }

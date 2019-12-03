@@ -1,6 +1,6 @@
 ./parser t/semantics-test02-errors.p;
-./parser t/test-duplicate2.p; 
-./parser t/test00-type-error-in-array.p; 
+./parser t/test-duplicate2.p; 		xxxxxxxxxxxx
+./parser t/test00-type-error-in-array.p; 		qqqwq
 ./parser t/test-duplicate.p;
 ./parser t/test-type-error.p; jjjjj
 ./parser t/test02-uninitialized-var.p;
@@ -12,13 +12,13 @@
 ./parser t/test-correct.p ; 
 ./parser t/test-wrong-func-parameter.p; 
 
-./parser t/e/test-LHS.p; 
-./parser t/e/test-parameter.p ; 	
-./parser t/e/test-procedure.p ;pppppppp
+./parser t/e/test-LHS.p;  		yyyyyyy
+./parser t/e/test-parameter.p ; 	jlkjlkjljl
+./parser t/e/test-procedure.p ;             lllll
 ./parser t/e/test-retval.p;        ppppppp                 
 ./parser t/e/test-array-dim-error_3.p ; 
 ./parser t/e/test-array-index_error_3.p ; 
-./parser t/e/test-duplicate_2.p ; 
+./parser t/e/test-duplicate_2.p ;   		oooo  
 ./parser t/e/test-undeclared_2.p;
 ./parser t/e/test-uninitialized_2.p; 
 ./parser t/e/test-type-error_2.p;
