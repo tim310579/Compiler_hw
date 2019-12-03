@@ -10,7 +10,7 @@ LIBS     = -lfl
 all: $(TARGET)
 
 $(TARGET): y.tab.c lex.yy.c main.c symtab.c
-	$(CC) $^ -o $(TARGET) $(CCFLAGS) $(LIBS)
+	$(CC) $^ -g -o $(TARGET) $(CCFLAGS) $(LIBS)
 
 y.tab.c: parser.y
 	$(YACC) $(YACCFLAG) $<

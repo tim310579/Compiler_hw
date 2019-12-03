@@ -18,11 +18,12 @@ SymbolTable* BuildSymbolTable()
 }
 
 
-TableEntry* BuildTableEntry(char* name, int level, Type* type, int line, int cnt_upd)
+TableEntry* BuildTableEntry(char* name, char* scope, int level, Type* type, int line, int cnt_upd)
 {
 //printf("%d  ", level);
     TableEntry* new = (TableEntry*)malloc(sizeof(TableEntry));
     strcpy(new->name, name);
+    strcpy(new->scope, scope);
     new->level = level;
     new->line = 0;
     new->cnt_upd = cnt_upd;
@@ -34,7 +35,7 @@ TableEntry* BuildTableEntry(char* name, int level, Type* type, int line, int cnt
     new->para = (char**)malloc(sizeof(char*)*4);
     new->value = (Value*)malloc(sizeof(Value));
     new->value->sval =  strdup("0");
-    new->init = 0;
+    new->init = 0;	//un init
     new->iarray = (int*)malloc(sizeof(int)*32);
     new->farray = (float*)malloc(sizeof(float)*32);
     new->sarray = (char*)malloc(sizeof(char)*32);
@@ -157,11 +158,19 @@ TableEntry* FindEntryInScope(SymbolTable* tbl, char* name)
         it = tbl->Entries[i];
         int j;
 	for(j = 0; j <= tbl->current_level; j++){
-		if (strcmp(name, it->name) == 0 && it->level == (tbl->current_level-j)) {
+		if (strcmp(name, it->name) == 0 && it->level == (tbl->current_level-j) && !strcmp(tbl->scope, it->scope)) {
             		return it;
         	}
 	}
-
+    }
+    for (i = 0; i < tbl->pos; i++) {
+        it = tbl->Entries[i];
+        int j;
+        for(j = 0; j <= tbl->current_level; j++){
+                if (strcmp(name, it->name) == 0 && it->level == (tbl->current_level-j)) {
+                        return it;	//lookup again with less condition
+                }
+        }
     }
     return NULL;
 }
@@ -211,11 +220,19 @@ int IsFunction(SymbolTable* s, char* name){
 		if(!strcmp(ptr->name, name) && !strcmp(ptr->type->name, "function" )){
 			return 1;
 		}
-		if(!strcmp(ptr->name, name) && !strcmp(ptr->type->name, "procedure")){
-			return 1;
-		}
 	}
 	return 0;
+}
+int IsProcedure(SymbolTable* s, char* name){
+	int i;
+        TableEntry* ptr;
+        for(i = 0; i < s->pos; i++){
+                ptr = s->Entries[i];
+                if(!strcmp(ptr->name, name) && !strcmp(ptr->type->name, "procedure" )){
+                        return 1;
+                }
+        }
+        return 0;
 }
 void UpdateFunctionRet(SymbolTable* s, Type* ret, int line){
 	int i;
@@ -495,16 +512,16 @@ Value* BuildValueTail(char* typename){
 int CheckAssignCanOrNot(Value* v1, Value* v2){
 	//printf("%s ||%s\n", v1->type->name, v2->type->name);
 	if(!strcmp(v1->type->name, v2->type->name)){
-		printf("9");return 1;
+		return 1;
 	}
 	if(!strcmp(v1->type->name, "function")){
 		if(!strcmp(v1->ret, v2->type->name)){	//return value == RHS type
-			printf("8");return 1;
+			return 1;
 		}
 	}
 	if(!strcmp(v2->type->name, "function")){
 		if(!strcmp(v2->ret, v1->type->name)){   //return LHS == return value type
-                     printf("7");return 1;
+                     return 1;
                 }
 	}
 	
@@ -512,30 +529,27 @@ int CheckAssignCanOrNot(Value* v1, Value* v2){
 	
 	return 0;
 }
-void UpdateValue(SymbolTable* s, Value* v){
-	TableEntry* tmp = FindEntryInScope(s, v->name);
-	if(tmp == NULL) tmp = FindEntryInGlobal(s, v->name);
+void UpdateValue(SymbolTable* s,char* name, Value* v){
+	TableEntry* tmp = FindEntryInScope(s, name);
+	if(tmp == NULL) tmp = FindEntryInGlobal(s, name);
 	if(tmp == NULL) return;
 	if(!strcmp(v->type->name, "null")){
 		printf("Cannot update value because RHS is illegal at Line : %d\n", yylineno);
 		return;
 	}
-	
-	if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
-		printf("%s  %s  \n", v->type->name, tmp->type->name);
+	if(!strcmp(tmp->type->name, "function")){	//function return value error
+		if(strcmp(tmp->ret, v->type->name)){
+			printf("Type mismatch for return value in Line: %d\n", yylineno);
+			return;
+		}
+	}
+	else if(strcmp(v->type->name, tmp->type->name)) {	//type erroe
+		//printf("%s  %s  \n", v->type->name, tmp->type->name);
 		printf("Type assign error in Line: %d\n", yylineno);
 		return;
 	}
-	if(!strcmp(v->type->name, "real")){
-		tmp->value->dval = v->dval;
-		tmp->value->sval = strdup(v->sval);
-	}
-	else if(!strcmp(v->type->name, "integer")){
-                tmp->value->ival = v->ival;
-        }
-	else if(!strcmp(v->type->name, "srting")){
-                tmp->value->sval = strdup(v->sval);
-        }	
+	tmp->value = v;
+	tmp->init = 1;
 }
 void UpdateIndex(TableEntry* t, int* tail, int tail_cnt){
 	int i;
@@ -577,21 +591,30 @@ Value* ReturnIdValue(SymbolTable* symbol_table, char* name, int* tail, int tail_
 		printf("In Line %d, Function cannot in left side: %s\n", yylineno, name);
 		flag = 1;
 	}
+	if(IsProcedure(symbol_table, name) == 1 && lr == 'r'){
+		printf("Procedure can not appear in expression at Line %d: %s\n", yylineno, name);
+		flag = 1;
+	}
 	if(flag == 1) {
 		v = BuildValue("null", "null");
 		strcpy(v->name, name);
 	}
 	
 	if(flag == 0){
-	printf("test\n\n");
+	//printf("test\n\n");
 
 		//int  flag2 = 0;
 		TableEntry* tmp = FindEntryInScope(symbol_table, name);
 		if(tmp == NULL) {
-		tmp = FindEntryInGlobal(symbol_table, name);
+			tmp = FindEntryInGlobal(symbol_table, name);
+		}
+		if(lr == 'r'){
+			if(tmp->init == 0){	//uninitialized
+				printf("%s is uninitialized before used at Line %d\n", name, yylineno);
+			}
 		}
 	        //printf("%s", tmp->type->name);
-		printf("%s  %s\n", tmp->type->name, tmp->ret);
+		//printf("%s  %s\n", tmp->type->name, tmp->ret);
 		if(!strcmp(tmp->type->name, "integer")){
                        	char* tmp1;
        	       	        tmp1 = (char*)malloc(sizeof(char)*32);
@@ -710,16 +733,6 @@ void BuildProcId(SymbolTable* symbol_table, char* name, char* para, int para_cnt
                                 printf("Wrong procedure parameters at Line %d : %s\n", yylineno, name);
                         }
                         else{
-                                int j;
-                                for(j = 0; j < para_cnt; j++){
-                                        char* type;
-                                        type = (char*)malloc(sizeof(char)*32);
-                                        type = FindTypeOfPara(symbol_table, tmp->para[j], tmp->line);
-					printf("%c  %s|||\n", para[j], type);
-                                        if(para[j] != type[0]){ //error type
-						printf("Error type of parameter at Line : %d \n", yylineno);
-                                        }
-                                }
                         }
                 }
 }

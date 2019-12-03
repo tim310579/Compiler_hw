@@ -76,15 +76,17 @@ int loop_cnt =0;
 
 
 prog  : PROGRAM id {
-      	TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("program"), yylineno, symbol_table->cnt_upd);
+      	TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("program"), yylineno, symbol_table->cnt_upd);
 	InsertTableEntry(symbol_table,tmp);
 	}
       LPAREN {
 		symbol_table->current_level++;
+		strcpy(symbol_table->scope, $2);
 
 	}identifier_list RPAREN{
 		AddparaToFunc(symbol_table, $2, yylineno);
 		symbol_table->current_level--;
+		strcpy(symbol_table->scope, symbol_table->pre_scope);
 	
 	}
 	 SEMICOLON{symbol_table->cnt_upd++;}
@@ -109,11 +111,11 @@ id : IDENTIFIER
 
 
 identifier_list : id{
-		TableEntry* tmp=BuildTableEntry($1, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
+		TableEntry* tmp=BuildTableEntry($1, symbol_table->scope, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
 		InsertTableEntry(symbol_table,tmp);
 }
 		| identifier_list COMMA id {
-                TableEntry* tmp=BuildTableEntry($3, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
+                TableEntry* tmp=BuildTableEntry($3, symbol_table->scope, symbol_table->current_level, BuildType("void"), yylineno, symbol_table->cnt_upd);
                 InsertTableEntry(symbol_table,tmp);
 }
 		;
@@ -163,7 +165,7 @@ subprogram_declaration :
 	;
 
 subprogram_head : FUNCTION id {
-			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("function"), yylineno, symbol_table->cnt_upd);                           
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("function"), yylineno, symbol_table->cnt_upd);                           
 	  		InsertTableEntry(symbol_table,tmp);
 			strcpy(symbol_table->scope, $2);
 		}arguments{ //printf("%s||", $2);
@@ -178,7 +180,7 @@ subprogram_head : FUNCTION id {
 			UpdateFunctionRet(symbol_table, $7, yylineno);
                 }
 		| PROCEDURE id arguments SEMICOLON{
-			TableEntry* tmp = BuildTableEntry($2, symbol_table->current_level, BuildType("procedure"), yylineno, symbol_table->cnt_upd);
+			TableEntry* tmp = BuildTableEntry($2, symbol_table->scope, symbol_table->current_level, BuildType("procedure"), yylineno, symbol_table->cnt_upd);
                 	InsertTableEntry(symbol_table,tmp);
 			AddparaToFunc(symbol_table, $2, yylineno);
 			symbol_table->cnt_upd++;
@@ -224,9 +226,10 @@ statement_list : statement
 		;
 
 statement : variable ASSIGNMENT expression {
-	printf("%s %d\n", $1->type->name, yylineno);
-	$1 = $3;
-	printf("%s %d\n", $1->type->name, yylineno);
+	//TableEntry* tmp = FindEntryInScope(symbol_table, $1->name);
+	UpdateValue(symbol_table, $1->name, $3);
+	
+	//printf("%s %d\n", $1->type->name, yylineno);
 	/*char tmp[32];
 	Type* type;
 	type = $1->type;
@@ -303,14 +306,14 @@ expression_list : expression {
 		if(!strcmp($1->type->name, "integer")) {
 			para[para_cnt] = 'i';
 			parav[para_cnt] = $1->ival;
-			printf("\n|%c|\n",para[para_cnt]);
+			//printf("\n|%c|\n",para[para_cnt]);
 		}
 		else if(!strcmp($1->type->name, "real")){
 			para[para_cnt] = 'r';
 			parav[para_cnt] = $1->dval;
-			printf("\n%c\n",para[para_cnt]);
+			//printf("\n%c\n",para[para_cnt]);
 		}
-		else printf("8787%s%d8787\n", $1->name, yylineno);
+		//else printf("8787%s%d8787\n", $1->name, yylineno);
 		//printf("|%s|%s|%d|||||||||", $1->type->name, $1->ret, para_cnt);
 		para_cnt++;
 		
@@ -319,7 +322,7 @@ expression_list : expression {
 		if(!strcmp($3->type->name, "integer")) {
                 	para[para_cnt] =  'i';
                 	parav[para_cnt] = $3->ival;
-			printf("\n|%c|\n",para[para_cnt]);
+			//printf("\n|%c|\n",para[para_cnt]);
                 }
                 else if(!strcmp($3->type->name, "real")){
                 	para[para_cnt] = 'r';
@@ -341,9 +344,9 @@ boolexpression : simple_expression {$$ = $1;}
 
 simple_expression : term {$$ = $1; }
 		| simple_expression addop term { 
-		printf("%s %s||\n", $1->type->name, $3->type->name);
+		//printf("%s %s||\n", $1->type->name, $3->type->name);
 		$$ = Addtwo($1, $3, $2, yylineno);
-		printf("%doepwo",$$->ival);
+		//printf("%doepwo",$$->ival);
 	}
 		
 		;
@@ -366,7 +369,7 @@ factor : id tail {
 	}
 	| id LPAREN expression_list RPAREN{//$$ = BuildValue("integer", "-88");
 		$$ = BuildFuncId(symbol_table, $1, para, para_cnt);
-		printf("%d", para_cnt);
+		//printf("%d", para_cnt);
 		para_cnt = 0;
 	}
 	| num {

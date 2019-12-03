@@ -106,7 +106,7 @@ void InsertTableEntry(SymbolTable*,TableEntry*);
 void InsertTableEntryFromList(SymbolTable*,IdList*,const char*,Type*,Attribute*);
 void PopTableEntry(SymbolTable*);
 void PopTableEntryByName(SymbolTable*,char*);
-TableEntry* BuildTableEntry(char*, int, Type*, int, int);
+TableEntry* BuildTableEntry(char*, char*, int, Type*, int, int);
 
 void PrintSymbolTable(SymbolTable*);
 void PrintLevel(int);
@@ -155,6 +155,7 @@ int CheckFilename(char*,char*);
 
 void UpdateType(SymbolTable*, Type*, int line);
 int IsFunction(SymbolTable*, char*);
+int IsProcedure(SymbolTable*, char*);
 void UpdateFunctionRet(SymbolTable*, Type*, int);
 void AddparaToFunc(SymbolTable*, char*, int);
 Type* BuildArrayType(char*, int, int);
@@ -162,7 +163,7 @@ char* itoa(int);
 Value* Addtwo(Value*, Value*, char*, int);
 Value* Multwo(Value*, Value*, char*, int);
 //void AddparaToFunc(SymbolTable*, int);
-void UpdateValue(SymbolTable*, Value*);
+void UpdateValue(SymbolTable*, char*, Value*);
 void UpdateIndex(TableEntry*, int*, int);
 void UpdateIndexValue(SymbolTable*, Value*);
 Value* BuildValueTail(char*);

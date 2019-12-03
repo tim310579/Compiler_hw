@@ -113,7 +113,8 @@ extern int yydebug;
     ERROR = 323,
     INTEGER = 324,
     REAL = 325,
-    REALNUMBER = 326
+    STRINGCONST = 326,
+    REALNUMBER = 327
   };
 #endif
 /* Tokens.  */
@@ -185,14 +186,15 @@ extern int yydebug;
 #define ERROR 323
 #define INTEGER 324
 #define REAL 325
-#define REALNUMBER 326
+#define STRINGCONST 326
+#define REALNUMBER 327
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 37 "parser.y" /* yacc.c:1909  */
+#line 43 "parser.y" /* yacc.c:1909  */
 
 	int num;
 	double dnum;
@@ -204,9 +206,10 @@ union YYSTYPE
 	struct TypeList* typelist;
 	struct Expr* expression;
 	struct ExprList* exprlist;
-		
+	struct Var* var;
+	
 
-#line 210 "y.tab.h" /* yacc.c:1909  */
+#line 213 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

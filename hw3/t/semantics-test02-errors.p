@@ -15,8 +15,8 @@ PROGRAM foo(input, output, error) ;
    procedure sort(a: array [ 1 .. 10 ] of integer);
       var a, b, c: integer; // duplicated declaration
       begin
-        e := a + d        // WRONG 2: a is an int variable while d is an array.
-	a := qqq - rrr;   // WRONG 3: qqq and rrr are undefined variables
+        e := a + d;        // WRONG 2: a is an int variable while d is an array.
+        a := qqq - rrr;   // WRONG 3: qqq and rrr are undefined variables
         d := f(k, e);     // WRONG 4: f is undefined function
       end;
 
@@ -65,7 +65,7 @@ PROGRAM foo(input, output, error) ;
       k[25][26] := k[25][26] + 3;     // good
       k[25][126]  := 3.14;   // index out of bound
       k[125][26]  := 3.14;   // index out of bound
-      k[125][126] := 3.14    // index out of bound
+      k[125][126] := 3.14;    // index out of bound
       a := extf(20, sum);    // WARNING 7: can your compiler handle external functions?
 
 
@@ -94,7 +94,7 @@ PROGRAM foo(input, output, error) ;
 
 
        // Warning 9: How do your compiler handle pragma?
-       __promise((k % 16) == 0);
+       #pragma    __promise((k % 16) == 0);
        b := 1;
        while b <= k do
        begin
