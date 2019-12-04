@@ -1,5 +1,15 @@
+Insertion succeess, 'aa' is in symbol table now
+New scope 'aa' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'arr' is in symbol table now
 b is uninitialized before used at Line 5
 c is uninitialized before used at Line 6
+Scope 'aa' is closed at Line 7
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

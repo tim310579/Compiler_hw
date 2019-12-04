@@ -1,6 +1,15 @@
+Insertion succeess, 'aaa' is in symbol table now
+New scope 'aaa' is generated at Line 1
+Insertion succeess, 'aaa' is in symbol table now
+Insertion succeess, 'bbb' is in symbol table now
+Insertion succeess, 'ccc' is in symbol table now
+Insertion succeess, 'aa' is in symbol table now
+Insertion succeess, 'bb' is in symbol table now
+Insertion succeess, 'cc' is in symbol table now
 aa is uninitialized before used at Line 4
 bb is uninitialized before used at Line 4
 cc is uninitialized before used at Line 6
+Scope 'aaa' is closed at Line 6
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

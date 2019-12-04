@@ -1,5 +1,23 @@
-Error at Line#11: 'a' is redeclared
-Error at Line#16: 'a' is redeclared
+Insertion succeess, 'foo' is in symbol table now
+New scope 'foo' is generated at Line 5
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'd' is in symbol table now
+Insertion succeess, 'e' is in symbol table now
+Insertion succeess, 'g' is in symbol table now
+Insertion succeess, 'h' is in symbol table now
+Insertion succeess, 'k' is in symbol table now
+Insertion failed, Error at Line#11: 'a' is redeclared
+Insertion succeess, 'sort' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+New scope 'sort' is generated at Line 15
+Insertion failed, Error at Line#16: 'a' is redeclared
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
 d is uninitialized before used at Line 18
 Cannot add or minus array at Line: 18
 Cannot update value because RHS is illegal at Line : 18
@@ -13,12 +31,25 @@ k is uninitialized before used at Line 20
 e is uninitialized before used at Line 20
 Undeclared function at Line 20: f
 Cannot update value because RHS is illegal at Line : 20
-Error at Line#31: 'addition' is redeclared
-Error at Line#31: 'c' is redeclared
-Error at Line#39: 'addition' is redeclared
-Error at Line#39: 'a' is redeclared
-Error at Line#39: 'b' is redeclared
-Error at Line#41: 'c' is redeclared
+Scope 'sort' is closed at Line 21
+Insertion succeess, 'addition' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+New scope 'addition' is generated at Line 24
+Insertion succeess, 'c' is in symbol table now
+Scope 'addition' is closed at Line 28
+Insertion failed, Error at Line#31: 'addition' is redeclared
+Insertion failed, Error at Line#31: 'c' is redeclared
+Insertion succeess, 'd' is in symbol table now
+New scope 'addition' is generated at Line 31
+Insertion succeess, 'e' is in symbol table now
+Scope 'addition' is closed at Line 36
+Insertion failed, Error at Line#39: 'addition' is redeclared
+Insertion failed, Error at Line#39: 'a' is redeclared
+Insertion failed, Error at Line#39: 'b' is redeclared
+New scope 'addition' is generated at Line 39
+Insertion failed, Error at Line#41: 'c' is redeclared
+Scope 'addition' is closed at Line 44
 Undeclared variable in Line 51 : sum
 Undeclared variable in Line 51 : sum
 Undeclared var cannot add or minus at Line 51 : sum

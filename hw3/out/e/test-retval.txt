@@ -1,4 +1,24 @@
+Insertion succeess, 'aa' is in symbol table now
+New scope 'aa' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'tt' is in symbol table now
+New scope 'tt' is generated at Line 5
+Insertion succeess, 'aaa' is in symbol table now
 Type mismatch for return value in Line: 10
+Scope 'tt' is closed at Line 10
+Insertion succeess, 'bb' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+New scope 'bb' is generated at Line 12
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'd' is in symbol table now
+Scope 'bb' is closed at Line 18
+Scope 'aa' is closed at Line 22
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

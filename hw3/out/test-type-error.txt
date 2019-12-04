@@ -1,4 +1,13 @@
+Insertion succeess, 'aaa' is in symbol table now
+New scope 'aaa' is generated at Line 1
+Insertion succeess, 'aaa' is in symbol table now
+Insertion succeess, 'bbb' is in symbol table now
+Insertion succeess, 'ccc' is in symbol table now
+Insertion succeess, 'aa' is in symbol table now
+Insertion succeess, 'bb' is in symbol table now
+Insertion succeess, 'cc' is in symbol table now
 Type assign error in Line: 5
+Scope 'aaa' is closed at Line 5
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

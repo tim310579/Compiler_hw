@@ -1,4 +1,29 @@
-Error at Line#10: 'a' is redeclared
+Insertion succeess, 'foo' is in symbol table now
+New scope 'foo' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'd' is in symbol table now
+Insertion succeess, 'e' is in symbol table now
+Insertion succeess, 'g' is in symbol table now
+Insertion succeess, 'h' is in symbol table now
+Insertion succeess, 'k' is in symbol table now
+Insertion succeess, 'sort' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+New scope 'sort' is generated at Line 9
+Insertion failed, Error at Line#10: 'a' is redeclared
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Scope 'sort' is closed at Line 13
+Insertion succeess, 'addition' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+New scope 'addition' is generated at Line 16
+Insertion succeess, 'c' is in symbol table now
+Scope 'addition' is closed at Line 20
 Undeclared variable in Line 26 : sum
 Undeclared variable in Line 26 : sum
 Undeclared var cannot add or minus at Line 26 : sum
@@ -9,6 +34,7 @@ Array out of bound at Line: 41
 Array out of bound at Line: 42
 Array out of bound at Line: 43
 Array out of bound at Line: 43
+Scope 'foo' is closed at Line 45
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

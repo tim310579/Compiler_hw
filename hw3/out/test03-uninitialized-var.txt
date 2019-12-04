@@ -1,8 +1,19 @@
+Insertion succeess, 'ab' is in symbol table now
+New scope 'ab' is generated at Line 1
+Insertion succeess, 'cd' is in symbol table now
+Insertion succeess, 'ef' is in symbol table now
+Insertion succeess, 'gh' is in symbol table now
+Insertion succeess, 'ij' is in symbol table now
+Insertion succeess, 'kl' is in symbol table now
+Insertion succeess, 'mn' is in symbol table now
+New scope 'kl' is generated at Line 6
 Undeclared variable in Line 8 : op
 ij is uninitialized before used at Line 8
+Scope 'kl' is closed at Line 9
 ij is uninitialized before used at Line 13
 Undeclared variable in Line 14 : op
 Undeclared variable in Line 15 : op
+Scope 'ab' is closed at Line 17
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

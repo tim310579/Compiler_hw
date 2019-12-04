@@ -61,7 +61,7 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
 	//printf("%s %s %d \n ", e->name, e->kind, e->level);
      
     if (FindEntryInScope(t, e->name) != NULL && FindEntryInScope(t, e->name)->level == t->current_level) {
-	    printf("Error at Line#%d: '%s' is redeclared\n", yylineno, e->name);
+	    printf("Insertion failed, Error at Line#%d: '%s' is redeclared\n", yylineno, e->name);
         return;
     }
     //printf("%s %s %d \n ", e->name, e->kind, e->level);
@@ -78,6 +78,7 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
     }
 	//printf("%s %s %d \n ", e->name, e->kind, e->level);
     t->Entries[t->pos++] = e;
+    printf("Insertion succeess, '%s' is in symbol table now\n", e->name);
 }
 
 void PrintSymbolTable(SymbolTable* t)

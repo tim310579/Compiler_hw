@@ -1,6 +1,21 @@
+Insertion succeess, 'aa' is in symbol table now
+New scope 'aa' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'ss' is in symbol table now
+New scope 'ss' is generated at Line 5
+Scope 'ss' is closed at Line 7
+Insertion succeess, 'tt' is in symbol table now
+New scope 'tt' is generated at Line 9
+Scope 'tt' is closed at Line 12
 Procedure can not appear in expression at Line 18: ss
 Undeclared var cannot add or minus at Line 18 : ss
 Cannot update value because RHS is illegal at Line : 18
+Scope 'aa' is closed at Line 18
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

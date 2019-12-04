@@ -77,7 +77,7 @@ prog  : PROGRAM id {
 		symbol_table->current_level++;
 		strcpy(symbol_table->scope, $2);
 		strcpy(symbol_table->scopes[symbol_table->current_level], $2);
-
+		printf("New scope '%s' is generated at Line %d\n", $2, yylineno);
 	}identifier_list RPAREN{
 		AddparaToFunc(symbol_table, $2, yylineno);
 		symbol_table->current_level--;
@@ -93,9 +93,11 @@ prog  : PROGRAM id {
 	declarations
 	subprogram_declarations{symbol_table->current_level--;
         strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	//printf("Scope '%s' is closed at Line %d\n", $2, yylineno);
 	}
 	compound_statement
- 	{//symbol_table->current_level--;
+ 	{printf("Scope '%s' is closed at Line %d\n", $2, yylineno);
+	//symbol_table->current_level--;
 	//printf("%d\n", symbol_table->current_level);
 	//strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);	
 	}
@@ -161,15 +163,19 @@ subprogram_declarations :
 		;
 
 subprogram_declaration :
-	subprogram_head {symbol_table->current_level++;
-			
+	subprogram_head {
+		printf("New scope '%s' is generated at Line %d\n", symbol_table->scopes[symbol_table->current_level], yylineno);
+		symbol_table->current_level++;
 	}
 	declarations
 	subprogram_declarations
 	{/*compound_statement*/}
-	 {symbol_table->current_level--;
-			strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
-	}compound_statement
+	 {
+		symbol_table->current_level--;
+		strcpy(symbol_table->scope, symbol_table->scopes[symbol_table->current_level]);
+	}compound_statement{
+		printf("Scope '%s' is closed at Line %d\n", symbol_table->scopes[symbol_table->current_level], yylineno);
+	}
 	;
 
 subprogram_head : FUNCTION id {

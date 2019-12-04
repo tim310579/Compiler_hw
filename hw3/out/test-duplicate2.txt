@@ -1,5 +1,15 @@
-Error at Line#5: 'abc' is redeclared
-Error at Line#7: 'abc' is redeclared
+Insertion succeess, 'foo' is in symbol table now
+New scope 'foo' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'abc' is in symbol table now
+Insertion failed, Error at Line#5: 'abc' is redeclared
+Insertion failed, Error at Line#7: 'abc' is redeclared
+Insertion succeess, 'x' is in symbol table now
+New scope 'abc' is generated at Line 7
+Scope 'abc' is closed at Line 8
+Scope 'foo' is closed at Line 12
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

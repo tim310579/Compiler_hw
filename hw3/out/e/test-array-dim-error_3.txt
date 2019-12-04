@@ -1,3 +1,11 @@
+Insertion succeess, 'aa' is in symbol table now
+New scope 'aa' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
 Wrong array dimention at Line: 9
 Array out of bound at Line: 9
 Array out of bound at Line: 9
@@ -9,6 +17,7 @@ Array out of bound at Line: 10
 Wrong array dimention at Line: 11
 Array out of bound at Line: 11
 Array out of bound at Line: 11
+Scope 'aa' is closed at Line 12
 
 My Symbol Table------------------------------------------------------------
 |         Name|        Scope|         Type|       Return|    Parameter|          Dim|  Array_range|

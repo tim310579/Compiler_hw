@@ -1,0 +1,8 @@
+Insertion succeess, 'foo' is in symbol table now
+New scope 'foo' is generated at Line 1
+Insertion succeess, 'input' is in symbol table now
+Insertion succeess, 'output' is in symbol table now
+Insertion succeess, 'error' is in symbol table now
+Insertion succeess, 'a' is in symbol table now
+Insertion succeess, 'c' is in symbol table now
+Insertion succeess, 'b' is in symbol table now
