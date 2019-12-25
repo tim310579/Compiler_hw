@@ -1,0 +1,1875 @@
+終端機在文法中未使用
+
+   CASE
+   CHARACTER_STRING
+   CONST
+   DIV
+   DOWNTO
+   EXTERNAL
+   FOR
+   FORWARD
+   GOTO
+   IN
+   LABEL
+   MOD
+   NIL
+   OTHERWISE
+   PACKED
+   PFILE
+   RECORD
+   REPEAT
+   SET
+   STARSTAR
+   TO
+   TYPE
+   UNTIL
+   UPARROW
+   WITH
+   WRONGIDEN
+   ERROR
+
+
+狀態 41 衝突：1 項縮減/縮減
+
+
+文法
+
+    0 $accept: prog $end
+
+    1 $@1: %empty
+
+    2 $@2: %empty
+
+    3 $@3: %empty
+
+    4 $@4: %empty
+
+    5 $@5: %empty
+
+    6 $@6: %empty
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    8 num: DIGSEQ
+    9    | REALNUMBER
+   10    | MINUS DIGSEQ
+
+   11 id: IDENTIFIER
+
+   12 identifier_list: id
+   13                | identifier_list COMMA id
+
+   14 $@7: %empty
+
+   15 declarations: declarations VAR identifier_list COLON type $@7 SEMICOLON
+   16             | %empty
+
+   17 type: standard_type
+   18     | ARRAY LBRAC num DOTDOT num RBRAC OF type
+
+   19 standard_type: INTEGER
+   20              | REAL
+   21              | STRING
+
+   22 subprogram_declarations: subprogram_declarations subprogram_declaration SEMICOLON
+   23                        | %empty
+
+   24 $@8: %empty
+
+   25 $@9: %empty
+
+   26 $@10: %empty
+
+   27 subprogram_declaration: subprogram_head $@8 declarations subprogram_declarations $@9 $@10 compound_statement
+
+   28 $@11: %empty
+
+   29 $@12: %empty
+
+   30 subprogram_head: FUNCTION id $@11 arguments $@12 COLON standard_type SEMICOLON
+
+   31 $@13: %empty
+
+   32 $@14: %empty
+
+   33 subprogram_head: PROCEDURE id $@13 arguments $@14 SEMICOLON
+
+   34 $@15: %empty
+
+   35 arguments: LPAREN $@15 parameter_list RPAREN
+   36          | %empty
+
+   37 parameter_list: optional_var identifier_list COLON type
+
+   38 $@16: %empty
+
+   39 $@17: %empty
+
+   40 parameter_list: optional_var identifier_list COLON type $@16 SEMICOLON $@17 parameter_list
+
+   41 optional_var: VAR
+   42             | %empty
+
+   43 $@18: %empty
+
+   44 compound_statement: PBEGIN $@18 optional_statements END
+
+   45 optional_statements: statement_list
+   46                    | %empty
+
+   47 statement_list: statement
+
+   48 $@19: %empty
+
+   49 statement_list: statement_list SEMICOLON $@19 statement
+
+   50 statement: variable ASSIGNMENT expression
+   51          | procedure_statement
+   52          | compound_statement
+   53          | IF expression THEN statement ELSE statement
+   54          | WHILE expression DO statement
+   55          | %empty
+
+   56 variable: id tail
+
+   57 tail: LBRAC expression RBRAC tail
+   58     | %empty
+
+   59 procedure_statement: id
+   60                    | id LPAREN expression_list RPAREN
+
+   61 expression_list: expression
+   62                | expression_list COMMA expression
+
+   63 expression: boolexpression
+   64           | boolexpression AND boolexpression
+   65           | boolexpression OR boolexpression
+
+   66 boolexpression: simple_expression
+   67               | simple_expression relop simple_expression
+
+   68 simple_expression: term
+   69                  | simple_expression addop term
+
+   70 term: factor
+   71     | term mulop factor
+
+   72 factor: id tail
+   73       | id LPAREN expression_list RPAREN
+   74       | num
+   75       | STRINGCONST
+   76       | LPAREN expression RPAREN
+   77       | NOT factor
+
+   78 addop: PLUS
+   79      | MINUS
+
+   80 mulop: STAR
+   81      | SLASH
+
+   82 relop: LT
+   83      | GT
+   84      | EQUAL
+   85      | LE
+   86      | GE
+   87      | notEQUAL
+
+
+終結語詞，附有它們出現處的規則
+
+$end (0) 0
+error (256)
+DIGSEQ (258) 8 10
+AND (259) 64
+ARRAY (260) 18
+ASSIGNMENT (261) 50
+CASE (262)
+CHARACTER_STRING (263)
+COLON (264) 15 30 37 40
+COMMA (265) 13 62
+CONST (266)
+DIV (267)
+DO (268) 54
+DOT (269) 7
+DOTDOT (270) 18
+DOWNTO (271)
+ELSE (272) 53
+END (273) 44
+EQUAL (274) 84
+EXTERNAL (275)
+FOR (276)
+FORWARD (277)
+FUNCTION (278) 30
+GE (279) 86
+GOTO (280)
+GT (281) 83
+IDENTIFIER (282) 11
+IF (283) 53
+IN (284)
+LABEL (285)
+LBRAC (286) 18 57
+LE (287) 85
+LPAREN (288) 7 35 60 73 76
+LT (289) 82
+MINUS (290) 10 79
+MOD (291)
+NIL (292)
+NOT (293) 77
+notEQUAL (294) 87
+OF (295) 18
+OR (296) 65
+OTHERWISE (297)
+PACKED (298)
+PBEGIN (299) 44
+PFILE (300)
+PLUS (301) 78
+PROCEDURE (302) 33
+PROGRAM (303) 7
+RBRAC (304) 18 57
+RECORD (305)
+REPEAT (306)
+RPAREN (307) 7 35 60 73 76
+SEMICOLON (308) 7 15 22 30 33 40 49
+SET (309)
+SLASH (310) 81
+STAR (311) 80
+STARSTAR (312)
+THEN (313) 53
+TO (314)
+TYPE (315)
+UNTIL (316)
+UPARROW (317)
+VAR (318) 15 41
+WHILE (319) 54
+WITH (320)
+STRING (321) 21
+WRONGIDEN (322)
+ERROR (323)
+INTEGER (324) 19
+REAL (325) 20
+STRINGCONST (326) 75
+REALNUMBER (327) 9
+
+
+非終結語詞，附有它們出現處的規則
+
+$accept (73)
+    於左側： 0
+prog (74)
+    於左側： 7, 於右側： 0
+$@1 (75)
+    於左側： 1, 於右側： 7
+$@2 (76)
+    於左側： 2, 於右側： 7
+$@3 (77)
+    於左側： 3, 於右側： 7
+$@4 (78)
+    於左側： 4, 於右側： 7
+$@5 (79)
+    於左側： 5, 於右側： 7
+$@6 (80)
+    於左側： 6, 於右側： 7
+num (81)
+    於左側： 8 9 10, 於右側： 18 74
+id (82)
+    於左側： 11, 於右側： 7 12 13 30 33 56 59 60 72 73
+identifier_list (83)
+    於左側： 12 13, 於右側： 7 13 15 37 40
+declarations (84)
+    於左側： 15 16, 於右側： 7 15 27
+$@7 (85)
+    於左側： 14, 於右側： 15
+type (86)
+    於左側： 17 18, 於右側： 15 18 37 40
+standard_type (87)
+    於左側： 19 20 21, 於右側： 17 30
+subprogram_declarations (88)
+    於左側： 22 23, 於右側： 7 22 27
+subprogram_declaration (89)
+    於左側： 27, 於右側： 22
+$@8 (90)
+    於左側： 24, 於右側： 27
+$@9 (91)
+    於左側： 25, 於右側： 27
+$@10 (92)
+    於左側： 26, 於右側： 27
+subprogram_head (93)
+    於左側： 30 33, 於右側： 27
+$@11 (94)
+    於左側： 28, 於右側： 30
+$@12 (95)
+    於左側： 29, 於右側： 30
+$@13 (96)
+    於左側： 31, 於右側： 33
+$@14 (97)
+    於左側： 32, 於右側： 33
+arguments (98)
+    於左側： 35 36, 於右側： 30 33
+$@15 (99)
+    於左側： 34, 於右側： 35
+parameter_list (100)
+    於左側： 37 40, 於右側： 35 40
+$@16 (101)
+    於左側： 38, 於右側： 40
+$@17 (102)
+    於左側： 39, 於右側： 40
+optional_var (103)
+    於左側： 41 42, 於右側： 37 40
+compound_statement (104)
+    於左側： 44, 於右側： 7 27 52
+$@18 (105)
+    於左側： 43, 於右側： 44
+optional_statements (106)
+    於左側： 45 46, 於右側： 44
+statement_list (107)
+    於左側： 47 49, 於右側： 45 49
+$@19 (108)
+    於左側： 48, 於右側： 49
+statement (109)
+    於左側： 50 51 52 53 54 55, 於右側： 47 49 53 54
+variable (110)
+    於左側： 56, 於右側： 50
+tail (111)
+    於左側： 57 58, 於右側： 56 57 72
+procedure_statement (112)
+    於左側： 59 60, 於右側： 51
+expression_list (113)
+    於左側： 61 62, 於右側： 60 62 73
+expression (114)
+    於左側： 63 64 65, 於右側： 50 53 54 57 61 62 76
+boolexpression (115)
+    於左側： 66 67, 於右側： 63 64 65
+simple_expression (116)
+    於左側： 68 69, 於右側： 66 67 69
+term (117)
+    於左側： 70 71, 於右側： 68 69 71
+factor (118)
+    於左側： 72 73 74 75 76 77, 於右側： 70 71 77
+addop (119)
+    於左側： 78 79, 於右側： 69
+mulop (120)
+    於左側： 80 81, 於右側： 71
+relop (121)
+    於左側： 82 83 84 85 86 87, 於右側： 67
+
+
+狀態 0
+
+    0 $accept: . prog $end
+
+    PROGRAM  偏移，並進入狀態 1
+
+    prog  進入狀態 2
+
+
+狀態 1
+
+    7 prog: PROGRAM . id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id  進入狀態 4
+
+
+狀態 2
+
+    0 $accept: prog . $end
+
+    $end  偏移，並進入狀態 5
+
+
+狀態 3
+
+   11 id: IDENTIFIER .
+
+    $預設  使用規則 11 以縮減 (id)
+
+
+狀態 4
+
+    7 prog: PROGRAM id . $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    $預設  使用規則 1 以縮減 ($@1)
+
+    $@1  進入狀態 6
+
+
+狀態 5
+
+    0 $accept: prog $end .
+
+    $預設  接受
+
+
+狀態 6
+
+    7 prog: PROGRAM id $@1 . LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    LPAREN  偏移，並進入狀態 7
+
+
+狀態 7
+
+    7 prog: PROGRAM id $@1 LPAREN . $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    $預設  使用規則 2 以縮減 ($@2)
+
+    $@2  進入狀態 8
+
+
+狀態 8
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 . identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id               進入狀態 9
+    identifier_list  進入狀態 10
+
+
+狀態 9
+
+   12 identifier_list: id .
+
+    $預設  使用規則 12 以縮減 (identifier_list)
+
+
+狀態 10
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list . RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+   13 identifier_list: identifier_list . COMMA id
+
+    COMMA   偏移，並進入狀態 11
+    RPAREN  偏移，並進入狀態 12
+
+
+狀態 11
+
+   13 identifier_list: identifier_list COMMA . id
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id  進入狀態 13
+
+
+狀態 12
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN . $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    $預設  使用規則 3 以縮減 ($@3)
+
+    $@3  進入狀態 14
+
+
+狀態 13
+
+   13 identifier_list: identifier_list COMMA id .
+
+    $預設  使用規則 13 以縮減 (identifier_list)
+
+
+狀態 14
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 . SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    SEMICOLON  偏移，並進入狀態 15
+
+
+狀態 15
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON . $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    $預設  使用規則 4 以縮減 ($@4)
+
+    $@4  進入狀態 16
+
+
+狀態 16
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 . declarations subprogram_declarations $@5 compound_statement $@6 DOT
+
+    $預設  使用規則 16 以縮減 (declarations)
+
+    declarations  進入狀態 17
+
+
+狀態 17
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations . subprogram_declarations $@5 compound_statement $@6 DOT
+   15 declarations: declarations . VAR identifier_list COLON type $@7 SEMICOLON
+
+    VAR  偏移，並進入狀態 18
+
+    $預設  使用規則 23 以縮減 (subprogram_declarations)
+
+    subprogram_declarations  進入狀態 19
+
+
+狀態 18
+
+   15 declarations: declarations VAR . identifier_list COLON type $@7 SEMICOLON
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id               進入狀態 9
+    identifier_list  進入狀態 20
+
+
+狀態 19
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations . $@5 compound_statement $@6 DOT
+   22 subprogram_declarations: subprogram_declarations . subprogram_declaration SEMICOLON
+
+    FUNCTION   偏移，並進入狀態 21
+    PROCEDURE  偏移，並進入狀態 22
+
+    $預設  使用規則 5 以縮減 ($@5)
+
+    $@5                     進入狀態 23
+    subprogram_declaration  進入狀態 24
+    subprogram_head         進入狀態 25
+
+
+狀態 20
+
+   13 identifier_list: identifier_list . COMMA id
+   15 declarations: declarations VAR identifier_list . COLON type $@7 SEMICOLON
+
+    COLON  偏移，並進入狀態 26
+    COMMA  偏移，並進入狀態 11
+
+
+狀態 21
+
+   30 subprogram_head: FUNCTION . id $@11 arguments $@12 COLON standard_type SEMICOLON
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id  進入狀態 27
+
+
+狀態 22
+
+   33 subprogram_head: PROCEDURE . id $@13 arguments $@14 SEMICOLON
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id  進入狀態 28
+
+
+狀態 23
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 . compound_statement $@6 DOT
+
+    PBEGIN  偏移，並進入狀態 29
+
+    compound_statement  進入狀態 30
+
+
+狀態 24
+
+   22 subprogram_declarations: subprogram_declarations subprogram_declaration . SEMICOLON
+
+    SEMICOLON  偏移，並進入狀態 31
+
+
+狀態 25
+
+   27 subprogram_declaration: subprogram_head . $@8 declarations subprogram_declarations $@9 $@10 compound_statement
+
+    $預設  使用規則 24 以縮減 ($@8)
+
+    $@8  進入狀態 32
+
+
+狀態 26
+
+   15 declarations: declarations VAR identifier_list COLON . type $@7 SEMICOLON
+
+    ARRAY    偏移，並進入狀態 33
+    STRING   偏移，並進入狀態 34
+    INTEGER  偏移，並進入狀態 35
+    REAL     偏移，並進入狀態 36
+
+    type           進入狀態 37
+    standard_type  進入狀態 38
+
+
+狀態 27
+
+   30 subprogram_head: FUNCTION id . $@11 arguments $@12 COLON standard_type SEMICOLON
+
+    $預設  使用規則 28 以縮減 ($@11)
+
+    $@11  進入狀態 39
+
+
+狀態 28
+
+   33 subprogram_head: PROCEDURE id . $@13 arguments $@14 SEMICOLON
+
+    $預設  使用規則 31 以縮減 ($@13)
+
+    $@13  進入狀態 40
+
+
+狀態 29
+
+   44 compound_statement: PBEGIN . $@18 optional_statements END
+
+    $預設  使用規則 43 以縮減 ($@18)
+
+    $@18  進入狀態 41
+
+
+狀態 30
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement . $@6 DOT
+
+    $預設  使用規則 6 以縮減 ($@6)
+
+    $@6  進入狀態 42
+
+
+狀態 31
+
+   22 subprogram_declarations: subprogram_declarations subprogram_declaration SEMICOLON .
+
+    $預設  使用規則 22 以縮減 (subprogram_declarations)
+
+
+狀態 32
+
+   27 subprogram_declaration: subprogram_head $@8 . declarations subprogram_declarations $@9 $@10 compound_statement
+
+    $預設  使用規則 16 以縮減 (declarations)
+
+    declarations  進入狀態 43
+
+
+狀態 33
+
+   18 type: ARRAY . LBRAC num DOTDOT num RBRAC OF type
+
+    LBRAC  偏移，並進入狀態 44
+
+
+狀態 34
+
+   21 standard_type: STRING .
+
+    $預設  使用規則 21 以縮減 (standard_type)
+
+
+狀態 35
+
+   19 standard_type: INTEGER .
+
+    $預設  使用規則 19 以縮減 (standard_type)
+
+
+狀態 36
+
+   20 standard_type: REAL .
+
+    $預設  使用規則 20 以縮減 (standard_type)
+
+
+狀態 37
+
+   15 declarations: declarations VAR identifier_list COLON type . $@7 SEMICOLON
+
+    $預設  使用規則 14 以縮減 ($@7)
+
+    $@7  進入狀態 45
+
+
+狀態 38
+
+   17 type: standard_type .
+
+    $預設  使用規則 17 以縮減 (type)
+
+
+狀態 39
+
+   30 subprogram_head: FUNCTION id $@11 . arguments $@12 COLON standard_type SEMICOLON
+
+    LPAREN  偏移，並進入狀態 46
+
+    $預設  使用規則 36 以縮減 (arguments)
+
+    arguments  進入狀態 47
+
+
+狀態 40
+
+   33 subprogram_head: PROCEDURE id $@13 . arguments $@14 SEMICOLON
+
+    LPAREN  偏移，並進入狀態 46
+
+    $預設  使用規則 36 以縮減 (arguments)
+
+    arguments  進入狀態 48
+
+
+狀態 41
+
+   44 compound_statement: PBEGIN $@18 . optional_statements END
+
+    IDENTIFIER  偏移，並進入狀態 3
+    IF          偏移，並進入狀態 49
+    PBEGIN      偏移，並進入狀態 29
+    WHILE       偏移，並進入狀態 50
+
+    END        使用規則 46 以縮減 (optional_statements)
+    END        [使用規則 55 以縮減 (statement)]
+    SEMICOLON  使用規則 55 以縮減 (statement)
+    $預設    使用規則 46 以縮減 (optional_statements)
+
+    id                   進入狀態 51
+    compound_statement   進入狀態 52
+    optional_statements  進入狀態 53
+    statement_list       進入狀態 54
+    statement            進入狀態 55
+    variable             進入狀態 56
+    procedure_statement  進入狀態 57
+
+
+狀態 42
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 . DOT
+
+    DOT  偏移，並進入狀態 58
+
+
+狀態 43
+
+   15 declarations: declarations . VAR identifier_list COLON type $@7 SEMICOLON
+   27 subprogram_declaration: subprogram_head $@8 declarations . subprogram_declarations $@9 $@10 compound_statement
+
+    VAR  偏移，並進入狀態 18
+
+    $預設  使用規則 23 以縮減 (subprogram_declarations)
+
+    subprogram_declarations  進入狀態 59
+
+
+狀態 44
+
+   18 type: ARRAY LBRAC . num DOTDOT num RBRAC OF type
+
+    DIGSEQ      偏移，並進入狀態 60
+    MINUS       偏移，並進入狀態 61
+    REALNUMBER  偏移，並進入狀態 62
+
+    num  進入狀態 63
+
+
+狀態 45
+
+   15 declarations: declarations VAR identifier_list COLON type $@7 . SEMICOLON
+
+    SEMICOLON  偏移，並進入狀態 64
+
+
+狀態 46
+
+   35 arguments: LPAREN . $@15 parameter_list RPAREN
+
+    $預設  使用規則 34 以縮減 ($@15)
+
+    $@15  進入狀態 65
+
+
+狀態 47
+
+   30 subprogram_head: FUNCTION id $@11 arguments . $@12 COLON standard_type SEMICOLON
+
+    $預設  使用規則 29 以縮減 ($@12)
+
+    $@12  進入狀態 66
+
+
+狀態 48
+
+   33 subprogram_head: PROCEDURE id $@13 arguments . $@14 SEMICOLON
+
+    $預設  使用規則 32 以縮減 ($@14)
+
+    $@14  進入狀態 67
+
+
+狀態 49
+
+   53 statement: IF . expression THEN statement ELSE statement
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression         進入狀態 73
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 50
+
+   54 statement: WHILE . expression DO statement
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression         進入狀態 78
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 51
+
+   56 variable: id . tail
+   59 procedure_statement: id .
+   60                    | id . LPAREN expression_list RPAREN
+
+    LBRAC   偏移，並進入狀態 79
+    LPAREN  偏移，並進入狀態 80
+
+    ASSIGNMENT  使用規則 58 以縮減 (tail)
+    $預設     使用規則 59 以縮減 (procedure_statement)
+
+    tail  進入狀態 81
+
+
+狀態 52
+
+   52 statement: compound_statement .
+
+    $預設  使用規則 52 以縮減 (statement)
+
+
+狀態 53
+
+   44 compound_statement: PBEGIN $@18 optional_statements . END
+
+    END  偏移，並進入狀態 82
+
+
+狀態 54
+
+   45 optional_statements: statement_list .
+   49 statement_list: statement_list . SEMICOLON $@19 statement
+
+    SEMICOLON  偏移，並進入狀態 83
+
+    $預設  使用規則 45 以縮減 (optional_statements)
+
+
+狀態 55
+
+   47 statement_list: statement .
+
+    $預設  使用規則 47 以縮減 (statement_list)
+
+
+狀態 56
+
+   50 statement: variable . ASSIGNMENT expression
+
+    ASSIGNMENT  偏移，並進入狀態 84
+
+
+狀態 57
+
+   51 statement: procedure_statement .
+
+    $預設  使用規則 51 以縮減 (statement)
+
+
+狀態 58
+
+    7 prog: PROGRAM id $@1 LPAREN $@2 identifier_list RPAREN $@3 SEMICOLON $@4 declarations subprogram_declarations $@5 compound_statement $@6 DOT .
+
+    $預設  使用規則 7 以縮減 (prog)
+
+
+狀態 59
+
+   22 subprogram_declarations: subprogram_declarations . subprogram_declaration SEMICOLON
+   27 subprogram_declaration: subprogram_head $@8 declarations subprogram_declarations . $@9 $@10 compound_statement
+
+    FUNCTION   偏移，並進入狀態 21
+    PROCEDURE  偏移，並進入狀態 22
+
+    $預設  使用規則 25 以縮減 ($@9)
+
+    subprogram_declaration  進入狀態 24
+    $@9                     進入狀態 85
+    subprogram_head         進入狀態 25
+
+
+狀態 60
+
+    8 num: DIGSEQ .
+
+    $預設  使用規則 8 以縮減 (num)
+
+
+狀態 61
+
+   10 num: MINUS . DIGSEQ
+
+    DIGSEQ  偏移，並進入狀態 86
+
+
+狀態 62
+
+    9 num: REALNUMBER .
+
+    $預設  使用規則 9 以縮減 (num)
+
+
+狀態 63
+
+   18 type: ARRAY LBRAC num . DOTDOT num RBRAC OF type
+
+    DOTDOT  偏移，並進入狀態 87
+
+
+狀態 64
+
+   15 declarations: declarations VAR identifier_list COLON type $@7 SEMICOLON .
+
+    $預設  使用規則 15 以縮減 (declarations)
+
+
+狀態 65
+
+   35 arguments: LPAREN $@15 . parameter_list RPAREN
+
+    VAR  偏移，並進入狀態 88
+
+    $預設  使用規則 42 以縮減 (optional_var)
+
+    parameter_list  進入狀態 89
+    optional_var    進入狀態 90
+
+
+狀態 66
+
+   30 subprogram_head: FUNCTION id $@11 arguments $@12 . COLON standard_type SEMICOLON
+
+    COLON  偏移，並進入狀態 91
+
+
+狀態 67
+
+   33 subprogram_head: PROCEDURE id $@13 arguments $@14 . SEMICOLON
+
+    SEMICOLON  偏移，並進入狀態 92
+
+
+狀態 68
+
+   76 factor: LPAREN . expression RPAREN
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression         進入狀態 93
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 69
+
+   77 factor: NOT . factor
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num     進入狀態 71
+    id      進入狀態 72
+    factor  進入狀態 94
+
+
+狀態 70
+
+   75 factor: STRINGCONST .
+
+    $預設  使用規則 75 以縮減 (factor)
+
+
+狀態 71
+
+   74 factor: num .
+
+    $預設  使用規則 74 以縮減 (factor)
+
+
+狀態 72
+
+   72 factor: id . tail
+   73       | id . LPAREN expression_list RPAREN
+
+    LBRAC   偏移，並進入狀態 79
+    LPAREN  偏移，並進入狀態 95
+
+    $預設  使用規則 58 以縮減 (tail)
+
+    tail  進入狀態 96
+
+
+狀態 73
+
+   53 statement: IF expression . THEN statement ELSE statement
+
+    THEN  偏移，並進入狀態 97
+
+
+狀態 74
+
+   63 expression: boolexpression .
+   64           | boolexpression . AND boolexpression
+   65           | boolexpression . OR boolexpression
+
+    AND  偏移，並進入狀態 98
+    OR   偏移，並進入狀態 99
+
+    $預設  使用規則 63 以縮減 (expression)
+
+
+狀態 75
+
+   66 boolexpression: simple_expression .
+   67               | simple_expression . relop simple_expression
+   69 simple_expression: simple_expression . addop term
+
+    EQUAL     偏移，並進入狀態 100
+    GE        偏移，並進入狀態 101
+    GT        偏移，並進入狀態 102
+    LE        偏移，並進入狀態 103
+    LT        偏移，並進入狀態 104
+    MINUS     偏移，並進入狀態 105
+    notEQUAL  偏移，並進入狀態 106
+    PLUS      偏移，並進入狀態 107
+
+    $預設  使用規則 66 以縮減 (boolexpression)
+
+    addop  進入狀態 108
+    relop  進入狀態 109
+
+
+狀態 76
+
+   68 simple_expression: term .
+   71 term: term . mulop factor
+
+    SLASH  偏移，並進入狀態 110
+    STAR   偏移，並進入狀態 111
+
+    $預設  使用規則 68 以縮減 (simple_expression)
+
+    mulop  進入狀態 112
+
+
+狀態 77
+
+   70 term: factor .
+
+    $預設  使用規則 70 以縮減 (term)
+
+
+狀態 78
+
+   54 statement: WHILE expression . DO statement
+
+    DO  偏移，並進入狀態 113
+
+
+狀態 79
+
+   57 tail: LBRAC . expression RBRAC tail
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression         進入狀態 114
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 80
+
+   60 procedure_statement: id LPAREN . expression_list RPAREN
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression_list    進入狀態 115
+    expression         進入狀態 116
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 81
+
+   56 variable: id tail .
+
+    $預設  使用規則 56 以縮減 (variable)
+
+
+狀態 82
+
+   44 compound_statement: PBEGIN $@18 optional_statements END .
+
+    $預設  使用規則 44 以縮減 (compound_statement)
+
+
+狀態 83
+
+   49 statement_list: statement_list SEMICOLON . $@19 statement
+
+    $預設  使用規則 48 以縮減 ($@19)
+
+    $@19  進入狀態 117
+
+
+狀態 84
+
+   50 statement: variable ASSIGNMENT . expression
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression         進入狀態 118
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 85
+
+   27 subprogram_declaration: subprogram_head $@8 declarations subprogram_declarations $@9 . $@10 compound_statement
+
+    $預設  使用規則 26 以縮減 ($@10)
+
+    $@10  進入狀態 119
+
+
+狀態 86
+
+   10 num: MINUS DIGSEQ .
+
+    $預設  使用規則 10 以縮減 (num)
+
+
+狀態 87
+
+   18 type: ARRAY LBRAC num DOTDOT . num RBRAC OF type
+
+    DIGSEQ      偏移，並進入狀態 60
+    MINUS       偏移，並進入狀態 61
+    REALNUMBER  偏移，並進入狀態 62
+
+    num  進入狀態 120
+
+
+狀態 88
+
+   41 optional_var: VAR .
+
+    $預設  使用規則 41 以縮減 (optional_var)
+
+
+狀態 89
+
+   35 arguments: LPAREN $@15 parameter_list . RPAREN
+
+    RPAREN  偏移，並進入狀態 121
+
+
+狀態 90
+
+   37 parameter_list: optional_var . identifier_list COLON type
+   40               | optional_var . identifier_list COLON type $@16 SEMICOLON $@17 parameter_list
+
+    IDENTIFIER  偏移，並進入狀態 3
+
+    id               進入狀態 9
+    identifier_list  進入狀態 122
+
+
+狀態 91
+
+   30 subprogram_head: FUNCTION id $@11 arguments $@12 COLON . standard_type SEMICOLON
+
+    STRING   偏移，並進入狀態 34
+    INTEGER  偏移，並進入狀態 35
+    REAL     偏移，並進入狀態 36
+
+    standard_type  進入狀態 123
+
+
+狀態 92
+
+   33 subprogram_head: PROCEDURE id $@13 arguments $@14 SEMICOLON .
+
+    $預設  使用規則 33 以縮減 (subprogram_head)
+
+
+狀態 93
+
+   76 factor: LPAREN expression . RPAREN
+
+    RPAREN  偏移，並進入狀態 124
+
+
+狀態 94
+
+   77 factor: NOT factor .
+
+    $預設  使用規則 77 以縮減 (factor)
+
+
+狀態 95
+
+   73 factor: id LPAREN . expression_list RPAREN
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression_list    進入狀態 125
+    expression         進入狀態 116
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 96
+
+   72 factor: id tail .
+
+    $預設  使用規則 72 以縮減 (factor)
+
+
+狀態 97
+
+   53 statement: IF expression THEN . statement ELSE statement
+
+    IDENTIFIER  偏移，並進入狀態 3
+    IF          偏移，並進入狀態 49
+    PBEGIN      偏移，並進入狀態 29
+    WHILE       偏移，並進入狀態 50
+
+    $預設  使用規則 55 以縮減 (statement)
+
+    id                   進入狀態 51
+    compound_statement   進入狀態 52
+    statement            進入狀態 126
+    variable             進入狀態 56
+    procedure_statement  進入狀態 57
+
+
+狀態 98
+
+   64 expression: boolexpression AND . boolexpression
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    boolexpression     進入狀態 127
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 99
+
+   65 expression: boolexpression OR . boolexpression
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    boolexpression     進入狀態 128
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 100
+
+   84 relop: EQUAL .
+
+    $預設  使用規則 84 以縮減 (relop)
+
+
+狀態 101
+
+   86 relop: GE .
+
+    $預設  使用規則 86 以縮減 (relop)
+
+
+狀態 102
+
+   83 relop: GT .
+
+    $預設  使用規則 83 以縮減 (relop)
+
+
+狀態 103
+
+   85 relop: LE .
+
+    $預設  使用規則 85 以縮減 (relop)
+
+
+狀態 104
+
+   82 relop: LT .
+
+    $預設  使用規則 82 以縮減 (relop)
+
+
+狀態 105
+
+   79 addop: MINUS .
+
+    $預設  使用規則 79 以縮減 (addop)
+
+
+狀態 106
+
+   87 relop: notEQUAL .
+
+    $預設  使用規則 87 以縮減 (relop)
+
+
+狀態 107
+
+   78 addop: PLUS .
+
+    $預設  使用規則 78 以縮減 (addop)
+
+
+狀態 108
+
+   69 simple_expression: simple_expression addop . term
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num     進入狀態 71
+    id      進入狀態 72
+    term    進入狀態 129
+    factor  進入狀態 77
+
+
+狀態 109
+
+   67 boolexpression: simple_expression relop . simple_expression
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    simple_expression  進入狀態 130
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 110
+
+   81 mulop: SLASH .
+
+    $預設  使用規則 81 以縮減 (mulop)
+
+
+狀態 111
+
+   80 mulop: STAR .
+
+    $預設  使用規則 80 以縮減 (mulop)
+
+
+狀態 112
+
+   71 term: term mulop . factor
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num     進入狀態 71
+    id      進入狀態 72
+    factor  進入狀態 131
+
+
+狀態 113
+
+   54 statement: WHILE expression DO . statement
+
+    IDENTIFIER  偏移，並進入狀態 3
+    IF          偏移，並進入狀態 49
+    PBEGIN      偏移，並進入狀態 29
+    WHILE       偏移，並進入狀態 50
+
+    $預設  使用規則 55 以縮減 (statement)
+
+    id                   進入狀態 51
+    compound_statement   進入狀態 52
+    statement            進入狀態 132
+    variable             進入狀態 56
+    procedure_statement  進入狀態 57
+
+
+狀態 114
+
+   57 tail: LBRAC expression . RBRAC tail
+
+    RBRAC  偏移，並進入狀態 133
+
+
+狀態 115
+
+   60 procedure_statement: id LPAREN expression_list . RPAREN
+   62 expression_list: expression_list . COMMA expression
+
+    COMMA   偏移，並進入狀態 134
+    RPAREN  偏移，並進入狀態 135
+
+
+狀態 116
+
+   61 expression_list: expression .
+
+    $預設  使用規則 61 以縮減 (expression_list)
+
+
+狀態 117
+
+   49 statement_list: statement_list SEMICOLON $@19 . statement
+
+    IDENTIFIER  偏移，並進入狀態 3
+    IF          偏移，並進入狀態 49
+    PBEGIN      偏移，並進入狀態 29
+    WHILE       偏移，並進入狀態 50
+
+    $預設  使用規則 55 以縮減 (statement)
+
+    id                   進入狀態 51
+    compound_statement   進入狀態 52
+    statement            進入狀態 136
+    variable             進入狀態 56
+    procedure_statement  進入狀態 57
+
+
+狀態 118
+
+   50 statement: variable ASSIGNMENT expression .
+
+    $預設  使用規則 50 以縮減 (statement)
+
+
+狀態 119
+
+   27 subprogram_declaration: subprogram_head $@8 declarations subprogram_declarations $@9 $@10 . compound_statement
+
+    PBEGIN  偏移，並進入狀態 29
+
+    compound_statement  進入狀態 137
+
+
+狀態 120
+
+   18 type: ARRAY LBRAC num DOTDOT num . RBRAC OF type
+
+    RBRAC  偏移，並進入狀態 138
+
+
+狀態 121
+
+   35 arguments: LPAREN $@15 parameter_list RPAREN .
+
+    $預設  使用規則 35 以縮減 (arguments)
+
+
+狀態 122
+
+   13 identifier_list: identifier_list . COMMA id
+   37 parameter_list: optional_var identifier_list . COLON type
+   40               | optional_var identifier_list . COLON type $@16 SEMICOLON $@17 parameter_list
+
+    COLON  偏移，並進入狀態 139
+    COMMA  偏移，並進入狀態 11
+
+
+狀態 123
+
+   30 subprogram_head: FUNCTION id $@11 arguments $@12 COLON standard_type . SEMICOLON
+
+    SEMICOLON  偏移，並進入狀態 140
+
+
+狀態 124
+
+   76 factor: LPAREN expression RPAREN .
+
+    $預設  使用規則 76 以縮減 (factor)
+
+
+狀態 125
+
+   62 expression_list: expression_list . COMMA expression
+   73 factor: id LPAREN expression_list . RPAREN
+
+    COMMA   偏移，並進入狀態 134
+    RPAREN  偏移，並進入狀態 141
+
+
+狀態 126
+
+   53 statement: IF expression THEN statement . ELSE statement
+
+    ELSE  偏移，並進入狀態 142
+
+
+狀態 127
+
+   64 expression: boolexpression AND boolexpression .
+
+    $預設  使用規則 64 以縮減 (expression)
+
+
+狀態 128
+
+   65 expression: boolexpression OR boolexpression .
+
+    $預設  使用規則 65 以縮減 (expression)
+
+
+狀態 129
+
+   69 simple_expression: simple_expression addop term .
+   71 term: term . mulop factor
+
+    SLASH  偏移，並進入狀態 110
+    STAR   偏移，並進入狀態 111
+
+    $預設  使用規則 69 以縮減 (simple_expression)
+
+    mulop  進入狀態 112
+
+
+狀態 130
+
+   67 boolexpression: simple_expression relop simple_expression .
+   69 simple_expression: simple_expression . addop term
+
+    MINUS  偏移，並進入狀態 105
+    PLUS   偏移，並進入狀態 107
+
+    $預設  使用規則 67 以縮減 (boolexpression)
+
+    addop  進入狀態 108
+
+
+狀態 131
+
+   71 term: term mulop factor .
+
+    $預設  使用規則 71 以縮減 (term)
+
+
+狀態 132
+
+   54 statement: WHILE expression DO statement .
+
+    $預設  使用規則 54 以縮減 (statement)
+
+
+狀態 133
+
+   57 tail: LBRAC expression RBRAC . tail
+
+    LBRAC  偏移，並進入狀態 79
+
+    $預設  使用規則 58 以縮減 (tail)
+
+    tail  進入狀態 143
+
+
+狀態 134
+
+   62 expression_list: expression_list COMMA . expression
+
+    DIGSEQ       偏移，並進入狀態 60
+    IDENTIFIER   偏移，並進入狀態 3
+    LPAREN       偏移，並進入狀態 68
+    MINUS        偏移，並進入狀態 61
+    NOT          偏移，並進入狀態 69
+    STRINGCONST  偏移，並進入狀態 70
+    REALNUMBER   偏移，並進入狀態 62
+
+    num                進入狀態 71
+    id                 進入狀態 72
+    expression         進入狀態 144
+    boolexpression     進入狀態 74
+    simple_expression  進入狀態 75
+    term               進入狀態 76
+    factor             進入狀態 77
+
+
+狀態 135
+
+   60 procedure_statement: id LPAREN expression_list RPAREN .
+
+    $預設  使用規則 60 以縮減 (procedure_statement)
+
+
+狀態 136
+
+   49 statement_list: statement_list SEMICOLON $@19 statement .
+
+    $預設  使用規則 49 以縮減 (statement_list)
+
+
+狀態 137
+
+   27 subprogram_declaration: subprogram_head $@8 declarations subprogram_declarations $@9 $@10 compound_statement .
+
+    $預設  使用規則 27 以縮減 (subprogram_declaration)
+
+
+狀態 138
+
+   18 type: ARRAY LBRAC num DOTDOT num RBRAC . OF type
+
+    OF  偏移，並進入狀態 145
+
+
+狀態 139
+
+   37 parameter_list: optional_var identifier_list COLON . type
+   40               | optional_var identifier_list COLON . type $@16 SEMICOLON $@17 parameter_list
+
+    ARRAY    偏移，並進入狀態 33
+    STRING   偏移，並進入狀態 34
+    INTEGER  偏移，並進入狀態 35
+    REAL     偏移，並進入狀態 36
+
+    type           進入狀態 146
+    standard_type  進入狀態 38
+
+
+狀態 140
+
+   30 subprogram_head: FUNCTION id $@11 arguments $@12 COLON standard_type SEMICOLON .
+
+    $預設  使用規則 30 以縮減 (subprogram_head)
+
+
+狀態 141
+
+   73 factor: id LPAREN expression_list RPAREN .
+
+    $預設  使用規則 73 以縮減 (factor)
+
+
+狀態 142
+
+   53 statement: IF expression THEN statement ELSE . statement
+
+    IDENTIFIER  偏移，並進入狀態 3
+    IF          偏移，並進入狀態 49
+    PBEGIN      偏移，並進入狀態 29
+    WHILE       偏移，並進入狀態 50
+
+    $預設  使用規則 55 以縮減 (statement)
+
+    id                   進入狀態 51
+    compound_statement   進入狀態 52
+    statement            進入狀態 147
+    variable             進入狀態 56
+    procedure_statement  進入狀態 57
+
+
+狀態 143
+
+   57 tail: LBRAC expression RBRAC tail .
+
+    $預設  使用規則 57 以縮減 (tail)
+
+
+狀態 144
+
+   62 expression_list: expression_list COMMA expression .
+
+    $預設  使用規則 62 以縮減 (expression_list)
+
+
+狀態 145
+
+   18 type: ARRAY LBRAC num DOTDOT num RBRAC OF . type
+
+    ARRAY    偏移，並進入狀態 33
+    STRING   偏移，並進入狀態 34
+    INTEGER  偏移，並進入狀態 35
+    REAL     偏移，並進入狀態 36
+
+    type           進入狀態 148
+    standard_type  進入狀態 38
+
+
+狀態 146
+
+   37 parameter_list: optional_var identifier_list COLON type .
+   40               | optional_var identifier_list COLON type . $@16 SEMICOLON $@17 parameter_list
+
+    SEMICOLON  使用規則 38 以縮減 ($@16)
+    $預設    使用規則 37 以縮減 (parameter_list)
+
+    $@16  進入狀態 149
+
+
+狀態 147
+
+   53 statement: IF expression THEN statement ELSE statement .
+
+    $預設  使用規則 53 以縮減 (statement)
+
+
+狀態 148
+
+   18 type: ARRAY LBRAC num DOTDOT num RBRAC OF type .
+
+    $預設  使用規則 18 以縮減 (type)
+
+
+狀態 149
+
+   40 parameter_list: optional_var identifier_list COLON type $@16 . SEMICOLON $@17 parameter_list
+
+    SEMICOLON  偏移，並進入狀態 150
+
+
+狀態 150
+
+   40 parameter_list: optional_var identifier_list COLON type $@16 SEMICOLON . $@17 parameter_list
+
+    $預設  使用規則 39 以縮減 ($@17)
+
+    $@17  進入狀態 151
+
+
+狀態 151
+
+   40 parameter_list: optional_var identifier_list COLON type $@16 SEMICOLON $@17 . parameter_list
+
+    VAR  偏移，並進入狀態 88
+
+    $預設  使用規則 42 以縮減 (optional_var)
+
+    parameter_list  進入狀態 152
+    optional_var    進入狀態 90
+
+
+狀態 152
+
+   40 parameter_list: optional_var identifier_list COLON type $@16 SEMICOLON $@17 parameter_list .
+
+    $預設  使用規則 40 以縮減 (parameter_list)
