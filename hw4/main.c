@@ -29,9 +29,12 @@ int  main( int argc, char **argv )
 
 	char output[64];
 	strcpy(output, argv[1]);
-	output[strlen(output)-1] = 'j';
+	output[strlen(output)-1] = 's';
 	
-	outfp = fopen(output, "w");
+        fprintf(outfp, "        .text\n");
+        fprintf(outfp, "        .section .rodata\n");
+        fprintf(outfp, "        .align  3\n");
+       
 	yyin = fp;
 	yyparse();	/* primary procedure of parser */
 	
