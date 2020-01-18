@@ -1,0 +1,29 @@
+#!/bin/bash
+COMPILE="riscv64-unknown-linux-gnu-gcc"
+exe="qemu-riscv64"
+filename=`basename $@`
+folder=$@
+classname=${folder%.*} #% means extract in bash
+
+echo $@
+echo $classname.s
+echo $classname
+#echo $filename
+make
+if [ "$?" != "0" ];then
+    exit
+fi
+parser_err=$(./parser $@| grep Error)
+
+if [ ! -z "$parser_err" ];then
+    echo "$parser_err"
+    echo "parser error, stopped"
+else
+    echo
+    echo "Compile Successed, running $classname.s"
+    #echo "        $classname"
+    "$COMPILE" $classname.s -march=rv64g -o $classname
+    "$exe" $classname 
+fi
+rm -f $classname.s
+rm -f $classname

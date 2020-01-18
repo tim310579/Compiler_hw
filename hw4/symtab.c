@@ -60,7 +60,7 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
 {
 	//printf("%s %s %d \n ", e->name, e->kind, e->level);
      
-    if (FindEntryInScope(t, e->name) != NULL && FindEntryInScope(t, e->name)->level == t->current_level) {
+    if (FindEntryInScope(t, e->name) != NULL && !strcmp(FindEntryInScope(t, e->name)->scope, t->scope)) {
 	    printf("Insertion failed, Error at Line#%d: '%s' is redeclared\n", yylineno, e->name);
         return;
     }
@@ -74,7 +74,7 @@ void InsertTableEntry(SymbolTable* t, TableEntry* e)
         for (i = 0; i < t->pos; i++) {
             (t->Entries)[i] = tmp_entries[i];
         }
-        free(tmp_entries);
+        //free(tmp_entries);
     }
 	//printf("%s %s %d \n ", e->name, e->kind, e->level);
     t->Entries[t->pos++] = e;
@@ -87,9 +87,11 @@ void PrintSymbolTable(SymbolTable* t)
     TableEntry* ptr;
 
     printf("\n");
-    printf("|%13s|%13s|%13s|%13s|%13s|%13s|%13s|\n", "Name", "Scope", "Type", "Return", "Parameter", "Dim", "Array_range");
+    printf("|%6s|%13s|%13s|%13s|%13s|%13s|%13s|%13s|\n","space", "Name", "Scope", "Type", "Return", "Parameter", "Dim", "Array_range");
     for (i = 0; i < t->pos; i++) {
         ptr = t->Entries[i]; 
+	printf("%6d", ptr->exe_space);
+	//printf("%d\n", ptr->para_cnt);
 	//printf("%sPPPPP   ", ptr->scope);
         printf("|%13s|(%d)%10s|%13s|%13s|", ptr->name, ptr->level, ptr->scope, ptr->type->name, ptr->ret);
         
@@ -131,6 +133,7 @@ TableEntry* FindEntryInScope(SymbolTable* tbl, char* name)
         	}
 	}
     }
+    
     for (i = 0; i < tbl->pos; i++) {
         it = tbl->Entries[i];
         int j;
@@ -169,6 +172,16 @@ void UpdateType(SymbolTable* s, Type* type, int line){
 		ptr = s->Entries[i];
 		if(ptr->line == line && s->current_level == ptr->level && s->cnt_upd == ptr->cnt_upd){
 			ptr->type = type;
+			ptr->exe_space = exe_space;
+			if(ptr->type->arr_dim > 0){
+				int tmp = 1, i;
+				for(i = 0; i < ptr->type->arr_dim; i++){
+					tmp *= (ptr->type->arr_range[i*2+1]-ptr->type->arr_range[i*2]+1);
+				}
+				exe_space += tmp*4;
+			}
+			//ptr->exe_space = exe_space;
+			else exe_space += 4;
 			//printf("%s ",ptr->name);
 		}
 	}
@@ -437,23 +450,32 @@ Value* Multwo(Value* n1, Value* n2, char* op, int line){
 	}
 	else if(!strcmp(op, "/")) {
 		if(!strcmp(n1->type->name, "integer") && !strcmp(n2->type->name, "integer")){
-                        v->ival = n1->ival/n2->ival;
+                        printf("%d  %d\n", n1->ival, n2->ival);
+			if(n2->ival != 0){
+				v->ival = n1->ival/n2->ival;
+		
+			}
+			else v->ival = 0;
                         double t1, t2;
 			t1 = n1->ival;
 			t2 = n2->ival;
-			v->dval = t1/t2;
-			char* tmp;
-                        tmp = (char*)malloc(sizeof(char)*32);
-                        sprintf(tmp, "%f", v->dval);
-                        v->sval = strdup(tmp);
+		//	v->dval = t1/t2;
+		//	char* tmp;
+                  //      tmp = (char*)malloc(sizeof(char)*32);
+                    //    sprintf(tmp, "%f", v->dval);
+                      //  v->sval = strdup(tmp);
 			v->both = 1;	//means both type are possible
 			strcpy(v->type->name, "integer");
                 }
                 else if(!strcmp(n1->type->name, "real") && !strcmp(n2->type->name, "real")){
-                        double t1, t2;
+                        
+			double t1, t2;
                         t1 = atof(n1->sval);
                         t2 = atof(n2->sval);
-                        v->dval = t1/t2;
+                        if(t2 != 0){
+				v->dval = t1/t2;
+			}
+			else v->dval = 0;
                         char* tmp;
                         tmp = (char*)malloc(sizeof(char)*32);
                         sprintf(tmp, "%f", v->dval);
@@ -550,8 +572,12 @@ void UpdateIndexValue(SymbolTable* s, Value* v){
 Value* ReturnIdValue(SymbolTable* s, char* name, int* tail, int tail_cnt, char lr){
 	Value* v = (Value*)malloc(sizeof(Value));
 	int flag = 0;
-        if(FindEntryInGlobal(s, name) == NULL){	//is not already existed
-		if(FindEntryInScope(s, name) == NULL){
+	TableEntry* tmp = (TableEntry*)malloc(sizeof(TableEntry));
+        if((tmp = FindEntryInGlobal(s, name)) == NULL){	//is not already existed
+		//if(strcmp(tmp->scope, s->scope))
+		tmp = FindEntryInScope(s, name);
+		if(tmp == NULL || strcmp(tmp->scope, s->scope)){
+			
 			printf("Undeclared variable in Line %d : %s\n", yylineno, name);
 			flag = 1; //no need to continie
 		}
@@ -597,6 +623,9 @@ Value* ReturnIdValue(SymbolTable* s, char* name, int* tail, int tail_cnt, char l
                	else if(!strcmp(tmp->type->name, "real")){
                        	v = BuildValue(tmp->type->name, tmp->value->sval);
                	}
+		else if(!strcmp(tmp->type->name, "string")){
+			v = BuildValue(tmp->type->name, tmp->value->sval);
+		}
 		else if(!strcmp(tmp->type->name, "function")){
 			if(!strcmp(tmp->ret, "integer")){
 				char* tmp1;
@@ -616,9 +645,15 @@ Value* ReturnIdValue(SymbolTable* s, char* name, int* tail, int tail_cnt, char l
                	v->tail_cnt = tail_cnt;	
 		strcpy(v->name, name);
 		int j;
+		for(j = 0; j < tmp->type->arr_dim*2; j++){
+			v->type->arr_range[j] = tmp->type->arr_range[j];
+		}
                	for(j = 0; j < tail_cnt; j++){
                        	v->tail[j] = tail[j];
-               	}
+			v->array_length[j] = tmp->type->array_length[j];
+               		v->type->array_length[j] = tmp->type->array_length[j];
+		}
+		v->array_space = tmp->type->array_space;
                	if(tmp->type->arr_dim != v->tail_cnt && v->tail_cnt > 0) {
                        	printf("Wrong array dimention at Line: %d\n", yylineno);
           		//flag2 = 1;	//means no need to continuw

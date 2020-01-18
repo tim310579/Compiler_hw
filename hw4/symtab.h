@@ -6,6 +6,8 @@ typedef struct TableEntry TableEntry;
 typedef struct SymbolTable SymbolTable;
 typedef struct Value Value;
 extern SymbolTable* symbol_table;
+extern int exe_space;
+
 struct SymbolTable {
 	int current_level;
 	int pos;
@@ -35,16 +37,21 @@ struct TableEntry {
 	char* sarray;
 	Type* type;
 	Value* value;
+	int exe_space;
 };
 
 struct Type{
 	char name[32];
 	int arr_dim;
 	int arr_range[32];
+	int array_cnt;	//count array numbers
+	int array_space;
+	int array_length[32];
 };
 
 
 struct Value{
+	float array_all[100000];
 	Type* type;
 	char name[32];
 	int ival;
@@ -62,6 +69,8 @@ struct Value{
 	char ret[32];
 	int both;
 	int is_const;
+	int array_space;
+	int array_length[32];
 };
 
 SymbolTable* BuildSymbolTable();

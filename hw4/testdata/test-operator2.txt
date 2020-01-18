@@ -1,0 +1,8 @@
+12 
+84 
+61 
+427 
+compound a, b
+350 183 
+nest while a, b
+3234 189 

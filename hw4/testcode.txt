@@ -1,0 +1,168 @@
+bash ./run xxx.p	//this line can compile all and run xxx.p
+
+riscv64-unknown-linux-gnu-gcc ff.s -march=rv64g   //compile
+
+riscv64-unknown-linux-gnu-gcc new.s -march=rv64g
+
+riscv64-unknown-linux-gnu-gcc rec.s -march=rv64g
+
+qemu-riscv64 a.out  //run above
+
+
+start testdata
+
+mine
+
+bash ./run new.p
+
+bash ./run ff.p
+
+bash ./run rec.p
+
+bash ./run te.p
+
+teacher provide
+
+bash ./run testdata/test-constant.p 
+
+bash ./run testdata/test-function.p 
+
+bash ./run testdata/test-operator.p
+
+bash ./run testdata/test-operator2.p
+
+bash ./run testdata/test-procedure.p
+
+bash ./run testdata/test-recursion.p
+
+bash ./run testdata/test00-runtime-range-check.p
+
+bash ./run testdata/test01-global-var.p
+
+
+no-error part
+
+bash ./run testdata/no-error/test-array.p
+
+bash ./run testdata/no-error/test-con-prop.p
+
+bash ./run testdata/no-error/test-function.p
+
+bash ./run testdata/no-error/test-global1.p
+
+bash ./run testdata/no-error/test-global2.p
+
+bash ./run testdata/no-error/test-global3.p
+
+bash ./run testdata/no-error/test-procedure.p
+
+bash ./run testdata/no-error/test-recursion.p
+
+more2
+
+bash ./run testdata/more-tests2/test1.p
+
+bash ./run testdata/more-tests2/test2.p
+
+bash ./run testdata/more-tests2/test_array.p
+
+bash ./run testdata/more-tests2/test_con_prop.p
+
+bash ./run testdata/more-tests2/test_function.p
+
+bash ./run testdata/more-tests2/test_global1.p
+
+bash ./run testdata/more-tests2/test_global2.p
+
+bash ./run testdata/more-tests2/test_global3.p
+
+bash ./run testdata/more-tests2/test_procedure.p
+
+bash ./run testdata/more-tests2/test_recursion.p
+
+more3
+
+bash ./run testdata/more-tests3/fibonacci_recursive.p
+
+bash ./run testdata/more-tests3/test_array.p
+
+-------------------------------------------------------------------------------------------
+
+with output file
+
+mine
+
+bash ./run2 new.p
+
+bash ./run2 ff.p
+
+bash ./run2 rec.p
+
+bash ./run2 te.p
+
+teacher provide
+
+bash ./run2 testdata/test-constant.p 
+
+bash ./run2 testdata/test-function.p 
+
+bash ./run2 testdata/test-operator.p
+
+bash ./run2 testdata/test-operator2.p
+
+bash ./run2 testdata/test-procedure.p
+
+bash ./run2 testdata/test-recursion.p
+
+bash ./run2 testdata/test00-runtime-range-check.p
+
+bash ./run2 testdata/test01-global-var.p
+
+
+no-error part
+
+bash ./run2 testdata/no-error/test-array.p
+
+bash ./run2 testdata/no-error/test-con-prop.p
+
+bash ./run2 testdata/no-error/test-function.p
+
+bash ./run2 testdata/no-error/test-global1.p
+
+bash ./run2 testdata/no-error/test-global2.p
+
+bash ./run2 testdata/no-error/test-global3.p
+
+bash ./run2 testdata/no-error/test-procedure.p
+
+bash ./run2 testdata/no-error/test-recursion.p
+
+more2
+
+bash ./run2 testdata/more-tests2/test1.p
+
+bash ./run2 testdata/more-tests2/test2.p
+
+bash ./run2 testdata/more-tests2/test_array.p
+
+bash ./run2 testdata/more-tests2/test_con_prop.p
+
+bash ./run2 testdata/more-tests2/test_function.p
+
+bash ./run2 testdata/more-tests2/test_global1.p
+
+bash ./run2 testdata/more-tests2/test_global2.p
+
+bash ./run2 testdata/more-tests2/test_global3.p
+
+bash ./run2 testdata/more-tests2/test_procedure.p
+
+bash ./run2 testdata/more-tests2/test_recursion.p
+
+more3
+
+bash ./run2 testdata/more-tests3/fibonacci_recursive.p
+
+bash ./run2 testdata/more-tests3/test_array.p
+
+
